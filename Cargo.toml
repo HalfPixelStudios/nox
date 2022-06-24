@@ -1,0 +1,22 @@
+[package]
+name = "nox"
+version = "0.1.0"
+edition = "2021"
+authors = ["nithinmuthukumar", "MrPicklePinosaur"]
+description = "game submission for Mini Jam 109"
+repository = "https://github.com/HalfPixelStudios/nox"
+
+[dependencies]
+bevy = { version = "0.7.0" }
+bevy_rapier2d = { version = "0.14.1", features = ["debug-render"] }
+bevy-inspector-egui = { version = "0.11" }
+
+console_error_panic_hook = "0.1"
+wasm-bindgen = "0.2.81"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = ['Document', 'Element', 'HtmlElement', 'Node', 'Window']
+
+[workspace]
+resolver = "2"
