@@ -14,10 +14,27 @@ impl Plugin for BulletPlugin {
     }
 }
 
-pub fn spawn_player_bullet(mut cmd: Commands, pos: Vec3, dir: Vec2) {
+pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     cmd.spawn_bundle(SpriteBundle {
         sprite: Sprite {
             color: Color::rgb(1., 0., 1.),
+            ..default()
+        },
+        transform: Transform {
+            translation: pos,
+            scale: Vec3::new(10., 2., 1.),
+            ..default()
+        },
+        ..default()
+    })
+    .insert(Bullet)
+    .insert(Movement(500., dir));
+}
+
+pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
+    cmd.spawn_bundle(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(0., 1., 0.),
             ..default()
         },
         transform: Transform {

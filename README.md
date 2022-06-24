@@ -14,3 +14,8 @@ run for development
 ```
 $ cargo run
 ```
+
+## TODO
+
+- [ ] enemy attacking
+- [ ] rewrite movement to use physics

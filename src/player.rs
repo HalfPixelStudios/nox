@@ -82,6 +82,6 @@ fn player_shoot(
     if input.just_pressed(KeyCode::Space) {
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
-        spawn_player_bullet(cmd, player_trans.translation, bullet_direction);
+        spawn_player_bullet(&mut cmd, player_trans.translation, bullet_direction);
     }
 }
