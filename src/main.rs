@@ -3,6 +3,7 @@ use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 // use web_sys::console;
 
+use nox::bullet;
 use nox::camera;
 use nox::enemy;
 use nox::player;
@@ -33,6 +34,7 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
+        .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
