@@ -3,21 +3,19 @@ use bevy::{
     math::Vec2,
     prelude::*,
 };
-use bevy_inspector_egui::{Inspectable, RegisterInspectable};
+// use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
 use super::bullet::spawn_player_bullet;
 use super::camera::Cursor;
+use super::component::Health;
 
 #[derive(Component)]
-struct Player;
+pub struct Player;
 
 #[derive(Component)]
-struct Health(u8);
-
-#[derive(Component, Inspectable, Default)]
-struct Movement {
-    speed: f32,
+pub struct Movement {
+    pub speed: f32,
 }
 
 pub struct PlayerPlugin;
@@ -26,8 +24,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
             .add_system(player_controller)
-            .add_system(player_shoot)
-            .register_inspectable::<Movement>();
+            .add_system(player_shoot);
     }
 }
 
@@ -85,6 +82,6 @@ fn player_shoot(
     if input.just_pressed(KeyCode::Space) {
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
-        spawn_player_bullet(cmd, player_trans.translation, bullet_direction);
+        spawn_player_bullet(&mut cmd, player_trans.translation, bullet_direction);
     }
 }
