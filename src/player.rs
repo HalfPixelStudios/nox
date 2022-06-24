@@ -1,4 +1,5 @@
 use bevy::{
+    ecs::world::EntityRef,
     input::{keyboard::KeyCode, Input},
     math::Vec2,
     prelude::*,
@@ -9,7 +10,8 @@ use bevy_rapier2d::prelude::*;
 use super::bullet::spawn_player_bullet;
 use super::camera::Cursor;
 use super::collision::OnCollide;
-use super::component::Health;
+use super::component::{Damage, Health};
+use super::error::{BoxResult, BreakError};
 
 #[derive(Component)]
 pub struct Player;
@@ -48,9 +50,7 @@ fn spawn_player(mut cmd: Commands) {
     .insert(Collider::cuboid(0.5, 0.5))
     .insert(ActiveEvents::COLLISION_EVENTS)
     .insert(OnCollide {
-        handler: |me, other| {
-            println!("handler called!");
-        },
+        handler: on_collide,
     });
 }
 
@@ -91,4 +91,13 @@ fn player_shoot(
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
         spawn_player_bullet(&mut cmd, player_trans.translation, bullet_direction);
     }
+}
+
+fn on_collide(me: &mut EntityRef, other: &mut EntityRef) -> BoxResult<()> {
+    let health = me.get::<Health>().ok_or(BreakError)?;
+    let bullet_damage = other.get::<Damage>().ok_or(BreakError)?;
+
+    println!("have {} health, took {} damage", health.0, bullet_damage.0);
+
+    Ok(())
 }

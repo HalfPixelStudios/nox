@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use super::component::Damage;
+
 #[derive(Component)]
 struct Bullet;
 
@@ -55,6 +57,7 @@ pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
         ..default()
     })
     .insert(Bullet)
+    .insert(Damage(10))
     .insert(Movement(500., dir))
     .insert(RigidBody::Dynamic)
     .insert(Sensor(true))

@@ -1,9 +1,11 @@
 use bevy::{ecs::world::EntityRef, prelude::*};
 use bevy_rapier2d::prelude::*;
 
+use super::error::BoxResult;
+
 #[derive(Component)]
 pub struct OnCollide {
-    pub handler: fn(me: &mut EntityRef, other: &mut EntityRef) -> (),
+    pub handler: fn(me: &mut EntityRef, other: &mut EntityRef) -> BoxResult<()>,
 }
 
 pub fn handle_collisions(mut events: EventReader<CollisionEvent>, world: &World) {
