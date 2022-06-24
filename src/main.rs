@@ -6,6 +6,7 @@ use bevy_rapier2d::prelude::*;
 use nox::bullet;
 use nox::camera;
 use nox::player;
+use nox::animator;
 use nox::screens::mainmenu;
 use bevy::window::*;
 
@@ -27,11 +28,13 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldInspectorPlugin::new())
+        
         .add_plugin(player::PlayerPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
+        .add_system(animator::animate_sprite)
         .run();
 }
 

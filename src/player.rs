@@ -4,6 +4,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
+use super::animator::*;
 use bevy_rapier2d::prelude::*;
 
 use super::bullet::spawn_player_bullet;
@@ -31,12 +32,12 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player(mut cmd: Commands) {
-    cmd.spawn_bundle(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(1., 0., 0.),
-            ..default()
-        },
+fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+    let texture_handle = assets.load("player.png");
+    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0,84.0),14,20);
+    let atlas_handle = texture_atlases.add(atlas);
+    cmd.spawn_bundle(SpriteSheetBundle {
+        texture_atlas: atlas_handle,
         transform: Transform {
             scale: Vec3::new(10., 10., 10.),
             ..default()
@@ -47,7 +48,9 @@ fn spawn_player(mut cmd: Commands) {
     .insert(Health(100))
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(0.5, 0.5));
+    .insert(Collider::cuboid(0.5, 0.5))
+    .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
+
 }
 
 fn player_controller(
