@@ -44,7 +44,8 @@ fn spawn_player(mut cmd: Commands) {
     .insert(Health(100))
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(0.5, 0.5));
+    .insert(Collider::cuboid(0.5, 0.5))
+    .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
 fn player_controller(

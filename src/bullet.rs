@@ -1,7 +1,14 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 #[derive(Component)]
 struct Bullet;
+
+#[derive(Component)]
+enum LifeTime {
+    Distance(f32),
+    Duration(f32),
+}
 
 #[derive(Component)]
 struct Movement(f32, Vec2);
@@ -28,7 +35,10 @@ pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
         ..default()
     })
     .insert(Bullet)
-    .insert(Movement(500., dir));
+    .insert(Movement(500., dir))
+    .insert(RigidBody::Dynamic)
+    .insert(Sensor(true))
+    .insert(Collider::cuboid(0.05, 0.01));
 }
 
 pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
@@ -45,7 +55,10 @@ pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
         ..default()
     })
     .insert(Bullet)
-    .insert(Movement(500., dir));
+    .insert(Movement(500., dir))
+    .insert(RigidBody::Dynamic)
+    .insert(Sensor(true))
+    .insert(Collider::cuboid(0.05, 0.01));
 }
 
 fn bullet_movement_system(

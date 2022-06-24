@@ -17,5 +17,7 @@ $ cargo run
 
 ## TODO
 
-- [ ] enemy attacking
+- [x] enemy attacking
 - [ ] rewrite movement to use physics
+- [ ] attack collision detection
+- [ ] automatic bullet despawning
