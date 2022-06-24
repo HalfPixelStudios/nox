@@ -3,18 +3,17 @@ use bevy::{
     math::Vec2,
     prelude::*,
 };
-use bevy_inspector_egui::{Inspectable, RegisterInspectable};
+// use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
-#[derive(Component)]
-struct Player;
+use super::component::Health;
 
 #[derive(Component)]
-struct Health(u8);
+pub struct Player;
 
-#[derive(Component, Inspectable, Default)]
-struct Movement {
-    speed: f32,
+#[derive(Component)]
+pub struct Movement {
+    pub speed: f32,
 }
 
 pub struct PlayerPlugin;
@@ -22,8 +21,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
-            .add_system(player_controller)
-            .register_inspectable::<Movement>();
+            .add_system(player_controller);
     }
 }
 

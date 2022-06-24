@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 // use web_sys::console;
 
 use nox::camera;
+use nox::enemy;
 use nox::player;
 use nox::screens::mainmenu;
 
@@ -31,6 +32,7 @@ fn main() {
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(player::PlayerPlugin)
+        .add_plugin(enemy::EnemyPlugin)
         .add_plugin(camera::CameraPlugin)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
