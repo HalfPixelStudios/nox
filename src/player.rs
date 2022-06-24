@@ -8,6 +8,7 @@ use bevy_rapier2d::prelude::*;
 
 use super::bullet::spawn_player_bullet;
 use super::camera::Cursor;
+use super::collision::OnCollide;
 use super::component::Health;
 
 #[derive(Component)]
@@ -45,7 +46,12 @@ fn spawn_player(mut cmd: Commands) {
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
-    .insert(ActiveEvents::COLLISION_EVENTS);
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(OnCollide {
+        handler: |me, other| {
+            println!("handler called!");
+        },
+    });
 }
 
 fn player_controller(
