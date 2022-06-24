@@ -14,7 +14,7 @@ struct Health(u8);
 
 #[derive(Component, Inspectable, Default)]
 struct Movement {
-    speed: f32
+    speed: f32,
 }
 
 pub struct PlayerPlugin;
@@ -69,4 +69,3 @@ fn player_controller(
     let move_vec = input_vec.normalize_or_zero().extend(0.);
     transform.translation += move_vec * movement.speed * time.delta_seconds();
 }
-

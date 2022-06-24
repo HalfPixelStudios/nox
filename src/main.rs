@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use web_sys::console;
+use bevy_rapier2d::prelude::*;
+// use web_sys::console;
 
 use nox::camera;
 use nox::player;

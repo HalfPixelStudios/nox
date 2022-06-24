@@ -38,6 +38,4 @@ fn cursor_system(
 
         cursor.0 = world_pos.truncate();
     }
-
 }
-
