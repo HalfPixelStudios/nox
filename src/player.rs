@@ -49,6 +49,7 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
+    .insert(State(Action::IDLE,Direction::RIGHT))
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
 
 }
