@@ -7,8 +7,8 @@ use bevy_tweening::{lens::*, *};
 use nox::animator;
 use nox::bullet;
 use nox::camera;
-use nox::config::PPM;
 use nox::enemy;
+use nox::physics;
 use nox::player;
 use nox::screens::mainmenu;
 
@@ -29,8 +29,7 @@ fn main() {
             ..default()
         })
         .add_plugins(DefaultPlugins)
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PPM))
-        .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(physics::PhysicsPlugin)
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(TweeningPlugin)
         .add_plugin(player::PlayerPlugin)

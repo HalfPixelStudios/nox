@@ -1,9 +1,12 @@
 use bevy::{core::Stopwatch, prelude::*};
 use bevy_rapier2d::prelude::*;
 
-use super::bullet::spawn_enemy_bullet;
-use super::component::Health;
-use super::player::Player;
+use super::{
+    bullet::{spawn_enemy_bullet, Bullet},
+    collision_group::*,
+    component::{Damage, Health},
+    player::Player,
+};
 
 #[derive(Component)]
 pub struct Enemy;
@@ -22,7 +25,9 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
             .add_system(simple_enemy_movement_system)
-            .add_system(simple_enemy_attack_system);
+            .add_system(simple_enemy_attack_system)
+            .add_system(enemy_die_system)
+            .add_system(handle_collision);
     }
 }
 
@@ -60,7 +65,7 @@ fn spawn_simple_enemy(mut cmd: Commands, spawn_pos: Vec2) {
             },
             ..default()
         },
-        health: Health(100),
+        health: Health(20),
         ai: SimpleAI {
             speed: 40.,
             target_range: 100.,
@@ -70,7 +75,9 @@ fn spawn_simple_enemy(mut cmd: Commands, spawn_pos: Vec2) {
         rb: RigidBody::Dynamic,
         col: Collider::cuboid(0.5, 0.5),
         attack_timer: AttackTimer(Stopwatch::new()),
-    });
+    })
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET));
 }
 
 fn simple_enemy_movement_system(
@@ -112,6 +119,40 @@ fn simple_enemy_attack_system(
 
             let bullet_dir = delta.truncate().normalize_or_zero();
             spawn_enemy_bullet(&mut cmd, transform.translation, bullet_dir);
+        }
+    }
+}
+
+fn enemy_die_system(mut cmd: Commands, query: Query<(Entity, &Health), With<Enemy>>) {
+    for (entity, health) in query.iter() {
+        if health.0 <= 0 {
+            enemy_die(&mut cmd, entity);
+        }
+    }
+}
+
+fn enemy_die(cmd: &mut Commands, entity: Entity) {
+    cmd.entity(entity).despawn();
+}
+
+fn handle_collision(
+    mut enemy_query: Query<(Entity, &mut Health), With<Enemy>>,
+    bullet_query: Query<&Damage, With<Bullet>>,
+    mut events: EventReader<CollisionEvent>,
+) {
+    for event in events.iter() {
+        if let CollisionEvent::Started(e1, e2, flags) = event {
+            if let (Ok(mut health), Ok(damage)) = (
+                enemy_query.get_component_mut::<Health>(*e1),
+                bullet_query.get_component::<Damage>(*e2),
+            ) {
+                health.0 -= damage.0;
+            } else if let (Ok(mut health), Ok(damage)) = (
+                enemy_query.get_component_mut::<Health>(*e2),
+                bullet_query.get_component::<Damage>(*e1),
+            ) {
+                health.0 -= damage.0;
+            }
         }
     }
 }

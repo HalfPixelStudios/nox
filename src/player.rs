@@ -8,15 +8,17 @@ use bevy::{
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
-use bevy_tweening::{lens::*,*};
 use super::{
     transformtween::*,
+    camera::{Cursor,CameraFollow},
     animator::*,
     bullet::{spawn_player_bullet, Bullet},
-    camera::{Cursor,CameraFollow},
+    collision_group::*,
     component::{Damage, Health},
+    transformtween::*,
     utils::find_collider,
 };
+use bevy_tweening::{lens::*, *};
 
 #[derive(Component)]
 pub struct Player;
@@ -45,18 +47,17 @@ fn spawn_player(
     let texture_handle = assets.load("player.png");
     let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0, 84.0), 14, 20);
     let atlas_handle = texture_atlases.add(atlas);
-	let tween = Tween::new(
-		EaseFunction::SineInOut,
-		TweeningType::PingPong,
-		std::time::Duration::from_secs(1),
-		TransformDimensionLens {
-			start: 1.,
-			end: 2.,
+    let tween = Tween::new(
+        EaseFunction::SineInOut,
+        TweeningType::PingPong,
+        std::time::Duration::from_secs(1),
+        TransformDimensionLens {
+            start: 1.,
+            end: 2.,
             freeze_width: true,
-            freeze_height: false
-            
-		},
-	);
+            freeze_height: false,
+        },
+    );
 
     cmd.spawn_bundle(SpriteSheetBundle {
         texture_atlas: atlas_handle,
@@ -77,8 +78,8 @@ fn spawn_player(
     })
     .insert(CameraFollow)
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-    .insert(ActiveEvents::COLLISION_EVENTS)
     .insert(Animator::new(tween))
+    .insert(CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET))
     .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
@@ -135,7 +136,6 @@ fn handle_collision(
             if let Some((_, other)) = find_collider(player_id, e1, e2) {
                 let damage = bullet_query.get_component::<Damage>(*other).unwrap();
                 health.0 -= damage.0;
-                println!("player health {}", health.0);
             }
         }
     }

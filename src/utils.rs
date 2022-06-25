@@ -13,3 +13,5 @@ pub fn find_collider<'a>(
     }
     None
 }
+
+// TODO get_components() for query
