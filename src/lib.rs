@@ -7,7 +7,6 @@ pub mod enemy;
 pub mod error;
 pub mod player;
 pub mod screens;
-pub mod animator;
 pub mod transformtween;
 pub mod utils;
 
