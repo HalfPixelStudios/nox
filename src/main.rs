@@ -38,7 +38,7 @@ fn main() {
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
-        .add_plugin(spawn_waves::SpawnWavesPlugin)
+        //.add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_system(component::decay_system)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)

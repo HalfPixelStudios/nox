@@ -17,7 +17,7 @@ struct SoulBundle {
 
 }
 
-pub fn spawn_soul(cmd: &mut Commands, assets:Res<AssetServer>, spawn_pos: Vec3) {
+pub fn spawn_soul(cmd: &mut Commands, assets:&Res<AssetServer>, spawn_pos: Vec3) {
     cmd.spawn_bundle(SoulBundle{
         soul: Soul,
         sprite: SpriteBundle {
@@ -25,13 +25,13 @@ pub fn spawn_soul(cmd: &mut Commands, assets:Res<AssetServer>, spawn_pos: Vec3) 
             
             transform: Transform {
                 translation: spawn_pos,
-                scale: Vec3::new(1.,1.,0.),
+                scale: Vec3::new(0.1,0.1,0.),
                 ..default()
             },
             ..default()
         },
 
-        decay:Decay{timer:Timer::new(Duration::from_secs(3), true)},
+        decay:Decay{timer:Timer::new(Duration::from_secs(10), true)},
         });
 }
 
