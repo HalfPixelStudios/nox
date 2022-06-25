@@ -70,6 +70,7 @@ fn spawn_player(
         },
         ..default()
     })
+    .insert(Name::new("Player"))
     .insert(Player)
     .insert(Health(100))
     .insert(Movement { speed: 100. })

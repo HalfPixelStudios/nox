@@ -1,12 +1,13 @@
 use bevy::{prelude::*, window::*};
+use bevy_hanabi::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
-// use web_sys::console;
 use bevy_tweening::{lens::*, *};
+// use web_sys::console;
 
 use super::{
-    animator, bullet, camera, component, config::AppState, enemy, inventory, physics, player,
-    screens::mainmenu, spawn_waves,
+    animator, bullet, camera, component, config::AppState, enemy, inventory, particles, physics,
+    player, screens::mainmenu, spawn_waves,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -33,12 +34,14 @@ pub fn run_app(app_state: AppState, fullscreen: bool) {
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(TweeningPlugin)
+        .add_plugin(HanabiPlugin)
         .add_state(app_state)
         .add_system_set(SystemSet::on_update(AppState::InGame))
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
+        .add_plugin(particles::ParticlePlugin)
         .add_system(component::decay_system)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
