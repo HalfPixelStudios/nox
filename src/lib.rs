@@ -1,6 +1,7 @@
 pub mod animator;
 pub mod bullet;
 pub mod camera;
+pub mod collision_group;
 pub mod component;
 pub mod config;
 pub mod enemy;

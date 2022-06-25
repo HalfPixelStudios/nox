@@ -12,6 +12,7 @@ use super::{
     animator::*,
     bullet::{spawn_player_bullet, Bullet},
     camera::Cursor,
+    collision_group::*,
     component::{Damage, Health},
     utils::find_collider,
 };
@@ -61,7 +62,8 @@ fn spawn_player(
         direction: Dir::RIGHT,
     })
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-    .insert(ActiveEvents::COLLISION_EVENTS);
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET));
 }
 
 fn player_controller(

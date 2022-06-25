@@ -1,9 +1,7 @@
 use bevy::{core::Stopwatch, prelude::*};
 use bevy_rapier2d::prelude::*;
 
-use super::bullet::spawn_enemy_bullet;
-use super::component::Health;
-use super::player::Player;
+use super::{bullet::spawn_enemy_bullet, collision_group::*, component::Health, player::Player};
 
 #[derive(Component)]
 pub struct Enemy;
@@ -71,7 +69,8 @@ fn spawn_simple_enemy(mut cmd: Commands, spawn_pos: Vec2) {
         col: Collider::cuboid(0.5, 0.5),
         attack_timer: AttackTimer(Stopwatch::new()),
     })
-    .insert(ActiveEvents::COLLISION_EVENTS);
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET));
 }
 
 fn simple_enemy_movement_system(
