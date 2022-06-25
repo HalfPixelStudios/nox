@@ -2,6 +2,7 @@ use bevy::{prelude::*, window::*};
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 // use web_sys::console;
+use bevy_tweening::{lens::*, *};
 
 use nox::animator;
 use nox::bullet;
@@ -22,6 +23,7 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(WindowDescriptor {
+            present_mode: bevy::window::PresentMode::Fifo,
             width: 400.,
             height: 600.,
             ..default()
@@ -30,6 +32,7 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PPM))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldInspectorPlugin::new())
+        .add_plugin(TweeningPlugin)
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
