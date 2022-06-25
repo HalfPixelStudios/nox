@@ -5,6 +5,7 @@ pub mod component;
 pub mod config;
 pub mod enemy;
 pub mod error;
+pub mod physics;
 pub mod player;
 pub mod screens;
 pub mod utils;

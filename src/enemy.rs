@@ -70,7 +70,8 @@ fn spawn_simple_enemy(mut cmd: Commands, spawn_pos: Vec2) {
         rb: RigidBody::Dynamic,
         col: Collider::cuboid(0.5, 0.5),
         attack_timer: AttackTimer(Stopwatch::new()),
-    });
+    })
+    .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
 fn simple_enemy_movement_system(
