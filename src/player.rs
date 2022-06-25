@@ -49,7 +49,7 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
-    .insert(State(Action::IDLE,Direction::RIGHT))
+    .insert(AniState{action:Action::IDLE,direction:Dir::RIGHT})
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
 
 }
@@ -57,9 +57,9 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
 fn player_controller(
     time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Movement), With<Player>>,
+    mut query: Query<(&mut Transform, &Movement, &mut AniState), With<Player>>,
 ) {
-    let (mut transform, movement) = query.single_mut();
+    let (mut transform, movement,mut state) = query.single_mut();
 
     let mut input_vec = Vec2::ZERO;
 
@@ -70,8 +70,10 @@ fn player_controller(
     }
     if input.pressed(KeyCode::A) {
         input_vec -= Vec2::X;
+        state.direction=Dir::LEFT;
     } else if input.pressed(KeyCode::D) {
         input_vec += Vec2::X;
+        state.direction=Dir::RIGHT;
     }
 
     let move_vec = input_vec.normalize_or_zero().extend(0.);

@@ -7,7 +7,7 @@ pub enum Action {
     WALK,
 
 }
-pub enum Direction {
+pub enum Dir {
     LEFT,
     RIGHT
     
@@ -15,8 +15,8 @@ pub enum Direction {
 
 #[derive(Component)]
 pub struct AniState {
-    action:Action,
-    direction:Direction
+    pub action:Action,
+    pub direction:Dir
     
 }
 
@@ -36,8 +36,8 @@ pub fn animate_sprite(
             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
             sprite.flip_x = match state.direction{
-                Direction::LEFT => true,
-                Direction::RIGHT => false
+                Dir::LEFT => true,
+                Dir::RIGHT => false
             }
 
         }
