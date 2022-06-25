@@ -13,23 +13,27 @@ fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
 
-pub fn run_app() {
+pub fn run_app(app_state: AppState, fullscreen: bool) {
     #[cfg(target_arch = "wasm32")]
     console_error_panic_hook::set_once();
 
+    let mut window_descriptor = WindowDescriptor {
+        present_mode: bevy::window::PresentMode::Fifo,
+        ..default()
+    };
+    if !fullscreen {
+        window_descriptor.width = 800.;
+        window_descriptor.height = 600.;
+    }
+
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
-        .insert_resource(WindowDescriptor {
-            present_mode: bevy::window::PresentMode::Fifo,
-            width: 800.,
-            height: 600.,
-            ..default()
-        })
+        .insert_resource(window_descriptor)
         .add_plugins(DefaultPlugins)
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(TweeningPlugin)
-        .add_state(AppState::InGame)
+        .add_state(app_state)
         .add_system_set(SystemSet::on_update(AppState::InGame))
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)

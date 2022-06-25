@@ -136,7 +136,7 @@ dependencies = [
 [[package]]
 name = "argparse"
 version = "0.1.0"
-source = "git+https://github.com/MrPicklePinosaur/pino.rs#9e09835dc7414ba55de020c7e448de575587b07f"
+source = "git+https://github.com/MrPicklePinosaur/pino.rs#3ea7264f35eb6bb575ec281fd8ae5468dd3dcc39"
 
 [[package]]
 name = "arrayvec"
