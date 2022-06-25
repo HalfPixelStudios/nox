@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
-use super::component::Damage;
+use super::{collision_group::*, component::Damage};
 
 #[derive(Component)]
 pub struct Bullet {
@@ -69,7 +69,10 @@ pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     .insert(Movement(500., dir))
     .insert(RigidBody::Dynamic)
     .insert(Sensor(true))
-    .insert(Collider::cuboid(0.05, 0.01));
+    .insert(Collider::cuboid(0.05, 0.01))
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(DistanceLifetime::new(200., pos))
+    .insert(CollisionGroups::new(PLAYER_BULLET, ENEMY));
 }
 
 pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
@@ -91,7 +94,9 @@ pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     .insert(RigidBody::Dynamic)
     .insert(Sensor(true))
     .insert(Collider::cuboid(0.05, 0.01))
-    .insert(DistanceLifetime::new(200., pos));
+    .insert(DistanceLifetime::new(200., pos))
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(CollisionGroups::new(ENEMY_BULLET, PLAYER));
 }
 
 fn bullet_movement_system(
