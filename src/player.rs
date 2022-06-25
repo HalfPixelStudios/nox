@@ -52,7 +52,7 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
     .insert(AniState{action:Action::IDLE,direction:Dir::RIGHT})
-    .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
+    .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
     .insert(ActiveEvents::COLLISION_EVENTS);
 
 }
