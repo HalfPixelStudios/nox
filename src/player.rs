@@ -119,7 +119,6 @@ fn handle_collision(
             if let Some((_, other)) = find_collider(player_id, e1, e2) {
                 let damage = bullet_query.get_component::<Damage>(*other).unwrap();
                 health.0 -= damage.0;
-                println!("player health {}", health.0);
             }
         }
     }
