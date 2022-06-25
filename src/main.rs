@@ -5,7 +5,6 @@ use bevy_rapier2d::prelude::*;
 
 use nox::bullet;
 use nox::camera;
-use nox::collision::handle_collisions;
 use nox::config::PPM;
 use nox::enemy;
 use nox::player;
@@ -35,7 +34,6 @@ fn main() {
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
-        .add_system(handle_collisions)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
         .run();

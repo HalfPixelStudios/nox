@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use super::component::Damage;
 
 #[derive(Component)]
-struct Bullet;
+pub struct Bullet;
 
 #[derive(Component)]
 enum LifeTime {

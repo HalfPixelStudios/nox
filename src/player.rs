@@ -7,11 +7,9 @@ use bevy::{
 // use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
-use super::bullet::spawn_player_bullet;
+use super::bullet::{spawn_player_bullet, Bullet};
 use super::camera::Cursor;
-use super::collision::OnCollide;
 use super::component::{Damage, Health};
-use super::error::{BoxResult, BreakError};
 
 #[derive(Component)]
 pub struct Player;
@@ -27,7 +25,8 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
             .add_system(player_controller)
-            .add_system(player_shoot);
+            .add_system(player_shoot)
+            .add_system(handle_collision);
     }
 }
 
@@ -48,10 +47,7 @@ fn spawn_player(mut cmd: Commands) {
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
-    .insert(ActiveEvents::COLLISION_EVENTS)
-    .insert(OnCollide {
-        handler: on_collide,
-    });
+    .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
 fn player_controller(
@@ -93,11 +89,34 @@ fn player_shoot(
     }
 }
 
-fn on_collide(me: &mut EntityRef, other: &mut EntityRef) -> BoxResult<()> {
-    let health = me.get::<Health>().ok_or(BreakError)?;
-    let bullet_damage = other.get::<Damage>().ok_or(BreakError)?;
+fn handle_collision(
+    mut player_query: Query<(Entity, &mut Health), With<Player>>,
+    bullet_query: Query<&Damage, With<Bullet>>,
+    mut events: EventReader<CollisionEvent>,
+) {
+    let (player_id, mut health) = player_query.single_mut();
 
-    println!("have {} health, took {} damage", health.0, bullet_damage.0);
+    for event in events.iter() {
+        if let CollisionEvent::Started(e1, e2, flags) = event {
+            if let Some((_, other)) = find_collider(player_id, e1, e2) {
+                let damage = bullet_query.get_component::<Damage>(*other).unwrap();
+                health.0 -= damage.0;
+                println!("player health {}", health.0);
+            }
+        }
+    }
+}
 
-    Ok(())
+fn find_collider<'a>(
+    target: Entity,
+    e1: &'a Entity,
+    e2: &'a Entity,
+) -> Option<(&'a Entity, &'a Entity)> {
+    if target.id() == e1.id() {
+        return Some((e1, e2));
+    }
+    if target.id() == e2.id() {
+        return Some((e2, e1));
+    }
+    None
 }
