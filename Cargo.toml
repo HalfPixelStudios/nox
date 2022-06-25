@@ -15,6 +15,8 @@ console_error_panic_hook = "0.1"
 wasm-bindgen = "0.2.81"
 rand = "0.8.5"
 
+argparse = { git = "https://github.com/MrPicklePinosaur/pino.rs" }
+
 [dependencies.web-sys]
 version = "0.3.4"
 features = ['Document', 'Element', 'HtmlElement', 'Node', 'Window']

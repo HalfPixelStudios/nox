@@ -1,6 +1,8 @@
 pub mod animator;
+pub mod app;
 pub mod bullet;
 pub mod camera;
+pub mod cli;
 pub mod collision_group;
 pub mod component;
 pub mod config;
@@ -10,9 +12,8 @@ pub mod inventory;
 pub mod physics;
 pub mod player;
 pub mod screens;
+pub mod souls;
 pub mod spawn_waves;
 pub mod transformtween;
 pub mod utils;
-
-pub mod souls;
 pub mod weapon;
