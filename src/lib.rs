@@ -13,4 +13,7 @@ pub mod screens;
 pub mod spawn_waves;
 pub mod transformtween;
 pub mod utils;
+
+pub mod souls;
 pub mod weapon;
+
