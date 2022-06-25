@@ -5,9 +5,13 @@ use bevy_rapier2d::prelude::*;
 use bevy_tweening::{lens::*, *};
 
 use nox::{
-    animator, bullet, camera, config::AppState, enemy, inventory, physics, player,
+    animator, bullet, camera, component, config::AppState, enemy, inventory, physics, player,
     screens::mainmenu, spawn_waves,
 };
+
+fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
+    rapier_config.gravity = Vec2::ZERO;
+}
 
 fn main() {
     #[cfg(target_arch = "wasm32")]
@@ -25,12 +29,13 @@ fn main() {
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(TweeningPlugin)
-        .add_state(AppState::MainMenu)
+        .add_state(AppState::InGame)
         .add_system_set(SystemSet::on_update(AppState::InGame))
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
+        .add_system(component::decay_system)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         .add_system(animator::animate_sprite)
