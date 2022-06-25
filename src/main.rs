@@ -12,6 +12,7 @@ use nox::physics;
 use nox::player;
 use nox::screens::mainmenu;
 use nox::spawn_waves;
+use nox::component;
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
@@ -38,6 +39,7 @@ fn main() {
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
+        .add_system(component::decay_system)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
         .add_system(animator::animate_sprite)

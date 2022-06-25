@@ -1,10 +1,13 @@
 use bevy::{core::Stopwatch, prelude::*};
+use std::time::Duration;
 use bevy_rapier2d::prelude::*;
 
 use super::{
+    souls::*,
+
     bullet::{spawn_enemy_bullet, Bullet},
     collision_group::*,
-    component::{Damage, Health},
+    component::*,
     player::Player,
 };
 
@@ -130,13 +133,19 @@ fn simple_enemy_attack_system(
 fn enemy_die_system(mut cmd: Commands, query: Query<(Entity, &Health), With<Enemy>>) {
     for (entity, health) in query.iter() {
         if health.0 <= 0 {
+            
             enemy_die(&mut cmd, entity);
         }
     }
 }
 
 fn enemy_die(cmd: &mut Commands, entity: Entity) {
-    cmd.entity(entity).despawn();
+    //Add soul spawn
+
+    cmd.entity(entity).insert(Decay{
+        timer:Timer::new(Duration::from_secs(3), true),
+    });
+
 }
 
 fn handle_collision(
