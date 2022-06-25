@@ -14,3 +14,10 @@ run for development
 ```
 $ cargo run
 ```
+
+## TODO
+
+- [x] enemy attacking
+- [ ] rewrite movement to use physics
+- [ ] attack collision detection
+- [ ] automatic bullet despawning

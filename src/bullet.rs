@@ -1,7 +1,16 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
+
+use super::component::Damage;
 
 #[derive(Component)]
-struct Bullet;
+pub struct Bullet;
+
+#[derive(Component)]
+enum LifeTime {
+    Distance(f32),
+    Duration(f32),
+}
 
 #[derive(Component)]
 struct Movement(f32, Vec2);
@@ -14,7 +23,7 @@ impl Plugin for BulletPlugin {
     }
 }
 
-pub fn spawn_player_bullet(mut cmd: Commands, pos: Vec3, dir: Vec2) {
+pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     cmd.spawn_bundle(SpriteBundle {
         sprite: Sprite {
             color: Color::rgb(1., 0., 1.),
@@ -28,7 +37,31 @@ pub fn spawn_player_bullet(mut cmd: Commands, pos: Vec3, dir: Vec2) {
         ..default()
     })
     .insert(Bullet)
-    .insert(Movement(500., dir));
+    .insert(Movement(500., dir))
+    .insert(RigidBody::Dynamic)
+    .insert(Sensor(true))
+    .insert(Collider::cuboid(0.05, 0.01));
+}
+
+pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
+    cmd.spawn_bundle(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(0., 1., 0.),
+            ..default()
+        },
+        transform: Transform {
+            translation: pos,
+            scale: Vec3::new(10., 2., 1.),
+            ..default()
+        },
+        ..default()
+    })
+    .insert(Bullet)
+    .insert(Damage(10))
+    .insert(Movement(500., dir))
+    .insert(RigidBody::Dynamic)
+    .insert(Sensor(true))
+    .insert(Collider::cuboid(0.05, 0.01));
 }
 
 fn bullet_movement_system(
