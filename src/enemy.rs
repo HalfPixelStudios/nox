@@ -47,10 +47,10 @@ struct SimpleEnemyBundle {
 struct AttackTimer(Stopwatch);
 
 fn setup(mut cmd: Commands) {
-    spawn_simple_enemy(cmd, Vec2::new(50., 50.));
+    spawn_simple_enemy(&mut cmd, Vec2::new(50., 50.));
 }
 
-fn spawn_simple_enemy(mut cmd: Commands, spawn_pos: Vec2) {
+pub fn spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2) {
     cmd.spawn_bundle(SimpleEnemyBundle {
         enemy: Enemy,
         sprite: SpriteBundle {

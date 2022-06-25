@@ -9,5 +9,6 @@ pub mod error;
 pub mod physics;
 pub mod player;
 pub mod screens;
+pub mod spawn_waves;
 pub mod transformtween;
 pub mod utils;
