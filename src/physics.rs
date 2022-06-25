@@ -15,7 +15,9 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
-fn setup(mut cmd: Commands) {
+fn setup(mut cmd: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
+    rapier_config.gravity = Vec2::ZERO;
+
     cmd.insert_resource(PhysicsHooksWithQueryResource(Box::new(
         CustomPhysicsHook {},
     )));
