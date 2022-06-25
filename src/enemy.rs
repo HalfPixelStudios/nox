@@ -1,14 +1,13 @@
 use bevy::{core::Stopwatch, prelude::*};
-use std::time::Duration;
 use bevy_rapier2d::prelude::*;
+use std::time::Duration;
 
 use super::{
-    souls::*,
-
     bullet::{spawn_enemy_bullet, Bullet},
     collision_group::*,
     component::*,
     player::Player,
+    souls::*,
 };
 
 #[derive(Component)]
@@ -130,24 +129,31 @@ fn simple_enemy_attack_system(
     }
 }
 
-fn enemy_die_system(mut cmd: Commands,assets: Res<AssetServer>, query: Query<(Entity,&Sprite, &Health, &Transform), (With<Enemy>,Without<Decay>)>) {
-    for (entity, sprite,health, transform) in query.iter() {
+fn enemy_die_system(
+    mut cmd: Commands,
+    assets: Res<AssetServer>,
+    query: Query<(Entity, &Sprite, &Health, &Transform), (With<Enemy>, Without<Decay>)>,
+) {
+    for (entity, sprite, health, transform) in query.iter() {
         if health.0 <= 0 {
-            spawn_soul(&mut cmd,&assets,transform.translation);
+            spawn_soul(&mut cmd, &assets, transform.translation);
             println!("enemy die");
-            cmd.spawn_bundle(
-                SpriteBundle {
-                    sprite: Sprite { color:sprite.color, ..default() },
-                    transform: Transform {
-                        translation: transform.translation,
-                        scale: transform.scale,
-                        rotation: transform.rotation
+            cmd.spawn_bundle(SpriteBundle {
+                sprite: Sprite {
+                    color: sprite.color,
+                    ..default()
+                },
+                transform: Transform {
+                    translation: transform.translation,
+                    scale: transform.scale,
+                    rotation: transform.rotation,
                 },
                 ..default()
             })
-            .insert(Decay{timer:Timer::new(Duration::from_secs(3), true)});
+            .insert(Decay {
+                timer: Timer::new(Duration::from_secs(3), true),
+            });
             cmd.entity(entity).despawn();
-            
         }
     }
 }
