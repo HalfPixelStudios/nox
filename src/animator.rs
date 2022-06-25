@@ -5,19 +5,16 @@ pub struct AnimationTimer(pub Timer);
 pub enum Action {
     IDLE,
     WALK,
-
 }
 pub enum Dir {
     LEFT,
-    RIGHT
-    
+    RIGHT,
 }
 
 #[derive(Component)]
 pub struct AniState {
-    pub action:Action,
-    pub direction:Dir
-    
+    pub action: Action,
+    pub direction: Dir,
 }
 
 pub fn animate_sprite(
@@ -27,7 +24,7 @@ pub fn animate_sprite(
         &mut AnimationTimer,
         &mut TextureAtlasSprite,
         &Handle<TextureAtlas>,
-        &mut AniState
+        &mut AniState,
     )>,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle, state) in query.iter_mut() {
@@ -35,14 +32,10 @@ pub fn animate_sprite(
         if timer.just_finished() {
             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
-            sprite.flip_x = match state.direction{
+            sprite.flip_x = match state.direction {
                 Dir::LEFT => true,
-                Dir::RIGHT => false
+                Dir::RIGHT => false,
             }
-
         }
     }
 }
-
-
-

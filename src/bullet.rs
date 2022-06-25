@@ -5,7 +5,9 @@ use std::time::Duration;
 use super::component::Damage;
 
 #[derive(Component)]
-pub struct Bullet;
+pub struct Bullet {
+    penetration: u8,
+}
 
 #[derive(Component)]
 struct DistanceLifetime {
@@ -43,7 +45,9 @@ impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(bullet_movement_system)
             .add_system(bullet_distance_lifetime_system)
-            .add_system(bullet_duration_lifetime_system);
+            .add_system(bullet_duration_lifetime_system)
+            .add_system(handle_collision)
+            .add_system(bullet_die_system);
     }
 }
 
@@ -60,7 +64,7 @@ pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
         },
         ..default()
     })
-    .insert(Bullet)
+    .insert(Bullet { penetration: 1 })
     .insert(Damage(10))
     .insert(Movement(500., dir))
     .insert(RigidBody::Dynamic)
@@ -81,7 +85,7 @@ pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
         },
         ..default()
     })
-    .insert(Bullet)
+    .insert(Bullet { penetration: 1 })
     .insert(Damage(10))
     .insert(Movement(500., dir))
     .insert(RigidBody::Dynamic)
@@ -122,7 +126,32 @@ fn bullet_distance_lifetime_system(
         lifetime.previous_position = transform.translation;
 
         if lifetime.distance_left < 0. {
-            cmd.entity(entity).despawn();
+            bullet_die(&mut cmd, entity);
+        }
+    }
+}
+
+fn bullet_die_system(mut cmd: Commands, mut query: Query<(Entity, &Bullet)>) {
+    for (entity, bullet) in query.iter() {
+        if bullet.penetration <= 0 {
+            bullet_die(&mut cmd, entity);
+        }
+    }
+}
+
+fn bullet_die(cmd: &mut Commands, entity: Entity) {
+    cmd.entity(entity).despawn();
+}
+
+fn handle_collision(mut query: Query<&mut Bullet>, mut events: EventReader<CollisionEvent>) {
+    for event in events.iter() {
+        if let CollisionEvent::Started(e1, e2, flags) = event {
+            // TODO this code sucks
+            if let Ok(mut bullet) = query.get_component_mut::<Bullet>(*e1) {
+                bullet.penetration -= 1;
+            } else if let Ok(mut bullet) = query.get_component_mut::<Bullet>(*e2) {
+                bullet.penetration -= 1;
+            }
         }
     }
 }

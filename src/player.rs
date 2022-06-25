@@ -6,14 +6,15 @@ use bevy::{
 };
 
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
-use super::animator::*;
-
-
 use bevy_rapier2d::prelude::*;
 
-use super::bullet::{spawn_player_bullet, Bullet};
-use super::camera::Cursor;
-use super::component::{Damage, Health};
+use super::{
+    animator::*,
+    bullet::{spawn_player_bullet, Bullet},
+    camera::Cursor,
+    component::{Damage, Health},
+    utils::find_collider,
+};
 
 #[derive(Component)]
 pub struct Player;
@@ -34,9 +35,13 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+fn spawn_player(
+    mut cmd: Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
     let texture_handle = assets.load("player.png");
-    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0,84.0),14,20);
+    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0, 84.0), 14, 20);
     let atlas_handle = texture_atlases.add(atlas);
     cmd.spawn_bundle(SpriteSheetBundle {
         texture_atlas: atlas_handle,
@@ -51,10 +56,12 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
-    .insert(AniState{action:Action::IDLE,direction:Dir::RIGHT})
+    .insert(AniState {
+        action: Action::IDLE,
+        direction: Dir::RIGHT,
+    })
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
     .insert(ActiveEvents::COLLISION_EVENTS);
-
 }
 
 fn player_controller(
@@ -62,7 +69,7 @@ fn player_controller(
     input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &Movement, &mut AniState), With<Player>>,
 ) {
-    let (mut transform, movement,mut state) = query.single_mut();
+    let (mut transform, movement, mut state) = query.single_mut();
 
     let mut input_vec = Vec2::ZERO;
 
@@ -73,10 +80,10 @@ fn player_controller(
     }
     if input.pressed(KeyCode::A) {
         input_vec -= Vec2::X;
-        state.direction=Dir::LEFT;
+        state.direction = Dir::LEFT;
     } else if input.pressed(KeyCode::D) {
         input_vec += Vec2::X;
-        state.direction=Dir::RIGHT;
+        state.direction = Dir::RIGHT;
     }
 
     let move_vec = input_vec.normalize_or_zero().extend(0.);
@@ -114,18 +121,4 @@ fn handle_collision(
             }
         }
     }
-}
-
-fn find_collider<'a>(
-    target: Entity,
-    e1: &'a Entity,
-    e2: &'a Entity,
-) -> Option<(&'a Entity, &'a Entity)> {
-    if target.id() == e1.id() {
-        return Some((e1, e2));
-    }
-    if target.id() == e2.id() {
-        return Some((e2, e1));
-    }
-    None
 }
