@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-fn lerp(x:f32,y:f32,by:f32)->f32{
-    x*(1.-by)+y*by
+fn lerp(x: f32, y: f32, by: f32) -> f32 {
+    x * (1. - by) + y * by
 }
 #[derive(Debug, Component)]
 struct MainCamera;
@@ -46,19 +46,23 @@ fn cursor_system(
         cursor.0 = world_pos.truncate();
     }
 }
-fn camera_controller(entity_query:Query<&mut GlobalTransform, (With<CameraFollow>,Without<MainCamera>)>,
-                     mut camera_query:Query<(&mut Camera, &mut GlobalTransform), (With<MainCamera>,Without<CameraFollow>)>){
-    let (mut camera,mut cam_transform )= camera_query.single_mut(); 
+fn camera_controller(
+    entity_query: Query<&mut GlobalTransform, (With<CameraFollow>, Without<MainCamera>)>,
+    mut camera_query: Query<
+        (&mut Camera, &mut GlobalTransform),
+        (With<MainCamera>, Without<CameraFollow>),
+    >,
+) {
+    let (mut camera, mut cam_transform) = camera_query.single_mut();
     let mut avg_x = 0.0;
     let mut avg_y = 0.0;
     let mut query_len = 0.;
-    for(transform) in entity_query.iter(){
-        avg_x +=transform.translation.x;
-        avg_y +=transform.translation.y;
-        query_len+=1.;
+    for (transform) in entity_query.iter() {
+        avg_x += transform.translation.x;
+        avg_y += transform.translation.y;
+        query_len += 1.;
     }
 
-    cam_transform.translation.x = lerp(cam_transform.translation.x,avg_x/query_len,0.1);
-    cam_transform.translation.y = lerp(cam_transform.translation.y,avg_y/query_len,0.1); 
-
+    cam_transform.translation.x = lerp(cam_transform.translation.x, avg_x / query_len, 0.1);
+    cam_transform.translation.y = lerp(cam_transform.translation.y, avg_y / query_len, 0.1);
 }
