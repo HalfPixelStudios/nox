@@ -2433,6 +2433,7 @@ dependencies = [
  "bevy_rapier2d",
  "bevy_tweening",
  "console_error_panic_hook",
+ "rand",
  "wasm-bindgen",
  "web-sys",
 ]

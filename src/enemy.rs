@@ -47,17 +47,21 @@ struct SimpleEnemyBundle {
 struct AttackTimer(Stopwatch);
 
 fn setup(mut cmd: Commands) {
-    spawn_simple_enemy(cmd, Vec2::new(50., 50.));
+    spawn_simple_enemy(&mut cmd, Vec2::new(50., 50.));
 }
 
-fn spawn_simple_enemy(mut cmd: Commands, spawn_pos: Vec2) {
+pub fn spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2) {
+    _spawn_simple_enemy(cmd, spawn_pos, Color::rgb(0., 1., 0.));
+}
+pub fn spawn_simple_enemy_strong(cmd: &mut Commands, spawn_pos: Vec2) {
+    _spawn_simple_enemy(cmd, spawn_pos, Color::rgb(0., 1., 1.));
+}
+
+fn _spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2, color: Color) {
     cmd.spawn_bundle(SimpleEnemyBundle {
         enemy: Enemy,
         sprite: SpriteBundle {
-            sprite: Sprite {
-                color: Color::rgb(0., 1., 0.),
-                ..default()
-            },
+            sprite: Sprite { color, ..default() },
             transform: Transform {
                 translation: spawn_pos.extend(0.),
                 scale: Vec3::new(10., 10., 10.),

@@ -129,12 +129,17 @@ fn handle_collision(
     bullet_query: Query<&Damage, With<Bullet>>,
     mut events: EventReader<CollisionEvent>,
 ) {
-    let (player_id, mut health) = player_query.single_mut();
-
     for event in events.iter() {
         if let CollisionEvent::Started(e1, e2, flags) = event {
-            if let Some((_, other)) = find_collider(player_id, e1, e2) {
-                let damage = bullet_query.get_component::<Damage>(*other).unwrap();
+            if let (Ok(mut health), Ok(damage)) = (
+                player_query.get_component_mut::<Health>(*e1),
+                bullet_query.get_component::<Damage>(*e2),
+            ) {
+                health.0 -= damage.0;
+            } else if let (Ok(mut health), Ok(damage)) = (
+                player_query.get_component_mut::<Health>(*e2),
+                bullet_query.get_component::<Damage>(*e1),
+            ) {
                 health.0 -= damage.0;
             }
         }
