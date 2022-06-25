@@ -11,9 +11,11 @@ use super::animator::*;
 
 use bevy_rapier2d::prelude::*;
 
+use super::transformtween::*;
 use super::bullet::{spawn_player_bullet, Bullet};
 use super::camera::Cursor;
 use super::component::{Damage, Health};
+use bevy_tweening::{lens::*,*};
 
 #[derive(Component)]
 pub struct Player;
@@ -38,10 +40,23 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
     let texture_handle = assets.load("player.png");
     let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0,84.0),14,20);
     let atlas_handle = texture_atlases.add(atlas);
+	let tween = Tween::new(
+		EaseFunction::SineInOut,
+		TweeningType::PingPong,
+		std::time::Duration::from_secs(1),
+		TransformDimensionLens {
+			start: 1.,
+			end: 2.,
+            freeze_width: true,
+            freeze_height: false
+            
+		},
+	);
+
     cmd.spawn_bundle(SpriteSheetBundle {
         texture_atlas: atlas_handle,
         transform: Transform {
-            scale: Vec3::new(10., 10., 10.),
+            scale: Vec3::new(1., 1., 0.),
             ..default()
         },
         ..default()
@@ -53,7 +68,8 @@ fn spawn_player(mut cmd: Commands, assets:Res<AssetServer>, mut texture_atlases:
     .insert(Collider::cuboid(0.5, 0.5))
     .insert(AniState{action:Action::IDLE,direction:Dir::RIGHT})
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-    .insert(ActiveEvents::COLLISION_EVENTS);
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(Animator::new(tween));
 
 }
 

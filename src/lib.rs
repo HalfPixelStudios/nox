@@ -7,3 +7,4 @@ pub mod error;
 pub mod player;
 pub mod screens;
 pub mod animator;
+pub mod transformtween;
