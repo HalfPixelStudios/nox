@@ -10,10 +10,10 @@ use bevy_rapier2d::prelude::*;
 
 use bevy_tweening::{lens::*,*};
 use super::{
-    transformtween::*;
+    transformtween::*,
     animator::*,
     bullet::{spawn_player_bullet, Bullet},
-    camera::Cursor,
+    camera::{Cursor,CameraFollow},
     component::{Damage, Health},
     utils::find_collider,
 };
@@ -75,6 +75,7 @@ fn spawn_player(
         action: Action::IDLE,
         direction: Dir::RIGHT,
     })
+    .insert(CameraFollow)
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
     .insert(ActiveEvents::COLLISION_EVENTS)
     .insert(Animator::new(tween))
