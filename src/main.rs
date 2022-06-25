@@ -4,14 +4,9 @@ use bevy_rapier2d::prelude::*;
 // use web_sys::console;
 use bevy_tweening::{lens::*, *};
 
-use nox::animator;
-use nox::bullet;
-use nox::camera;
-use nox::enemy;
-use nox::physics;
-use nox::player;
-use nox::screens::mainmenu;
-use nox::spawn_waves;
+use nox::{
+    animator, bullet, camera, enemy, inventory, physics, player, screens::mainmenu, spawn_waves,
+};
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
@@ -38,6 +33,7 @@ fn main() {
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
+        .add_plugin(inventory::InventoryPlugin)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
         .add_system(animator::animate_sprite)
