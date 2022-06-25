@@ -4,12 +4,12 @@ use bevy_rapier2d::prelude::*;
 // use web_sys::console;
 use bevy_tweening::{lens::*, *};
 
+use nox::animator;
 use nox::bullet;
 use nox::camera;
 use nox::config::PPM;
 use nox::enemy;
 use nox::player;
-use nox::animator;
 use nox::screens::mainmenu;
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -20,7 +20,6 @@ fn main() {
     #[cfg(target_arch = "wasm32")]
     console_error_panic_hook::set_once();
 
-    // console::log_1(&"Daniel is piece of poo".into());
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(WindowDescriptor {

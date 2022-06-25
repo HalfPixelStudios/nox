@@ -1,3 +1,4 @@
+pub mod animator;
 pub mod bullet;
 pub mod camera;
 pub mod component;
@@ -8,3 +9,5 @@ pub mod player;
 pub mod screens;
 pub mod animator;
 pub mod transformtween;
+pub mod utils;
+
