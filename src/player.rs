@@ -14,6 +14,7 @@ use super::{
     camera::{CameraFollow, Cursor},
     collision_group::*,
     component::{Damage, Health},
+    inventory::InventoryResource,
     transformtween::*,
     transformtween::*,
     utils::find_collider,
@@ -34,7 +35,8 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
             .add_system(player_controller)
-            .add_system(player_shoot)
+            .add_system(player_attack)
+            .add_system(player_switch_weapon)
             .add_system(handle_collision);
     }
 }
@@ -109,10 +111,11 @@ fn player_controller(
     transform.translation += move_vec * movement.speed * time.delta_seconds();
 }
 
-fn player_shoot(
+fn player_attack(
     mut cmd: Commands,
     input: Res<Input<KeyCode>>,
     cursor: Res<Cursor>,
+    inventory: Res<InventoryResource>,
     mut player_query: Query<&Transform, With<Player>>,
 ) {
     let player_trans = player_query.single_mut();
@@ -120,7 +123,19 @@ fn player_shoot(
     if input.just_pressed(KeyCode::Space) {
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
-        spawn_player_bullet(&mut cmd, player_trans.translation, bullet_direction);
+
+        let current_weapon = inventory.current_weapon();
+        let shoot_fn = current_weapon.attack_fn;
+        shoot_fn(&mut cmd, player_trans.translation, bullet_direction);
+    }
+}
+
+fn player_switch_weapon(mut inventory: ResMut<InventoryResource>, input: Res<Input<KeyCode>>) {
+    if input.just_pressed(KeyCode::Key1) {
+        inventory.equip_primary();
+    }
+    if input.just_pressed(KeyCode::Key2) {
+        inventory.equip_secondary();
     }
 }
 
