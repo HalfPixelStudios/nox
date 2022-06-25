@@ -1,7 +1,8 @@
 use bevy::{core::Stopwatch, prelude::*};
+use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::seq::SliceRandom;
 
-use super::enemy::spawn_simple_enemy;
+use super::enemy::{spawn_simple_enemy, spawn_simple_enemy_strong};
 
 pub struct SpawnWavesPlugin;
 
@@ -12,36 +13,57 @@ struct WaveInfo {
     spawn_count: u32,
 }
 
+#[derive(Inspectable)]
 struct WaveResource {
     wave_number: u8,
     spawns_left: u32,
     wave_ongoing: bool,
+    #[inspectable(ignore)]
     wave_timer: Stopwatch,
+    #[inspectable(ignore)]
     spawn_timer: Stopwatch,
 
     cooldown_period: f32,
     spawn_speed: f32,
+    #[inspectable(ignore)]
     waves: Vec<WaveInfo>,
+}
+
+impl Default for WaveResource {
+    fn default() -> Self {
+        WaveResource {
+            wave_number: 0,
+            spawns_left: 0,
+            wave_ongoing: false,
+            wave_timer: Stopwatch::new(),
+            spawn_timer: Stopwatch::new(),
+            cooldown_period: 20.,
+            spawn_speed: 1.,
+            waves: vec![],
+        }
+    }
 }
 
 impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
-        let waves = vec![WaveInfo {
-            spawn_pool: vec![spawn_simple_enemy],
-            spawn_count: 5,
-        }];
+        let waves = vec![
+            WaveInfo {
+                spawn_pool: vec![spawn_simple_enemy],
+                spawn_count: 5,
+            },
+            WaveInfo {
+                spawn_pool: vec![spawn_simple_enemy_strong],
+                spawn_count: 10,
+            },
+        ];
 
         app.add_system(wave_system)
+            // .add_plugin(InspectorPlugin::<WaveResource>::new())
             .add_system(wave_spawn_system)
             .insert_resource(WaveResource {
-                wave_number: 0,
-                spawns_left: 0,
-                wave_ongoing: false,
-                wave_timer: Stopwatch::new(),
-                spawn_timer: Stopwatch::new(),
-                cooldown_period: 1.,
-                spawn_speed: 1.,
+                cooldown_period: 5.,
                 waves,
+                ..default()
             });
     }
 }
@@ -52,8 +74,11 @@ impl WaveResource {
     }
     fn current_wave(&self) -> &WaveInfo {
         // TODO: will die if we have zero waves defined
+        if self.wave_number == 0 || self.total_waves() == 0 {
+            panic!("attempting to access wave zero or no waves");
+        }
         let wave_number = self.wave_number.min(self.total_waves()) as usize;
-        self.waves.get(wave_number).unwrap()
+        self.waves.get(wave_number - 1).unwrap()
     }
 }
 
@@ -63,10 +88,9 @@ fn wave_system(time: Res<Time>, mut res: ResMut<WaveResource>) {
         res.wave_timer.pause();
         res.wave_timer.reset();
 
-        res.spawns_left = res.current_wave().spawn_count;
-
-        res.wave_ongoing = true;
         res.wave_number += 1;
+        res.spawns_left = res.current_wave().spawn_count;
+        res.wave_ongoing = true;
     }
 
     res.wave_timer.tick(time.delta());

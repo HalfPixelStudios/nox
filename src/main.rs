@@ -25,7 +25,7 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(WindowDescriptor {
             present_mode: bevy::window::PresentMode::Fifo,
-            width: 400.,
+            width: 800.,
             height: 600.,
             ..default()
         })

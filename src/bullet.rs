@@ -6,7 +6,7 @@ use super::{collision_group::*, component::Damage};
 
 #[derive(Component)]
 pub struct Bullet {
-    penetration: u8,
+    penetration: i32,
 }
 
 #[derive(Component)]

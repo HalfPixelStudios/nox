@@ -51,13 +51,17 @@ fn setup(mut cmd: Commands) {
 }
 
 pub fn spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2) {
+    _spawn_simple_enemy(cmd, spawn_pos, Color::rgb(0., 1., 0.));
+}
+pub fn spawn_simple_enemy_strong(cmd: &mut Commands, spawn_pos: Vec2) {
+    _spawn_simple_enemy(cmd, spawn_pos, Color::rgb(0., 1., 1.));
+}
+
+fn _spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2, color: Color) {
     cmd.spawn_bundle(SimpleEnemyBundle {
         enemy: Enemy,
         sprite: SpriteBundle {
-            sprite: Sprite {
-                color: Color::rgb(0., 1., 0.),
-                ..default()
-            },
+            sprite: Sprite { color, ..default() },
             transform: Transform {
                 translation: spawn_pos.extend(0.),
                 scale: Vec3::new(10., 10., 10.),
