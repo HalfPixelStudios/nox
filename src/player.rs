@@ -1,4 +1,5 @@
 use bevy::{
+    ecs::world::EntityRef,
     input::{keyboard::KeyCode, Input},
     math::Vec2,
     prelude::*,
@@ -6,9 +7,9 @@ use bevy::{
 // use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
-use super::bullet::spawn_player_bullet;
+use super::bullet::{spawn_player_bullet, Bullet};
 use super::camera::Cursor;
-use super::component::Health;
+use super::component::{Damage, Health};
 
 #[derive(Component)]
 pub struct Player;
@@ -24,7 +25,8 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
             .add_system(player_controller)
-            .add_system(player_shoot);
+            .add_system(player_shoot)
+            .add_system(handle_collision);
     }
 }
 
@@ -44,7 +46,8 @@ fn spawn_player(mut cmd: Commands) {
     .insert(Health(100))
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(0.5, 0.5));
+    .insert(Collider::cuboid(0.5, 0.5))
+    .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
 fn player_controller(
@@ -84,4 +87,36 @@ fn player_shoot(
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
         spawn_player_bullet(&mut cmd, player_trans.translation, bullet_direction);
     }
+}
+
+fn handle_collision(
+    mut player_query: Query<(Entity, &mut Health), With<Player>>,
+    bullet_query: Query<&Damage, With<Bullet>>,
+    mut events: EventReader<CollisionEvent>,
+) {
+    let (player_id, mut health) = player_query.single_mut();
+
+    for event in events.iter() {
+        if let CollisionEvent::Started(e1, e2, flags) = event {
+            if let Some((_, other)) = find_collider(player_id, e1, e2) {
+                let damage = bullet_query.get_component::<Damage>(*other).unwrap();
+                health.0 -= damage.0;
+                println!("player health {}", health.0);
+            }
+        }
+    }
+}
+
+fn find_collider<'a>(
+    target: Entity,
+    e1: &'a Entity,
+    e2: &'a Entity,
+) -> Option<(&'a Entity, &'a Entity)> {
+    if target.id() == e1.id() {
+        return Some((e1, e2));
+    }
+    if target.id() == e2.id() {
+        return Some((e2, e1));
+    }
+    None
 }
