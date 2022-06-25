@@ -8,16 +8,16 @@ use bevy::{
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
-use bevy_tweening::{lens::*,*};
 use super::{
-    transformtween::*;
     animator::*,
     bullet::{spawn_player_bullet, Bullet},
     camera::Cursor,
     collision_group::*,
     component::{Damage, Health},
+    transformtween::*,
     utils::find_collider,
 };
+use bevy_tweening::{lens::*, *};
 
 #[derive(Component)]
 pub struct Player;
@@ -46,18 +46,17 @@ fn spawn_player(
     let texture_handle = assets.load("player.png");
     let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0, 84.0), 14, 20);
     let atlas_handle = texture_atlases.add(atlas);
-	let tween = Tween::new(
-		EaseFunction::SineInOut,
-		TweeningType::PingPong,
-		std::time::Duration::from_secs(1),
-		TransformDimensionLens {
-			start: 1.,
-			end: 2.,
+    let tween = Tween::new(
+        EaseFunction::SineInOut,
+        TweeningType::PingPong,
+        std::time::Duration::from_secs(1),
+        TransformDimensionLens {
+            start: 1.,
+            end: 2.,
             freeze_width: true,
-            freeze_height: false
-            
-		},
-	);
+            freeze_height: false,
+        },
+    );
 
     cmd.spawn_bundle(SpriteSheetBundle {
         texture_atlas: atlas_handle,

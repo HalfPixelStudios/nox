@@ -71,6 +71,7 @@ pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     .insert(Sensor(true))
     .insert(Collider::cuboid(0.05, 0.01))
     .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(DistanceLifetime::new(200., pos))
     .insert(CollisionGroups::new(PLAYER_BULLET, ENEMY));
 }
 
