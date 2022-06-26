@@ -74,3 +74,11 @@ pub fn wooden_bow() -> Weapon {
         attack_speed: 3.,
     }
 }
+
+pub fn flamethrower_staff() -> Weapon {
+    Weapon {
+        name: "flamethrower staff".to_string(),
+        attack_fn: straight!(bullet::flamethrower_staff_bolt),
+        attack_speed: 0.5,
+    }
+}

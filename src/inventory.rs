@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::prefabs::weapon::{steel_sword, wooden_bow};
+use super::prefabs::weapon::*;
 use super::weapon::Weapon;
 
 enum Selected {
@@ -26,7 +26,7 @@ impl Default for InventoryResource {
     fn default() -> Self {
         InventoryResource {
             selected_weapon: Selected::Primary,
-            primary_weapon: steel_sword(),
+            primary_weapon: flamethrower_staff(),
             secondary_weapon: wooden_bow(),
         }
     }
