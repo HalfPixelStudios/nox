@@ -10,7 +10,6 @@ struct CustomPhysicsHook;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PPM))
-            .add_plugin(RapierDebugRenderPlugin::default())
             .add_startup_system(setup);
     }
 }
