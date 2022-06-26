@@ -1,11 +1,6 @@
 use bevy::{core::Stopwatch, prelude::*};
 
-use super::super::{
-    assetloader::get_tileset,
-    component::Health,
-    enemy::{AttackPolicy, EnemyBundle, LoiterMovement, SimpleMovement},
-    weapon::Weapon,
-};
+use super::super::{assetloader::get_tileset, component::Health, enemy::*, weapon::Weapon};
 use super::weapon::*;
 
 pub fn bow_orc(
@@ -39,6 +34,13 @@ fn _orc(
             },
             ..default()
         },
+        drops: Drops {
+            name: "bow".to_string(),
+            frame: 282,
+            souls: 2,
+            chance: 0.2,
+        },
+
         ..default()
     })
     .insert(AttackPolicy {
