@@ -1,10 +1,11 @@
 use bevy::{core::Stopwatch, math::Mat2, prelude::*};
 use bevy_rapier2d::prelude::*;
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 use std::f32::consts::PI;
 use std::time::Duration;
 
 use super::{
+    audio::PlaySoundEvent,
     bullet::{Attacker, Bullet},
     collision_group::*,
     component::*,
@@ -54,6 +55,22 @@ pub struct Drops {
     pub souls: i32,
     pub chance: f32,
 }
+
+#[derive(Component, Default)]
+pub struct SoundEmitter {
+    pub hurt_sounds: Vec<String>,
+    pub die_sounds: Vec<String>,
+}
+
+impl SoundEmitter {
+    pub fn pick_hurt_sound(&self) -> Option<&String> {
+        self.hurt_sounds.choose(&mut rand::thread_rng())
+    }
+    pub fn pick_die_sound(&self) -> Option<&String> {
+        self.die_sounds.choose(&mut rand::thread_rng())
+    }
+}
+
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
@@ -77,6 +94,7 @@ pub struct EnemyBundle {
     #[bundle]
     pub physics: PhysicsBundle,
     pub collision_groups: CollisionGroups,
+    pub sound_emitter: SoundEmitter,
 }
 
 impl Default for EnemyBundle {
@@ -88,6 +106,7 @@ impl Default for EnemyBundle {
             drops: Drops::default(),
             physics: PhysicsBundle::default(),
             collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET | ENEMY),
+            sound_emitter: SoundEmitter::default(),
         }
     }
 }
@@ -171,9 +190,13 @@ fn enemy_die_system(
     mut cmd: Commands,
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    query: Query<(Entity, &Health, &Transform, &Drops), (With<Enemy>, Without<Decay>)>,
+    query: Query<
+        (Entity, &Health, &Transform, &Drops, &SoundEmitter),
+        (With<Enemy>, Without<Decay>),
+    >,
+    mut writer: EventWriter<PlaySoundEvent>,
 ) {
-    for (entity, health, transform, drops) in query.iter() {
+    for (entity, health, transform, drops, sound_emitter) in query.iter() {
         if health.0 <= 0 {
             spawn_soul(
                 &mut cmd,
@@ -188,6 +211,10 @@ fn enemy_die_system(
                 &drops,
                 transform.translation,
             );
+
+            if let Some(sound_file) = sound_emitter.pick_die_sound() {
+                writer.send(PlaySoundEvent(sound_file.clone()));
+            }
 
             /*
             cmd.spawn_bundle(SpriteBundle {
@@ -212,9 +239,10 @@ fn enemy_die_system(
 }
 
 fn handle_collision(
-    mut enemy_query: Query<(Entity, &mut Health), With<Enemy>>,
+    mut enemy_query: Query<(Entity, &mut Health, &SoundEmitter), With<Enemy>>,
     bullet_query: Query<&Damage, With<Bullet>>,
     mut events: EventReader<CollisionEvent>,
+    mut writer: EventWriter<PlaySoundEvent>,
 ) {
     for event in events.iter() {
         if let CollisionEvent::Started(e1, e2, flags) = event {
@@ -223,11 +251,19 @@ fn handle_collision(
                 bullet_query.get_component::<Damage>(*e2),
             ) {
                 health.0 -= damage.0;
+                let se = enemy_query.get_component::<SoundEmitter>(*e1).unwrap();
+                if let Some(sound_file) = se.pick_hurt_sound() {
+                    writer.send(PlaySoundEvent(sound_file.clone()));
+                }
             } else if let (Ok(mut health), Ok(damage)) = (
                 enemy_query.get_component_mut::<Health>(*e2),
                 bullet_query.get_component::<Damage>(*e1),
             ) {
                 health.0 -= damage.0;
+                let se = enemy_query.get_component::<SoundEmitter>(*e2).unwrap();
+                if let Some(sound_file) = se.pick_hurt_sound() {
+                    writer.send(PlaySoundEvent(sound_file.clone()));
+                }
             }
         }
     }

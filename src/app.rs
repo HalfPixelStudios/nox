@@ -1,13 +1,12 @@
 use bevy::{prelude::*, window::*};
 use bevy_hanabi::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
-use bevy_kira_audio::AudioPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_tweening::{lens::*, *};
 // use web_sys::console;
 
 use super::{
-    animator, bullet, camera, component, config::AppState, enemy, inventory, music, particles,
+    animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
     physics, player, screens, spawn_waves, worldgen,
 };
 
@@ -38,13 +37,13 @@ pub fn run_app(app_config: AppConfig) {
     let mut app = App::new();
     app.insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(window_descriptor)
+        .add_state(app_config.app_state)
+        .add_system(bevy::input::system::exit_on_esc_system)
         .add_plugins(DefaultPlugins)
+        .add_plugin(audio::AudioPlugin)
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(TweeningPlugin)
         .add_plugin(HanabiPlugin)
-        .add_plugin(AudioPlugin)
-        .add_state(app_config.app_state)
-        .add_system(bevy::input::system::exit_on_esc_system)
         .add_system_set(SystemSet::on_update(AppState::InGame))
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
@@ -53,7 +52,6 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(particles::ParticlePlugin)
         .add_system(component_animator_system::<TextureAtlasSprite>)
         .add_system(component::decay_system)
-        .add_startup_system(music::music_system)
         .add_plugin(worldgen::WorldgenPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
