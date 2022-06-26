@@ -64,6 +64,10 @@ pub fn steel_sword() -> Weapon {
         name: "steel sword".to_string(),
         attack_fn: shotgun!(bullet::steel_sword_bullet, 3, PI / 4.),
         attack_speed: 1.,
+        attack_sounds: vec![
+            "steel_sword/attack1.wav".to_string(),
+            "steel_sword/attack2.wav".to_string(),
+        ],
     }
 }
 
@@ -72,5 +76,6 @@ pub fn wooden_bow() -> Weapon {
         name: "wooden bow".to_string(),
         attack_fn: straight!(bullet::wooden_bow_bullet),
         attack_speed: 3.,
+        attack_sounds: vec!["wooden_bow/attack1.wav".to_string()],
     }
 }

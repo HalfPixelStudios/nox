@@ -1,6 +1,8 @@
 use bevy::{core::Stopwatch, prelude::*};
 
-use super::super::{assetloader::get_tileset, component::Health, enemy::*, weapon::Weapon};
+use super::super::{
+    assetloader::get_tileset, audio::SoundEmitter, component::Health, enemy::*, weapon::Weapon,
+};
 use super::weapon::*;
 
 pub fn bow_orc(

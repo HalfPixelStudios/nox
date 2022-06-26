@@ -1,7 +1,23 @@
 use bevy::prelude::*;
 use bevy_kira_audio::Audio;
+use rand::{seq::SliceRandom, Rng};
 
 pub struct PlaySoundEvent(pub String);
+
+#[derive(Component, Default)]
+pub struct SoundEmitter {
+    pub hurt_sounds: Vec<String>,
+    pub die_sounds: Vec<String>,
+}
+
+impl SoundEmitter {
+    pub fn pick_hurt_sound(&self) -> Option<&String> {
+        self.hurt_sounds.choose(&mut rand::thread_rng())
+    }
+    pub fn pick_die_sound(&self) -> Option<&String> {
+        self.die_sounds.choose(&mut rand::thread_rng())
+    }
+}
 
 pub struct AudioPlugin;
 
