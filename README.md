@@ -21,3 +21,10 @@ $ cargo run
 - [ ] rewrite movement to use physics
 - [ ] attack collision detection
 - [ ] automatic bullet despawning
+
+## LIBRARIES
+
+possible functionaity that can be abstracted into it's own library
+- wave system
+- utils (displacement component, health component)
+- collision handling system (onCollide handler support)
