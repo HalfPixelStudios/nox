@@ -26,12 +26,11 @@ pub struct AnchorXAxisLens {
     pub end: f32,
 }
 impl Lens<TextureAtlasSprite> for AnchorXAxisLens {
-    fn lerp(&mut self, target:&mut TextureAtlasSprite, ratio: f32){
-        let value = self.start + (self.end - self.start) *ratio;
+    fn lerp(&mut self, target: &mut TextureAtlasSprite, ratio: f32) {
+        let value = self.start + (self.end - self.start) * ratio;
         println!("doing");
-    
-        
-        target.anchor = Anchor::Custom(Vec2::new(value,target.anchor.as_vec().y));
+
+        target.anchor = Anchor::Custom(Vec2::new(value, target.anchor.as_vec().y));
     }
 }
 pub struct AnchorYAxisLens {
@@ -39,18 +38,13 @@ pub struct AnchorYAxisLens {
     pub end: f32,
 }
 impl Lens<TextureAtlasSprite> for AnchorYAxisLens {
-    fn lerp(&mut self, target:&mut TextureAtlasSprite, ratio: f32){
-        let value = self.start + (self.end - self.start) *ratio;
+    fn lerp(&mut self, target: &mut TextureAtlasSprite, ratio: f32) {
+        let value = self.start + (self.end - self.start) * ratio;
         println!("doing");
-    
-        
-        target.anchor = Anchor::Custom(Vec2::new(target.anchor.as_vec().x,value));
+
+        target.anchor = Anchor::Custom(Vec2::new(target.anchor.as_vec().x, value));
     }
 }
-
-
-
-
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(pub Timer);
@@ -67,25 +61,27 @@ pub enum Dir {
 #[derive(Component)]
 pub struct Animatable;
 
-#[derive(Component,Debug)]
+#[derive(Component, Debug)]
 pub struct EntityState {
     pub action: Action,
     pub direction: Dir,
 }
-pub fn animate_sprite(mut query: Query<(&mut Transform, &mut Animator<Transform>, &mut EntityState),With<Animatable>>,){
-
-
-	for (mut transform, mut animator, state) in query.iter_mut(){
+pub fn animate_sprite(
+    mut query: Query<
+        (&mut Transform, &mut Animator<Transform>, &mut EntityState),
+        With<Animatable>,
+    >,
+) {
+    for (mut transform, mut animator, state) in query.iter_mut() {
         match state.action {
-            Action::IDLE =>{
+            Action::IDLE => {
                 animator.stop();
-                transform.rotation= Quat::IDENTITY;
-                
+                transform.rotation = Quat::IDENTITY;
             }
-            Action::WALK => animator.state=AnimatorState::Playing,
-                _ => ()};
+            Action::WALK => animator.state = AnimatorState::Playing,
+            _ => (),
+        };
     }
-
 }
 
 //pub fn animate_sprite(
