@@ -40,7 +40,6 @@ fn _orc(
             souls: 2,
             chance: 0.2,
         },
-
         ..default()
     })
     .insert(AttackPolicy {
