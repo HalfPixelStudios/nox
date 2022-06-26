@@ -45,7 +45,7 @@ pub struct CircleMovement {}
 #[derive(Component)]
 pub struct ChargeMovement {}
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Drops {
     pub name: String,
     pub frame: usize,
@@ -56,8 +56,7 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
-            .add_system(simple_movement_system)
+        app.add_system(simple_movement_system)
             .add_system(loiter_movement_system)
             .add_system(attack_system)
             .add_system(enemy_die_system)
@@ -68,9 +67,9 @@ impl Plugin for EnemyPlugin {
 #[derive(Bundle)]
 pub struct EnemyBundle {
     pub enemy: Enemy,
-    #[bundle]
-
     pub drops: Drops,
+
+    #[bundle]
     pub sprite: SpriteBundle,
     pub health: Health,
     pub rb: RigidBody,
@@ -89,10 +88,10 @@ impl Default for EnemyBundle {
             col: Collider::cuboid(0.5, 0.5),
             active_events: ActiveEvents::COLLISION_EVENTS,
             collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET),
+            drops: Drops { ..default() },
         }
     }
 }
-
 
 fn simple_movement_system(
     time: Res<Time>,
