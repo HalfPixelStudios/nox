@@ -55,8 +55,8 @@ impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
         let waves = vec![
             WaveInfo {
-                spawn_pool: vec![bow_orc, bat],
-                spawn_count: 5,
+                spawn_pool: vec![boss_grand_sphinx],
+                spawn_count: 1,
             },
             WaveInfo {
                 spawn_pool: vec![bow_orc],

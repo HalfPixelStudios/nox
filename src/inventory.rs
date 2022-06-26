@@ -28,7 +28,7 @@ impl Default for InventoryResource {
     fn default() -> Self {
         InventoryResource {
             selected_weapon: Selected::Primary,
-            primary_weapon: orbs_of_despair(),
+            primary_weapon: royal_hammer(),
             secondary_weapon: wooden_bow(),
             closest: None,
         }

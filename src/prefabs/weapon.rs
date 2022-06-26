@@ -150,3 +150,13 @@ pub fn orbs_of_despair() -> Weapon {
         attack_sounds: vec![],
     }
 }
+
+// enemy weapons
+pub fn grand_sphinx_attack() -> Weapon {
+    Weapon {
+        name: "".to_string(),
+        attack_fn: shotgun!(bullet::grand_sphinx_bullet, 5, PI / 8.),
+        attack_speed: 3.,
+        attack_sounds: vec![],
+    }
+}
