@@ -1,7 +1,6 @@
 pub mod animator;
 pub mod app;
 pub mod assetloader;
-pub mod attack;
 pub mod bullet;
 pub mod camera;
 pub mod cli;
@@ -14,6 +13,7 @@ pub mod inventory;
 pub mod particles;
 pub mod physics;
 pub mod player;
+pub mod prefabs;
 pub mod screens;
 pub mod souls;
 pub mod spawn_waves;
