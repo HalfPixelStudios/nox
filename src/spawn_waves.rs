@@ -14,12 +14,12 @@ struct WaveInfo {
 }
 
 #[derive(Inspectable)]
-struct WaveResource {
-    wave_number: u8,
+pub struct WaveResource {
+    pub wave_number: u8,
     spawns_left: u32,
-    wave_ongoing: bool,
+    pub wave_ongoing: bool,
     #[inspectable(ignore)]
-    wave_timer: Stopwatch,
+    pub wave_timer: Stopwatch,
     #[inspectable(ignore)]
     spawn_timer: Stopwatch,
 
