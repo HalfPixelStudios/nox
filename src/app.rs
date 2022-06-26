@@ -53,7 +53,7 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(particles::ParticlePlugin)
         .add_system(component_animator_system::<TextureAtlasSprite>)
         .add_system(component::decay_system)
-        .add_system(music::music_system)
+        .add_startup_system(music::music_system)
         .add_plugin(worldgen::WorldgenPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
