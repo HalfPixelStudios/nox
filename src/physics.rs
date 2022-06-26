@@ -7,10 +7,17 @@ pub struct PhysicsPlugin;
 
 struct CustomPhysicsHook;
 
+pub struct CollisionStartEvent {
+    pub me: Entity,
+    pub other: Entity,
+}
+
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PPM))
-            .add_startup_system(setup);
+            .add_event::<CollisionStartEvent>()
+            .add_startup_system(setup)
+            .add_system(listen_collisions);
     }
 }
 
@@ -42,18 +49,22 @@ impl Default for PhysicsBundle {
 
 fn setup(mut cmd: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
-
-    cmd.insert_resource(PhysicsHooksWithQueryResource(Box::new(
-        CustomPhysicsHook {},
-    )));
 }
 
-impl PhysicsHooksWithQuery<NoUserData> for CustomPhysicsHook {
-    // fn filter_intersection_pair(
-    //     &self,
-    //     _context: PairFilterContextView,
-    //     _user_data: &Query<NoUserData>
-    // ) {
-
-    // }
+fn listen_collisions(
+    mut reader: EventReader<CollisionEvent>,
+    mut writer: EventWriter<CollisionStartEvent>,
+) {
+    for event in reader.iter() {
+        if let CollisionEvent::Started(e1, e2, flags) = event {
+            writer.send(CollisionStartEvent {
+                me: e1.clone(),
+                other: e2.clone(),
+            });
+            writer.send(CollisionStartEvent {
+                me: e2.clone(),
+                other: e1.clone(),
+            });
+        }
+    }
 }

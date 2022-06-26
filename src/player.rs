@@ -16,7 +16,7 @@ use super::{
     component::{Damage, Health},
     config::AppState,
     inventory::InventoryResource,
-    physics::PhysicsBundle,
+    physics::{CollisionStartEvent, PhysicsBundle},
     utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
@@ -187,20 +187,13 @@ fn player_switch_weapon(mut inventory: ResMut<InventoryResource>, input: Res<Inp
 fn handle_collision(
     mut player_query: Query<(Entity, &mut Health), With<Player>>,
     bullet_query: Query<&Damage, With<Bullet>>,
-    mut events: EventReader<CollisionEvent>,
+    mut events: EventReader<CollisionStartEvent>,
 ) {
-    for event in events.iter() {
-        if let CollisionEvent::Started(e1, e2, flags) = event {
-            if let (Ok(mut health), Ok(damage)) = (
-                player_query.get_component_mut::<Health>(*e1),
-                bullet_query.get_component::<Damage>(*e2),
-            ) {
-                health.0 -= damage.0;
-            } else if let (Ok(mut health), Ok(damage)) = (
-                player_query.get_component_mut::<Health>(*e2),
-                bullet_query.get_component::<Damage>(*e1),
-            ) {
-                health.0 -= damage.0;
+    for CollisionStartEvent { me, other } in events.iter() {
+        if let Ok(mut health) = player_query.get_component_mut::<Health>(*me) {
+            // hit by bullet
+            if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
+                health.take(damage.0);
             }
         }
     }
