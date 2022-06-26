@@ -1,9 +1,16 @@
 use super::enemy::*;
+use super::prefabs::weapon::{steel_sword, wooden_bow};
+
+use super::collision_group::*;
+use bevy_rapier2d::prelude::*;
+
+use bevy_tweening::{lens::*, *};
+
 use bevy::prelude::*;
 use rand::prelude::*;
 use std::time::Duration;
 
-use super::{assetloader::get_tileset, component::*};
+use super::{animator::*, assetloader::get_tileset, component::*, inventory::*};
 
 pub enum Rarity {
     COMMON,
@@ -42,6 +49,10 @@ impl Rarity {
 }
 #[derive(Component)]
 struct Soul;
+#[derive(Component)]
+struct Equipable {
+    rarity: Rarity,
+}
 
 #[derive(Bundle)]
 struct SoulBundle {
@@ -65,6 +76,15 @@ pub fn spawn_drop(
     // if c>drops.chance{
     //     return ;
     // }
+    let tween = Tween::new(
+        EaseFunction::SineInOut,
+        TweeningType::PingPong,
+        std::time::Duration::from_millis(3000),
+        AnchorYAxisLens {
+            start: -0.15,
+            end: 0.15,
+        },
+    );
 
     cmd.spawn_bundle(SpriteSheetBundle {
         sprite: TextureAtlasSprite {
@@ -81,6 +101,12 @@ pub fn spawn_drop(
         },
         ..default()
     })
+    .insert(Equipable { rarity })
+    .insert(RigidBody::Dynamic)
+    .insert(Collider::cuboid(0.5, 0.5))
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(CollisionGroups::new(EQUIPABLE, PLAYER))
+    .insert(Animator::new(tween))
     .insert(Name::new(drops.name.clone()));
 }
 
@@ -109,4 +135,40 @@ pub fn spawn_soul(
             timer: Timer::new(Duration::from_secs(10), true),
         },
     });
+}
+
+fn handle_item_collision(
+    mut item_query: Query<(&Equipable, &mut Name)>,
+    mut events: EventReader<CollisionEvent>,
+    mut inventory: &mut ResMut<InventoryResource>,
+) {
+    for event in events.iter() {
+        if let CollisionEvent::Started(mut e1, mut e2, flags) = event {
+            if let Ok(equipable) = item_query.get_component_mut::<Equipable>(e1) {
+                let r = item_query.get_component_mut::<Name>(e1);
+                match r {
+                    Ok(name) => {
+                        if name.as_str() == "bow" {
+                            inventory.primary_weapon = wooden_bow();
+                        } else if (name.as_str() == "sword") {
+                            inventory.primary_weapon = steel_sword();
+                        }
+                    }
+                    Err(er) => println!("Error"),
+                }
+            } else if let equipable = item_query.get_component_mut::<Equipable>(e2) {
+                let r = item_query.get_component_mut::<Name>(e1);
+                match r {
+                    Ok(name) => {
+                        if name.as_str() == "bow" {
+                            inventory.primary_weapon = wooden_bow()
+                        } else if (name.as_str() == "sword") {
+                            inventory.primary_weapon = steel_sword()
+                        }
+                    }
+                    Err(er) => println!("Error"),
+                }
+            }
+        }
+    }
 }

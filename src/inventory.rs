@@ -10,7 +10,7 @@ enum Selected {
 
 pub struct InventoryResource {
     selected_weapon: Selected,
-    primary_weapon: Weapon,
+    pub primary_weapon: Weapon,
     secondary_weapon: Weapon, // armour
 }
 
