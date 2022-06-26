@@ -23,7 +23,12 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
         style: Style {
             align_self: AlignSelf::Center,
             justify_content: JustifyContent::Center,
-            margin: Rect::all(Val::Auto),
+            margin: Rect {
+                left: Val::Auto,
+                right: Val::Auto,
+                top: Val::Undefined,
+                bottom: Val::Auto,
+            },
             ..default()
         },
         color: UiColor(Color::NONE),
@@ -36,7 +41,6 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
                 style: Style {
                     align_self: AlignSelf::Center,
                     justify_content: JustifyContent::Center,
-                    margin: Rect::all(Val::Auto),
                     ..default()
                 },
                 text: Text::with_section(

@@ -1,5 +1,5 @@
 use nox::cli::run_cli;
 
 fn main() {
-    run_cli();
+    let _ = run_cli();
 }
