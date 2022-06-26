@@ -9,10 +9,11 @@ use bevy_rapier2d::prelude::*;
 
 use super::{
     animator::*,
-    bullet::{spawn_player_bullet, Bullet},
+    bullet::{Attacker, Bullet},
     camera::{CameraFollow, Cursor},
     collision_group::*,
     component::{Damage, Health},
+    config::AppState,
     inventory::InventoryResource,
     utils::find_collider,
 };
@@ -66,7 +67,6 @@ fn spawn_player(
             start: Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI/8.),
             end: Quat::from_axis_angle(Vec3::Z, -std::f32::consts::PI/8.)
         });
-    println!("tween created");
     
     
 
@@ -83,6 +83,7 @@ fn spawn_player(
         },
         ..default()
     })
+    .insert(Name::new("Player"))
     .insert(Player)
     .insert(Health(100))
     .insert(Movement { speed: 100. })
@@ -147,7 +148,12 @@ fn player_attack(
 
         let current_weapon = inventory.current_weapon();
         let shoot_fn = current_weapon.attack_fn;
-        shoot_fn(&mut cmd, player_trans.translation, bullet_direction);
+        shoot_fn(
+            &mut cmd,
+            Attacker::Player,
+            player_trans.translation,
+            bullet_direction,
+        );
     }
 }
 

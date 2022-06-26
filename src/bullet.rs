@@ -4,6 +4,9 @@ use std::time::Duration;
 
 use super::{collision_group::*, component::Damage};
 
+pub type ShootFunction =
+    fn(cmd: &mut Commands, attacker: Attacker, spawn_pos: Vec3, dir: Vec2) -> ();
+
 #[derive(Component)]
 pub struct Bullet {
     penetration: i32,
@@ -51,7 +54,20 @@ impl Plugin for BulletPlugin {
     }
 }
 
-pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
+#[derive(Clone)]
+pub enum Attacker {
+    Player,
+    Enemy,
+}
+
+pub fn attacker_collision_group(attacker: Attacker) -> CollisionGroups {
+    match attacker {
+        Attacker::Player => CollisionGroups::new(PLAYER_BULLET, ENEMY),
+        Attacker::Enemy => CollisionGroups::new(ENEMY_BULLET, PLAYER),
+    }
+}
+
+pub fn steel_sword_bullet(cmd: &mut Commands, attacker: Attacker, pos: Vec3, dir: Vec2) {
     cmd.spawn_bundle(SpriteBundle {
         sprite: Sprite {
             color: Color::rgb(1., 0., 1.),
@@ -72,31 +88,7 @@ pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     .insert(Collider::cuboid(0.05, 0.01))
     .insert(ActiveEvents::COLLISION_EVENTS)
     .insert(DistanceLifetime::new(200., pos))
-    .insert(CollisionGroups::new(PLAYER_BULLET, ENEMY));
-}
-
-pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
-    cmd.spawn_bundle(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(0., 1., 0.),
-            ..default()
-        },
-        transform: Transform {
-            translation: pos,
-            scale: Vec3::new(10., 2., 1.),
-            ..default()
-        },
-        ..default()
-    })
-    .insert(Bullet { penetration: 1 })
-    .insert(Damage(10))
-    .insert(Movement(500., dir))
-    .insert(RigidBody::Dynamic)
-    .insert(Sensor(true))
-    .insert(Collider::cuboid(0.05, 0.01))
-    .insert(DistanceLifetime::new(200., pos))
-    .insert(ActiveEvents::COLLISION_EVENTS)
-    .insert(CollisionGroups::new(ENEMY_BULLET, PLAYER));
+    .insert(attacker_collision_group(attacker));
 }
 
 fn bullet_movement_system(
