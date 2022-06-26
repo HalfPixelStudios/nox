@@ -13,7 +13,7 @@ pub struct Weapon {
 pub fn steel_sword_prefab() -> Weapon {
     Weapon {
         name: "steel sword".to_string(),
-        attack_fn: shotgun!(bullet::player_bullet, 3, PI / 4.),
+        attack_fn: shotgun!(bullet::steel_sword_bullet, 3, PI / 4.),
         attack_speed: 1.,
     }
 }
@@ -21,7 +21,7 @@ pub fn steel_sword_prefab() -> Weapon {
 pub fn wooden_bow_prefab() -> Weapon {
     Weapon {
         name: "wooden bow".to_string(),
-        attack_fn: straight!(bullet::player_bullet),
+        attack_fn: straight!(bullet::steel_sword_bullet),
         attack_speed: 1.,
     }
 }
