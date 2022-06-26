@@ -1,10 +1,6 @@
 use bevy::{core::Stopwatch, prelude::*};
 
-use super::super::{
-    component::Health,
-    enemy::{AttackPolicy, EnemyBundle, LoiterMovement, SimpleMovement},
-    weapon::Weapon,
-};
+use super::super::{component::Health, enemy::*, weapon::Weapon};
 use super::weapon::*;
 
 pub fn bow_orc(cmd: &mut Commands, spawn_pos: Vec2) {
@@ -26,6 +22,13 @@ fn _orc(cmd: &mut Commands, spawn_pos: Vec2, weapon: Weapon) {
             },
             ..default()
         },
+        drops: Drops {
+            name: "bow".to_string(),
+            frame: 282,
+            souls: 2,
+            chance: 0.2,
+        },
+
         ..default()
     })
     .insert(AttackPolicy {

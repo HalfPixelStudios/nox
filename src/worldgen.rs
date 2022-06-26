@@ -32,12 +32,12 @@ fn generate_world(
                 ((x as f32) - 50.) * GRID_SIZE,
                 ((y as f32) - 50.) * GRID_SIZE,
             );
-            spawn_forgery(&mut cmd, &tileset_handle, *index, spawn_pos);
+            spawn_forage(&mut cmd, &tileset_handle, *index, spawn_pos);
         }
     }
 }
 
-fn spawn_forgery(
+fn spawn_forage(
     cmd: &mut Commands,
     tileset_handle: &Handle<TextureAtlas>,
     index: usize,

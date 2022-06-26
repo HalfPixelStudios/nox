@@ -45,12 +45,18 @@ pub struct CircleMovement {}
 #[derive(Component)]
 pub struct ChargeMovement {}
 
+#[derive(Component, Default)]
+pub struct Drops {
+    pub name: String,
+    pub frame: usize,
+    pub souls: i32,
+    pub chance: f32,
+}
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
-            .add_system(simple_movement_system)
+        app.add_system(simple_movement_system)
             .add_system(loiter_movement_system)
             .add_system(attack_system)
             .add_system(enemy_die_system)
@@ -61,6 +67,8 @@ impl Plugin for EnemyPlugin {
 #[derive(Bundle)]
 pub struct EnemyBundle {
     pub enemy: Enemy,
+    pub drops: Drops,
+
     #[bundle]
     pub sprite: SpriteBundle,
     pub health: Health,
@@ -80,11 +88,10 @@ impl Default for EnemyBundle {
             col: Collider::cuboid(0.5, 0.5),
             active_events: ActiveEvents::COLLISION_EVENTS,
             collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET),
+            drops: Drops { ..default() },
         }
     }
 }
-
-fn setup(mut cmd: Commands) {}
 
 fn simple_movement_system(
     time: Res<Time>,
@@ -148,9 +155,9 @@ fn enemy_die_system(
     mut cmd: Commands,
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    query: Query<(Entity, &Sprite, &Health, &Transform), (With<Enemy>, Without<Decay>)>,
+    query: Query<(Entity, &Sprite, &Health, &Transform, &Drops), (With<Enemy>, Without<Decay>)>,
 ) {
-    for (entity, sprite, health, transform) in query.iter() {
+    for (entity, sprite, health, transform, drops) in query.iter() {
         if health.0 <= 0 {
             spawn_soul(
                 &mut cmd,
@@ -158,6 +165,14 @@ fn enemy_die_system(
                 &mut texture_atlases,
                 transform.translation,
             );
+            spawn_drop(
+                &mut cmd,
+                &assets,
+                &mut texture_atlases,
+                &drops,
+                transform.translation,
+            );
+
             cmd.spawn_bundle(SpriteBundle {
                 sprite: Sprite {
                     color: sprite.color,
