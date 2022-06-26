@@ -5,11 +5,11 @@ use std::f32::consts::PI;
 use std::time::Duration;
 
 use super::{
-    audio::PlaySoundEvent,
+    audio::{PlaySoundEvent, SoundEmitter},
     bullet::{Attacker, Bullet},
     collision_group::*,
     component::*,
-    physics::PhysicsBundle,
+    physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
     prefabs::enemy::bow_orc,
     souls::*,
@@ -54,21 +54,6 @@ pub struct Drops {
     pub frame: usize,
     pub souls: i32,
     pub chance: f32,
-}
-
-#[derive(Component, Default)]
-pub struct SoundEmitter {
-    pub hurt_sounds: Vec<String>,
-    pub die_sounds: Vec<String>,
-}
-
-impl SoundEmitter {
-    pub fn pick_hurt_sound(&self) -> Option<&String> {
-        self.hurt_sounds.choose(&mut rand::thread_rng())
-    }
-    pub fn pick_die_sound(&self) -> Option<&String> {
-        self.die_sounds.choose(&mut rand::thread_rng())
-    }
 }
 
 pub struct EnemyPlugin;
@@ -239,29 +224,23 @@ fn enemy_die_system(
 }
 
 fn handle_collision(
-    mut enemy_query: Query<(Entity, &mut Health, &SoundEmitter), With<Enemy>>,
+    mut health_query: Query<&mut Health, With<Enemy>>,
+    sound_query: Query<&SoundEmitter, With<Enemy>>,
     bullet_query: Query<&Damage, With<Bullet>>,
-    mut events: EventReader<CollisionEvent>,
+    mut events: EventReader<CollisionStartEvent>,
     mut writer: EventWriter<PlaySoundEvent>,
 ) {
-    for event in events.iter() {
-        if let CollisionEvent::Started(e1, e2, flags) = event {
-            if let (Ok(mut health), Ok(damage)) = (
-                enemy_query.get_component_mut::<Health>(*e1),
-                bullet_query.get_component::<Damage>(*e2),
-            ) {
-                health.0 -= damage.0;
-                let se = enemy_query.get_component::<SoundEmitter>(*e1).unwrap();
-                if let Some(sound_file) = se.pick_hurt_sound() {
-                    writer.send(PlaySoundEvent(sound_file.clone()));
-                }
-            } else if let (Ok(mut health), Ok(damage)) = (
-                enemy_query.get_component_mut::<Health>(*e2),
-                bullet_query.get_component::<Damage>(*e1),
-            ) {
-                health.0 -= damage.0;
-                let se = enemy_query.get_component::<SoundEmitter>(*e2).unwrap();
-                if let Some(sound_file) = se.pick_hurt_sound() {
+    for CollisionStartEvent { me, other } in events.iter() {
+        if let (Ok(mut health), Ok(sound_emitter)) = (
+            health_query.get_component_mut::<Health>(*me),
+            sound_query.get_component::<SoundEmitter>(*me),
+        ) {
+            // hit by bullet
+            if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
+                health.take(damage.0);
+
+                // play hit sound
+                if let Some(sound_file) = sound_emitter.pick_hurt_sound() {
                     writer.send(PlaySoundEvent(sound_file.clone()));
                 }
             }

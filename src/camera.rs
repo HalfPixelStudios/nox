@@ -23,8 +23,14 @@ impl Plugin for CameraPlugin {
 }
 
 fn setup(mut cmd: Commands) {
-    cmd.spawn_bundle(OrthographicCameraBundle::new_2d())
-        .insert(MainCamera);
+    cmd.spawn_bundle(OrthographicCameraBundle {
+        orthographic_projection: OrthographicProjection {
+            scale: 0.5,
+            ..default()
+        },
+        ..OrthographicCameraBundle::new_2d()
+    })
+    .insert(MainCamera);
 }
 
 // from https://bevy-cheatbook.github.io/cookbook/cursor2world.html
