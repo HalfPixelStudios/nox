@@ -10,6 +10,7 @@ pub mod config;
 pub mod enemy;
 pub mod error;
 pub mod inventory;
+pub mod music;
 pub mod particles;
 pub mod physics;
 pub mod player;
