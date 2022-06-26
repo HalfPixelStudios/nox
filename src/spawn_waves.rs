@@ -70,7 +70,7 @@ impl Plugin for SpawnWavesPlugin {
             .insert_resource(WaveResource {
                 cooldown_period: 1.,
                 waves,
-                paused: false,
+                paused: true,
                 ..default()
             });
     }

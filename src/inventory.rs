@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::prefabs::weapon::{steel_sword, wooden_bow};
+use super::souls::*;
 use super::weapon::Weapon;
 
 enum Selected {
@@ -10,8 +11,9 @@ enum Selected {
 
 pub struct InventoryResource {
     selected_weapon: Selected,
-    primary_weapon: Weapon,
+    pub primary_weapon: Weapon,
     secondary_weapon: Weapon, // armour
+    pub closest: Option<Equipable>,
 }
 
 pub struct InventoryPlugin;
@@ -28,6 +30,7 @@ impl Default for InventoryResource {
             selected_weapon: Selected::Primary,
             primary_weapon: steel_sword(),
             secondary_weapon: wooden_bow(),
+            closest: None,
         }
     }
 }
