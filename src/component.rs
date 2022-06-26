@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 pub struct Health(pub i32);
 impl Health {
-    fn take(&mut self, dmg: i32) {
+    pub fn take(&mut self, dmg: i32) {
         self.0 -= dmg;
         if self.0 <= 0 {
             self.0 = 0;

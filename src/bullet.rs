@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
-use super::{collision_group::*, component::Damage};
+use super::{collision_group::*, component::Damage, physics::CollisionStartEvent};
 
 pub type ShootFunction = fn(
     cmd: &mut Commands,
@@ -150,15 +150,10 @@ fn bullet_die(cmd: &mut Commands, entity: Entity) {
     cmd.entity(entity).despawn();
 }
 
-fn handle_collision(mut query: Query<&mut Bullet>, mut events: EventReader<CollisionEvent>) {
-    for event in events.iter() {
-        if let CollisionEvent::Started(e1, e2, flags) = event {
-            // TODO this code sucks
-            if let Ok(mut bullet) = query.get_component_mut::<Bullet>(*e1) {
-                bullet.penetration -= 1;
-            } else if let Ok(mut bullet) = query.get_component_mut::<Bullet>(*e2) {
-                bullet.penetration -= 1;
-            }
+fn handle_collision(mut query: Query<&mut Bullet>, mut events: EventReader<CollisionStartEvent>) {
+    for CollisionStartEvent { me, other } in events.iter() {
+        if let Ok(mut bullet) = query.get_component_mut::<Bullet>(*me) {
+            bullet.penetration -= 1;
         }
     }
 }
