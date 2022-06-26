@@ -1,5 +1,6 @@
 pub mod animator;
 pub mod app;
+pub mod assetloader;
 pub mod attack;
 pub mod bullet;
 pub mod camera;
@@ -18,3 +19,4 @@ pub mod souls;
 pub mod spawn_waves;
 pub mod utils;
 pub mod weapon;
+pub mod worldgen;
