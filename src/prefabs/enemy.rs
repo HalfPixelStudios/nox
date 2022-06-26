@@ -1,23 +1,35 @@
 use bevy::{core::Stopwatch, prelude::*};
 
-use super::super::{component::Health, enemy::*, weapon::Weapon};
+use super::super::{assetloader::get_tileset, component::Health, enemy::*, weapon::Weapon};
 use super::weapon::*;
 
-pub fn bow_orc(cmd: &mut Commands, spawn_pos: Vec2) {
-    _orc(cmd, spawn_pos, wooden_bow())
+pub fn bow_orc(
+    cmd: &mut Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    spawn_pos: Vec2,
+) {
+    _orc(cmd, assets, texture_atlases, spawn_pos, wooden_bow())
 }
 
-fn _orc(cmd: &mut Commands, spawn_pos: Vec2, weapon: Weapon) {
+fn _orc(
+    cmd: &mut Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    spawn_pos: Vec2,
+    weapon: Weapon,
+) {
     cmd.spawn_bundle(EnemyBundle {
         health: Health(20),
-        sprite: SpriteBundle {
-            sprite: Sprite {
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 123,
                 color: Color::rgb(0., 1., 0.),
                 ..default()
             },
+            texture_atlas: get_tileset(&assets, &mut texture_atlases),
             transform: Transform {
                 translation: spawn_pos.extend(0.),
-                scale: Vec3::new(10., 10., 10.),
                 ..default()
             },
             ..default()
@@ -28,7 +40,10 @@ fn _orc(cmd: &mut Commands, spawn_pos: Vec2, weapon: Weapon) {
             souls: 2,
             chance: 0.2,
         },
-
+        sound_emitter: SoundEmitter {
+            hurt_sounds: vec!["orc/hurt1.wav".to_string(), "orc/hurt2.wav".to_string()],
+            die_sounds: vec!["orc/die1.wav".to_string(), "orc/die2.wav".to_string()],
+        },
         ..default()
     })
     .insert(AttackPolicy {
