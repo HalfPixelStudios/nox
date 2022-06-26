@@ -3,11 +3,12 @@ use bevy_hanabi::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_tweening::{lens::*, *};
+
 // use web_sys::console;
 
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
-    physics, player, screens, spawn_waves, worldgen,
+    physics, player, screens, souls, spawn_waves, worldgen,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -56,7 +57,8 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         .add_system(animator::animate_sprite)
-        .add_plugin(screens::UIPlugin);
+        .add_plugin(screens::UIPlugin)
+        .add_plugin(souls::ItemPlugin);
 
     if app_config.egui_enabled {
         app.add_plugin(WorldInspectorPlugin::new());

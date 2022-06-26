@@ -12,6 +12,14 @@ use std::time::Duration;
 
 use super::{animator::*, assetloader::get_tileset, component::*, inventory::*, player::*};
 
+pub struct ItemPlugin;
+impl Plugin for ItemPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_startup_system(create_arrow_ui)
+            .add_system(equip_system);
+    }
+}
+
 pub enum Rarity {
     COMMON,
     UNCOMMON,
@@ -185,7 +193,7 @@ fn equip_system(
     mut cmd: Commands,
     mut item_query: Query<(Entity, &mut Equipable, &mut Name, &Transform), Without<Player>>,
     mut player_query: Query<&Transform, With<Player>>,
-    mut inventory: &mut ResMut<InventoryResource>,
+    mut inventory: ResMut<InventoryResource>,
     input: Res<Input<KeyCode>>,
 ) {
     let ptransform = player_query.single();
