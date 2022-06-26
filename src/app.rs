@@ -45,7 +45,7 @@ pub fn run_app(app_state: AppState, fullscreen: bool) {
         .add_system(component_animator_system::<TextureAtlasSprite>)
         .add_system(component::decay_system)
         .add_plugin(worldgen::WorldgenPlugin)
-        .add_plugin(spawn_waves::SpawnWavesPlugin)
+        // .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         .add_system(animator::animate_sprite)
         .add_plugin(mainmenu::MainMenuPlugin)
