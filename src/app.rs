@@ -43,6 +43,7 @@ pub fn run_app(app_state: AppState, fullscreen: bool) {
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(particles::ParticlePlugin)
+        .add_system(component_animator_system::<TextureAtlasSprite>)
         .add_system(component::decay_system)
         .add_plugin(worldgen::WorldgenPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)

@@ -6,6 +6,11 @@ authors = ["nithinmuthukumar", "MrPicklePinosaur"]
 description = "game submission for Mini Jam 109"
 repository = "https://github.com/HalfPixelStudios/nox"
 
+[features]
+default = ["bevy_sprite", "bevy_ui"]
+bevy_sprite = ["bevy/bevy_sprite", "bevy/bevy_render"]
+bevy_ui = ["bevy/bevy_ui", "bevy/bevy_text", "bevy/bevy_render"]
+
 [dependencies]
 bevy = { version = "0.7.0" }
 bevy_rapier2d = { version = "0.14.1", features = ["debug-render"] }

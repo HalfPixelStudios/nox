@@ -1,5 +1,4 @@
 use bevy::{
-    ecs::world::EntityRef,
     input::{keyboard::KeyCode, Input},
     math::Vec2,
     prelude::*,
@@ -16,8 +15,6 @@ use super::{
     component::{Damage, Health},
     config::AppState,
     inventory::InventoryResource,
-    transformtween::*,
-    transformtween::*,
     utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
@@ -47,25 +44,41 @@ fn spawn_player(
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = assets.load("player.png");
-    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(96.0, 84.0), 14, 20);
+    let texture_handle = assets.load("tilesheet.png");
+    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 49, 22);
     let atlas_handle = texture_atlases.add(atlas);
-    let tween = Tween::new(
+
+	let tween = Tween::new(
         EaseFunction::SineInOut,
         TweeningType::PingPong,
-        std::time::Duration::from_secs(1),
+        std::time::Duration::from_millis(500),
         TransformDimensionLens {
             start: 1.,
-            end: 2.,
+            end: 1.1,
             freeze_width: true,
             freeze_height: false,
         },
     );
+    let rot_tween = Tween::new(
+        EaseFunction::SineInOut,
+        TweeningType::PingPong,
+        std::time::Duration::from_millis(500),
+        TransformRotationLens {
+            start: Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI/8.),
+            end: Quat::from_axis_angle(Vec3::Z, -std::f32::consts::PI/8.)
+        });
+    
+    
+
 
     cmd.spawn_bundle(SpriteSheetBundle {
+        sprite: TextureAtlasSprite{
+            index:25,
+            ..default()
+        },
         texture_atlas: atlas_handle,
         transform: Transform {
-            scale: Vec3::new(1., 1., 0.),
+            scale: Vec3::new(1.5, 1.5, 0.),
             ..default()
         },
         ..default()
@@ -76,13 +89,14 @@ fn spawn_player(
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
-    .insert(AniState {
+    .insert(EntityState {
         action: Action::IDLE,
         direction: Dir::RIGHT,
     })
+    .insert(Animatable)
     .insert(CameraFollow)
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-    .insert(Animator::new(tween))
+    .insert(Animator::new(rot_tween))
     .insert(CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET))
     .insert(ActiveEvents::COLLISION_EVENTS);
 }
@@ -90,7 +104,7 @@ fn spawn_player(
 fn player_controller(
     time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Movement, &mut AniState), With<Player>>,
+    mut query: Query<(&mut Transform, &Movement, &mut EntityState ), With<Player>>,
 ) {
     let (mut transform, movement, mut state) = query.single_mut();
 
@@ -107,6 +121,12 @@ fn player_controller(
     } else if input.pressed(KeyCode::D) {
         input_vec += Vec2::X;
         state.direction = Dir::RIGHT;
+    }
+    if input_vec.eq(&Vec2::ZERO){
+        state.action = Action::IDLE;
+    }
+    else{
+        state.action = Action::WALK;
     }
 
     let move_vec = input_vec.normalize_or_zero().extend(0.);
