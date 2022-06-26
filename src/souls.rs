@@ -16,10 +16,12 @@ pub struct ItemPlugin;
 impl Plugin for ItemPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(create_arrow_ui)
-            .add_system(equip_system);
+            .add_system(equip_system)
+            .add_system(move_arrow_ui);
     }
 }
 
+#[derive(Clone)]
 pub enum Rarity {
     COMMON,
     UNCOMMON,
@@ -89,12 +91,12 @@ pub fn spawn_drop(
     //     return ;
     // }
     let tween = Tween::new(
-        EaseFunction::SineInOut,
+        EaseFunction::BounceOut,
         TweeningType::PingPong,
-        std::time::Duration::from_millis(3000),
+        std::time::Duration::from_millis(1000),
         AnchorYAxisLens {
-            start: -0.15,
-            end: 0.15,
+            start: -0.11,
+            end: 0.11,
         },
     );
 
@@ -158,18 +160,18 @@ pub fn create_arrow_ui(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let tween = Tween::new(
-        EaseFunction::BounceOut,
+        EaseFunction::SineInOut,
         TweeningType::PingPong,
         std::time::Duration::from_millis(1000),
         AnchorYAxisLens {
-            start: -0.1,
-            end: 0.1,
+            start: -0.8,
+            end: -1.1,
         },
     );
 
     cmd.spawn_bundle(SpriteSheetBundle {
         sprite: TextureAtlasSprite {
-            index: 25,
+            index: 1059,
             color: Color::Rgba {
                 red: 1.,
                 green: 1.,
@@ -188,6 +190,24 @@ pub fn create_arrow_ui(
     .insert(Animator::new(tween))
     .insert(ArrowUI);
 }
+fn move_arrow_ui(
+    mut item_query: Query<(&Equipable, &Transform), Without<ArrowUI>>,
+    mut arrow_query: Query<(&mut Transform, &mut TextureAtlasSprite), With<ArrowUI>>,
+) {
+    let (mut arrow_transform, mut sprite) = arrow_query.single_mut();
+    sprite.color = Color::Rgba {
+        red: 1.,
+        green: 1.,
+        blue: 1.,
+        alpha: 0.,
+    };
+    for (equipable, item_transform) in item_query.iter() {
+        if equipable.closest {
+            arrow_transform.translation = item_transform.translation;
+            sprite.color = Color::WHITE;
+        }
+    }
+}
 
 fn equip_system(
     mut cmd: Commands,
@@ -201,6 +221,7 @@ fn equip_system(
     let mut close_equip = None;
     let mut close_entity = None;
     for (entity, mut equipable, name, transform) in item_query.iter_mut() {
+        equipable.closest = false;
         let dist = transform
             .translation
             .truncate()
@@ -213,19 +234,15 @@ fn equip_system(
             least_distance = dist;
         }
     }
+
     match close_equip {
         Some(mut e) => {
             e.closest = true;
             let mut created = false;
 
             if input.just_pressed(KeyCode::E) {
-                if e.name == "bow" {
-                    inventory.primary_weapon = wooden_bow();
-                    created = true;
-                } else if (e.name == "sword") {
-                    inventory.primary_weapon = steel_sword();
-                    created = true;
-                }
+                inventory.switch_weapon(&e.name, &e.rarity);
+                created = true;
             }
             if created {
                 let entity = close_entity.unwrap();
