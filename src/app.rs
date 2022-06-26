@@ -36,29 +36,36 @@ pub fn run_app(app_config: AppConfig) {
     }
 
     let mut app = App::new();
+
+    // app config
     app.insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(window_descriptor)
         .add_state(app_config.app_state)
-        .add_system(bevy::input::system::exit_on_esc_system)
-        .add_plugins(DefaultPlugins)
-        .add_plugin(audio::AudioPlugin)
-        .add_plugin(physics::PhysicsPlugin)
+        .add_system(bevy::input::system::exit_on_esc_system);
+
+    // external plugins
+    app.add_plugins(DefaultPlugins)
         .add_plugin(TweeningPlugin)
         .add_plugin(HanabiPlugin)
-        .add_system_set(SystemSet::on_update(AppState::InGame))
-        .add_plugin(player::PlayerPlugin)
+        .add_plugin(audio::AudioPlugin)
+        .add_plugin(physics::PhysicsPlugin);
+
+    // internal plugins
+    app.add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(particles::ParticlePlugin)
-        .add_system(component_animator_system::<TextureAtlasSprite>)
-        .add_system(component::decay_system)
         .add_plugin(worldgen::WorldgenPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
-        .add_system(animator::animate_sprite)
         .add_plugin(screens::UIPlugin)
         .add_plugin(souls::ItemPlugin);
+
+    // loose systems
+    app.add_system(component_animator_system::<TextureAtlasSprite>)
+        .add_system(component::decay_system)
+        .add_system(animator::animate_sprite);
 
     if app_config.egui_enabled {
         app.add_plugin(WorldInspectorPlugin::new());

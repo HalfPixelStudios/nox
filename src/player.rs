@@ -194,6 +194,7 @@ fn player_attack(
         }
     }
 }
+
 fn eat_weapon(
     mut player_query: Query<&mut Health, With<Player>>,
     mut inventory: ResMut<InventoryResource>,
@@ -201,7 +202,6 @@ fn eat_weapon(
     let mut health = player_query.single_mut();
     if !inventory.eaten {
         inventory.eaten = true;
-        println!("Eating");
         match inventory.eat_rarity {
             Rarity::COMMON => health.0 += 10,
             Rarity::UNCOMMON => health.0 += 50,

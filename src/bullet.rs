@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
+use super::config::AppState;
 use super::{collision_group::*, component::Damage, physics::CollisionStartEvent};
 
 pub type ShootFunction = fn(

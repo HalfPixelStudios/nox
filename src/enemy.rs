@@ -180,12 +180,6 @@ fn enemy_die_system(
 ) {
     for (entity, health, transform, drops, sound_emitter) in query.iter() {
         if health.0 <= 0 {
-            // spawn_soul(
-            //     &mut cmd,
-            //     &assets,
-            //     &mut texture_atlases,
-            //     transform.translation,
-            // );
             spawn_drop(
                 &mut cmd,
                 &assets,
@@ -198,23 +192,6 @@ fn enemy_die_system(
                 writer.send(PlaySoundEvent(sound_file.clone()));
             }
 
-            /*
-            cmd.spawn_bundle(SpriteBundle {
-                sprite: Sprite {
-                    color: sprite.color,
-                    ..default()
-                },
-                transform: Transform {
-                    translation: transform.translation,
-                    scale: transform.scale,
-                    rotation: transform.rotation,
-                },
-                ..default()
-            })
-            .insert(Decay {
-                timer: Timer::new(Duration::from_secs(3), true),
-            });
-            */
             cmd.entity(entity).despawn();
         }
     }

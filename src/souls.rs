@@ -1,16 +1,13 @@
-use super::enemy::*;
-use super::prefabs::weapon::{steel_sword, wooden_bow};
-
-use super::collision_group::*;
-use bevy_rapier2d::prelude::*;
-
-use bevy_tweening::{lens::*, *};
-
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
+use bevy_tweening::{lens::*, *};
 use rand::prelude::*;
 use std::time::Duration;
 
-use super::{animator::*, assetloader::get_tileset, component::*, inventory::*, player::*};
+use super::{
+    animator::*, assetloader::get_tileset, collision_group::*, component::*, enemy::*,
+    inventory::*, physics::PhysicsBundle, player::*, prefabs::weapon::*,
+};
 
 pub struct ItemPlugin;
 impl Plugin for ItemPlugin {
@@ -28,6 +25,7 @@ pub enum Rarity {
     RARE,
     MYTHIC,
 }
+
 impl Rarity {
     fn color(&self) -> Color {
         match *self {
@@ -57,10 +55,10 @@ impl Rarity {
         }
     }
 }
+
 #[derive(Component)]
 struct ArrowUI;
-#[derive(Component)]
-struct Soul;
+
 #[derive(Component)]
 pub struct Equipable {
     pub rarity: Rarity,
@@ -68,13 +66,6 @@ pub struct Equipable {
     closest: bool,
 }
 
-#[derive(Bundle)]
-struct SoulBundle {
-    soul: Soul,
-    #[bundle]
-    sprite: SpriteSheetBundle,
-    decay: Decay,
-}
 pub fn spawn_drop(
     cmd: &mut Commands,
     assets: &Res<AssetServer>,
@@ -87,9 +78,6 @@ pub fn spawn_drop(
     let r = rng.gen_range(0..=3);
 
     let rarity = Rarity::new(r);
-    // if c>drops.chance{
-    //     return ;
-    // }
     let tween = Tween::new(
         EaseFunction::BounceOut,
         TweeningType::PingPong,
@@ -107,7 +95,6 @@ pub fn spawn_drop(
             ..default()
         },
         texture_atlas: get_tileset(assets, atlases),
-
         transform: Transform {
             scale: Vec3::new(1.5, 1.5, 0.),
             translation: spawn_pos,
@@ -120,40 +107,12 @@ pub fn spawn_drop(
         name: drops.name.clone(),
         closest: false,
     })
-    .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(0.5, 0.5))
-    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert_bundle(PhysicsBundle::default())
     .insert(CollisionGroups::new(EQUIPABLE, EQUIPABLE))
     .insert(Animator::new(tween))
     .insert(Name::new(drops.name.clone()));
 }
 
-pub fn spawn_soul(
-    cmd: &mut Commands,
-    assets: &Res<AssetServer>,
-    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
-    spawn_pos: Vec3,
-) {
-    cmd.spawn_bundle(SoulBundle {
-        soul: Soul,
-        sprite: SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                index: 1056,
-                ..default()
-            },
-            texture_atlas: get_tileset(&assets, texture_atlases),
-            transform: Transform {
-                translation: spawn_pos,
-                ..default()
-            },
-            ..default()
-        },
-
-        decay: Decay {
-            timer: Timer::new(Duration::from_secs(10), true),
-        },
-    });
-}
 pub fn create_arrow_ui(
     mut cmd: Commands,
     assets: Res<AssetServer>,
@@ -190,6 +149,7 @@ pub fn create_arrow_ui(
     .insert(Animator::new(tween))
     .insert(ArrowUI);
 }
+
 fn move_arrow_ui(
     mut item_query: Query<(&Equipable, &Transform), Without<ArrowUI>>,
     mut arrow_query: Query<(&mut Transform, &mut TextureAtlasSprite), With<ArrowUI>>,
