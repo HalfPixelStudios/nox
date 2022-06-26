@@ -6,8 +6,8 @@ use bevy_tweening::{lens::*, *};
 // use web_sys::console;
 
 use super::{
-    animator, bullet, camera, component, config::AppState, enemy, inventory, particles, physics,
-    player, screens::mainmenu, spawn_waves,
+    animator, assetloader, bullet, camera, component, config::AppState, enemy, inventory,
+    particles, physics, player, screens::mainmenu, spawn_waves, worldgen,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -31,6 +31,7 @@ pub fn run_app(app_state: AppState, fullscreen: bool) {
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(window_descriptor)
         .add_plugins(DefaultPlugins)
+        .add_plugin(assetloader::AssetloaderPlugin)
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(TweeningPlugin)
@@ -43,6 +44,7 @@ pub fn run_app(app_state: AppState, fullscreen: bool) {
         .add_plugin(camera::CameraPlugin)
         .add_plugin(particles::ParticlePlugin)
         .add_system(component::decay_system)
+        .add_plugin(worldgen::WorldgenPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         .add_system(animator::animate_sprite)
