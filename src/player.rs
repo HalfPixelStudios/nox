@@ -9,7 +9,7 @@ use bevy_rapier2d::prelude::*;
 
 use super::{
     animator::*,
-    assetloader::load_from_tileset,
+    assetloader::get_tileset,
     bullet::{Attacker, Bullet},
     camera::{CameraFollow, Cursor},
     collision_group::*,
@@ -71,7 +71,7 @@ fn spawn_player(
             index: 25,
             ..default()
         },
-        texture_atlas: load_from_tileset(assets, texture_atlases, 49, 22),
+        texture_atlas: get_tileset(&assets, &mut texture_atlases),
         transform: Transform {
             scale: Vec3::new(1.5, 1.5, 0.),
             ..default()
