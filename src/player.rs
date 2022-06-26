@@ -18,11 +18,8 @@ use super::{
     component::{Damage, Health},
     config::AppState,
     inventory::InventoryResource,
-
-    souls::*,
-
     physics::{CollisionStartEvent, PhysicsBundle},
-
+    souls::*,
     utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
@@ -186,7 +183,11 @@ fn player_attack(
         );
 
         // play attack sound
-        if let Some(sound_file) = current_weapon.attack_sounds.choose(&mut rand::thread_rng()) {
+        if let Some(sound_file) = inventory
+            .primary_weapon
+            .attack_sounds
+            .choose(&mut rand::thread_rng())
+        {
             writer.send(PlaySoundEvent(sound_file.clone()));
         }
     }
