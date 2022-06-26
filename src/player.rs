@@ -143,8 +143,8 @@ fn player_controller(
         state.action = Action::WALK;
     }
 
-    let move_vec = input_vec.normalize_or_zero().extend(0.);
-    transform.translation += move_vec * movement.speed * time.delta_seconds();
+    let move_vec = input_vec.normalize_or_zero();
+    transform.translation += move_vec.extend(0.) * movement.speed * time.delta_seconds();
 }
 
 fn player_attack(
