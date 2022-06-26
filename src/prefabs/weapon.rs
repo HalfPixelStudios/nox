@@ -56,7 +56,7 @@ pub fn steel_sword() -> Weapon {
 pub fn wooden_bow() -> Weapon {
     Weapon {
         name: "wooden bow".to_string(),
-        attack_fn: straight!(bullet::steel_sword_bullet),
-        attack_speed: 1.,
+        attack_fn: straight!(bullet::wooden_bow_bullet),
+        attack_speed: 3.,
     }
 }

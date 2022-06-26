@@ -72,10 +72,7 @@ fn spawn_player(
             ..default()
         },
         texture_atlas: get_tileset(&assets, &mut texture_atlases),
-        transform: Transform {
-            scale: Vec3::new(1.5, 1.5, 0.),
-            ..default()
-        },
+        transform: Transform { ..default() },
         ..default()
     })
     .insert(Name::new("Player"))
@@ -83,7 +80,7 @@ fn spawn_player(
     .insert(Health(100))
     .insert(Movement { speed: 100. })
     .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(0.5, 0.5))
+    .insert(Collider::cuboid(5., 5.))
     .insert(EntityState {
         action: Action::IDLE,
         direction: Dir::RIGHT,

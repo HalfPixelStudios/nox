@@ -6,7 +6,12 @@ use super::prefabs::enemy::bow_orc;
 
 pub struct SpawnWavesPlugin;
 
-type SpawnFunction = fn(cmd: &mut Commands, spawn_pos: Vec2) -> ();
+type SpawnFunction = fn(
+    cmd: &mut Commands,
+    assets: Res<AssetServer>,
+    texture_atlases: ResMut<Assets<TextureAtlas>>,
+    spawn_pos: Vec2,
+) -> ();
 
 struct WaveInfo {
     spawn_pool: Vec<SpawnFunction>,
@@ -61,7 +66,7 @@ impl Plugin for SpawnWavesPlugin {
             // .add_plugin(InspectorPlugin::<WaveResource>::new())
             .add_system(wave_spawn_system)
             .insert_resource(WaveResource {
-                cooldown_period: 5.,
+                cooldown_period: 1.,
                 waves,
                 ..default()
             });
@@ -96,7 +101,13 @@ fn wave_system(time: Res<Time>, mut res: ResMut<WaveResource>) {
     res.wave_timer.tick(time.delta());
 }
 
-fn wave_spawn_system(mut cmd: Commands, time: Res<Time>, mut res: ResMut<WaveResource>) {
+fn wave_spawn_system(
+    mut cmd: Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    time: Res<Time>,
+    mut res: ResMut<WaveResource>,
+) {
     if res.wave_ongoing == false {
         return;
     }
@@ -104,7 +115,7 @@ fn wave_spawn_system(mut cmd: Commands, time: Res<Time>, mut res: ResMut<WaveRes
     // spawn a new enemy
     if res.spawn_timer.elapsed_secs() > res.spawn_speed {
         res.spawn_timer.reset();
-        spawn_enemy(&mut cmd, res.current_wave());
+        spawn_enemy(&mut cmd, assets, texture_atlases, res.current_wave());
         res.spawns_left -= 1;
     }
 
@@ -117,7 +128,12 @@ fn wave_spawn_system(mut cmd: Commands, time: Res<Time>, mut res: ResMut<WaveRes
     res.spawn_timer.tick(time.delta());
 }
 
-fn spawn_enemy(cmd: &mut Commands, current_wave: &WaveInfo) {
+fn spawn_enemy(
+    cmd: &mut Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    current_wave: &WaveInfo,
+) {
     let spawn_point: Vec2 = Vec2::new(0., 0.);
 
     let spawn_fn = current_wave.spawn_pool.choose(&mut rand::thread_rng());
@@ -125,5 +141,5 @@ fn spawn_enemy(cmd: &mut Commands, current_wave: &WaveInfo) {
         return;
     }
     let spawn_fn = spawn_fn.unwrap();
-    spawn_fn(cmd, spawn_point);
+    spawn_fn(cmd, assets, texture_atlases, spawn_point);
 }

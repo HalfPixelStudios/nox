@@ -62,7 +62,7 @@ impl Plugin for EnemyPlugin {
 pub struct EnemyBundle {
     pub enemy: Enemy,
     #[bundle]
-    pub sprite: SpriteBundle,
+    pub sprite: SpriteSheetBundle,
     pub health: Health,
     pub rb: RigidBody,
     pub col: Collider,
@@ -74,10 +74,10 @@ impl Default for EnemyBundle {
     fn default() -> Self {
         EnemyBundle {
             enemy: Enemy,
-            sprite: SpriteBundle { ..default() },
+            sprite: SpriteSheetBundle { ..default() },
             health: Health(100),
             rb: RigidBody::Dynamic,
-            col: Collider::cuboid(0.5, 0.5),
+            col: Collider::cuboid(5., 5.),
             active_events: ActiveEvents::COLLISION_EVENTS,
             collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET),
         }
