@@ -19,6 +19,7 @@ use super::{
     config::AppState,
     inventory::InventoryResource,
     physics::{CollisionStartEvent, PhysicsBundle},
+    souls::*,
     utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
@@ -38,8 +39,8 @@ impl Plugin for PlayerPlugin {
         app.add_startup_system(spawn_player)
             .add_system(player_controller)
             .add_system(player_attack)
-            .add_system(player_switch_weapon)
-            .add_system(handle_collision);
+            .add_system(handle_collision)
+            .add_system(eat_weapon);
     }
 }
 
@@ -173,8 +174,7 @@ fn player_attack(
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
 
-        let current_weapon = inventory.current_weapon();
-        let shoot_fn = current_weapon.attack_fn;
+        let shoot_fn = inventory.primary_weapon.attack_fn;
         shoot_fn(
             &mut cmd,
             &assets,
@@ -185,18 +185,29 @@ fn player_attack(
         );
 
         // play attack sound
-        if let Some(sound_file) = current_weapon.attack_sounds.choose(&mut rand::thread_rng()) {
+        if let Some(sound_file) = inventory
+            .primary_weapon
+            .attack_sounds
+            .choose(&mut rand::thread_rng())
+        {
             writer.send(PlaySoundEvent(sound_file.clone()));
         }
     }
 }
-
-fn player_switch_weapon(mut inventory: ResMut<InventoryResource>, input: Res<Input<KeyCode>>) {
-    if input.just_pressed(KeyCode::Key1) {
-        inventory.equip_primary();
-    }
-    if input.just_pressed(KeyCode::Key2) {
-        inventory.equip_secondary();
+fn eat_weapon(
+    mut player_query: Query<&mut Health, With<Player>>,
+    mut inventory: ResMut<InventoryResource>,
+) {
+    let mut health = player_query.single_mut();
+    if !inventory.eaten {
+        inventory.eaten = true;
+        println!("Eating");
+        match inventory.eat_rarity {
+            Rarity::COMMON => health.0 += 10,
+            Rarity::UNCOMMON => health.0 += 50,
+            Rarity::RARE => health.0 += 100,
+            Rarity::MYTHIC => health.0 += 300,
+        }
     }
 }
 
