@@ -4,6 +4,8 @@ use std::time::Duration;
 
 use super::{collision_group::*, component::Damage};
 
+pub type ShootFunction = fn(cmd: &mut Commands, spawn_pos: Vec3, dir: Vec2) -> ();
+
 #[derive(Component)]
 pub struct Bullet {
     penetration: i32,
@@ -51,7 +53,7 @@ impl Plugin for BulletPlugin {
     }
 }
 
-pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
+pub fn player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     cmd.spawn_bundle(SpriteBundle {
         sprite: Sprite {
             color: Color::rgb(1., 0., 1.),
@@ -75,7 +77,7 @@ pub fn spawn_player_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     .insert(CollisionGroups::new(PLAYER_BULLET, ENEMY));
 }
 
-pub fn spawn_enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
+pub fn enemy_bullet(cmd: &mut Commands, pos: Vec3, dir: Vec2) {
     cmd.spawn_bundle(SpriteBundle {
         sprite: Sprite {
             color: Color::rgb(0., 1., 0.),

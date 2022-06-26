@@ -1,5 +1,6 @@
 pub mod animator;
 pub mod app;
+pub mod attack;
 pub mod bullet;
 pub mod camera;
 pub mod cli;

@@ -10,7 +10,7 @@ use bevy_rapier2d::prelude::*;
 
 use super::{
     animator::*,
-    bullet::{spawn_player_bullet, Bullet},
+    bullet::Bullet,
     camera::{CameraFollow, Cursor},
     collision_group::*,
     component::{Damage, Health},

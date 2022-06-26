@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
 use super::{
-    bullet::{spawn_enemy_bullet, Bullet},
+    bullet::{enemy_bullet, Bullet},
     collision_group::*,
     component::*,
     player::Player,
@@ -19,6 +19,21 @@ struct SimpleAI {
     target_range: f32, // the distance at which enemy will stop chasing player
     attack_range: f32, // min distance before attempting to attack
     shoot_speed: f32,  // amount of time between attacks (in seconds)
+}
+
+#[derive(Component)]
+struct LoiterAI {
+    // ai that just wanders aimlessly around on the spot
+}
+
+#[derive(Component)]
+struct CircleAI {
+    // circles around target
+}
+
+#[derive(Component)]
+struct ChargeAI {
+    // dashes straight towards target
 }
 
 pub struct EnemyPlugin;
@@ -124,7 +139,7 @@ fn simple_enemy_attack_system(
             attack_timer.0.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
-            spawn_enemy_bullet(&mut cmd, transform.translation, bullet_dir);
+            enemy_bullet(&mut cmd, transform.translation, bullet_dir);
         }
     }
 }
