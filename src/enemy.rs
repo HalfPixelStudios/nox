@@ -131,6 +131,8 @@ fn loiter_movement_system(
 fn attack_system(
     mut cmd: Commands,
     time: Res<Time>,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut enemy_query: Query<(&Transform, &mut AttackPolicy), (With<Enemy>, Without<Player>)>,
     player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
 ) {
@@ -146,7 +148,14 @@ fn attack_system(
             ap.attack_timer.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
-            (ap.weapon.attack_fn)(&mut cmd, Attacker::Enemy, transform.translation, bullet_dir);
+            (ap.weapon.attack_fn)(
+                &mut cmd,
+                &assets,
+                &mut texture_atlases,
+                Attacker::Enemy,
+                transform.translation,
+                bullet_dir,
+            );
         }
     }
 }

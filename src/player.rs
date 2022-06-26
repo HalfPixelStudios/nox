@@ -126,6 +126,8 @@ fn player_controller(
 
 fn player_attack(
     mut cmd: Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     input: Res<Input<KeyCode>>,
     cursor: Res<Cursor>,
     inventory: Res<InventoryResource>,
@@ -141,6 +143,8 @@ fn player_attack(
         let shoot_fn = current_weapon.attack_fn;
         shoot_fn(
             &mut cmd,
+            &assets,
+            &mut texture_atlases,
             Attacker::Player,
             player_trans.translation,
             bullet_direction,

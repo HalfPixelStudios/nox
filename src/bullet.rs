@@ -4,8 +4,14 @@ use std::time::Duration;
 
 use super::{collision_group::*, component::Damage};
 
-pub type ShootFunction =
-    fn(cmd: &mut Commands, attacker: Attacker, spawn_pos: Vec3, dir: Vec2) -> ();
+pub type ShootFunction = fn(
+    cmd: &mut Commands,
+    assets: &Res<AssetServer>,
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+    attacker: Attacker,
+    spawn_pos: Vec3,
+    dir: Vec2,
+) -> ();
 
 #[derive(Component)]
 pub struct Bullet {
@@ -64,7 +70,7 @@ pub enum Attacker {
 pub struct BulletBundle {
     pub bullet: Bullet,
     #[bundle]
-    pub sprite: SpriteBundle,
+    pub sprite: SpriteSheetBundle,
     pub damage: Damage,
     pub movement: Movement,
     pub rb: RigidBody,
@@ -77,7 +83,7 @@ impl Default for BulletBundle {
     fn default() -> Self {
         BulletBundle {
             bullet: Bullet { penetration: 1 },
-            sprite: SpriteBundle { ..default() },
+            sprite: SpriteSheetBundle { ..default() },
             damage: Damage(10),
             movement: Movement(500., Vec2::ZERO),
             rb: RigidBody::Dynamic,

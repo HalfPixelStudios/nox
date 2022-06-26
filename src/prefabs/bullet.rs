@@ -1,4 +1,5 @@
 use super::super::{
+    assetloader::get_tileset,
     bullet::{
         attacker_collision_group, Attacker, Bullet, BulletBundle, DistanceLifetime, Movement,
     },
@@ -6,16 +7,24 @@ use super::super::{
 };
 use bevy::prelude::*;
 
-pub fn steel_sword_bullet(cmd: &mut Commands, attacker: Attacker, pos: Vec3, dir: Vec2) {
+pub fn steel_sword_bullet(
+    cmd: &mut Commands,
+    assets: &Res<AssetServer>,
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+    attacker: Attacker,
+    pos: Vec3,
+    dir: Vec2,
+) {
     cmd.spawn_bundle(BulletBundle {
-        sprite: SpriteBundle {
-            sprite: Sprite {
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 564,
                 color: Color::rgb(1., 0., 1.),
                 ..default()
             },
+            texture_atlas: get_tileset(assets, texture_atlases),
             transform: Transform {
                 translation: pos,
-                scale: Vec3::new(10., 2., 1.),
                 ..default()
             },
             ..default()
@@ -29,16 +38,24 @@ pub fn steel_sword_bullet(cmd: &mut Commands, attacker: Attacker, pos: Vec3, dir
     .insert(attacker_collision_group(attacker));
 }
 
-pub fn wooden_bow_bullet(cmd: &mut Commands, attacker: Attacker, pos: Vec3, dir: Vec2) {
+pub fn wooden_bow_bullet(
+    cmd: &mut Commands,
+    assets: &Res<AssetServer>,
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+    attacker: Attacker,
+    pos: Vec3,
+    dir: Vec2,
+) {
     cmd.spawn_bundle(BulletBundle {
-        sprite: SpriteBundle {
-            sprite: Sprite {
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 285,
                 color: Color::rgb(1., 0., 1.),
                 ..default()
             },
+            texture_atlas: get_tileset(assets, texture_atlases),
             transform: Transform {
                 translation: pos,
-                scale: Vec3::new(10., 2., 1.),
                 ..default()
             },
             ..default()
