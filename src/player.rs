@@ -121,8 +121,10 @@ fn spawn_player(
     })
     .insert(Animatable)
     .insert(CameraFollow)
-    .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-    .insert(Animator::new(rot_tween));
+    .insert(AnimationTimer(Timer::from_seconds(0.05, true)))
+    .insert(Animator::new(rot_tween))
+    .insert(CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET))
+    .insert(ActiveEvents::COLLISION_EVENTS);
 }
 
 fn player_controller(

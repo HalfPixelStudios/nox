@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use bevy::prelude::*;
 use bevy::sprite::*;
@@ -82,6 +83,14 @@ pub fn animate_sprite(
     }
 }
 
+#[derive(Component)]
+pub struct VelocityTilt {
+    pub max_tilt_angle: f32,
+}
+
+fn velocity_tilt_system(mut query: Query<(&VelocityTilt, &Velocity, &mut Transform)>) {
+    for (tilter, velocity, mut transform) in query.iter_mut() {}
+}
 //pub fn animate_sprite(
 //    time: Res<Time>,
 //    texture_atlases: Res<Assets<TextureAtlas>>,

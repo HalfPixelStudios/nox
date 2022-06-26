@@ -38,7 +38,7 @@ impl DistanceLifetime {
     }
 }
 impl DurationLifetime {
-    fn new(max_duration: f32) -> Self {
+    pub fn new(max_duration: f32) -> Self {
         DurationLifetime {
             timer: Timer::new(Duration::from_millis((max_duration * 1000.) as u64), false),
         }

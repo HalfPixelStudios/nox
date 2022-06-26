@@ -2,7 +2,7 @@ use bevy::{core::Stopwatch, prelude::*};
 use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::seq::SliceRandom;
 
-use super::prefabs::enemy::bow_orc;
+use super::prefabs::enemy::*;
 
 pub struct SpawnWavesPlugin;
 
@@ -55,12 +55,20 @@ impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
         let waves = vec![
             WaveInfo {
+                spawn_pool: vec![boss_grand_sphinx],
+                spawn_count: 1,
+            },
+            WaveInfo {
+                spawn_pool: vec![bat, hornet],
+                spawn_count: 20,
+            },
+            WaveInfo {
                 spawn_pool: vec![bow_orc],
                 spawn_count: 5,
             },
             WaveInfo {
                 spawn_pool: vec![bow_orc],
-                spawn_count: 10,
+                spawn_count: 1,
             },
         ];
 
@@ -70,7 +78,7 @@ impl Plugin for SpawnWavesPlugin {
             .insert_resource(WaveResource {
                 cooldown_period: 1.,
                 waves,
-                paused: true,
+                paused: false,
                 ..default()
             });
     }

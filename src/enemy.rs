@@ -73,8 +73,6 @@ impl Plugin for EnemyPlugin {
 pub struct EnemyBundle {
     pub enemy: Enemy,
     pub drops: Drops,
-    #[bundle]
-    pub sprite: SpriteSheetBundle,
     pub health: Health,
     #[bundle]
     pub physics: PhysicsBundle,
@@ -86,7 +84,6 @@ impl Default for EnemyBundle {
     fn default() -> Self {
         EnemyBundle {
             enemy: Enemy,
-            sprite: SpriteSheetBundle::default(),
             health: Health(100),
             drops: Drops::default(),
             physics: PhysicsBundle::default(),

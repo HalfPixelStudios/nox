@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::prefabs::weapon::{steel_sword, wooden_bow};
+use super::prefabs::weapon::*;
 use super::souls::*;
 use super::weapon::Weapon;
 
