@@ -10,7 +10,7 @@ use bevy_rapier2d::prelude::*;
 
 use super::{
     animator::*,
-    bullet::Bullet,
+    bullet::{Attacker, Bullet},
     camera::{CameraFollow, Cursor},
     collision_group::*,
     component::{Damage, Health},
@@ -128,7 +128,12 @@ fn player_attack(
 
         let current_weapon = inventory.current_weapon();
         let shoot_fn = current_weapon.attack_fn;
-        shoot_fn(&mut cmd, player_trans.translation, bullet_direction);
+        shoot_fn(
+            &mut cmd,
+            Attacker::Player,
+            player_trans.translation,
+            bullet_direction,
+        );
     }
 }
 

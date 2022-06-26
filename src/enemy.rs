@@ -3,11 +3,12 @@ use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
 use super::{
-    bullet::{enemy_bullet, Bullet},
+    bullet::{Attacker, Bullet},
     collision_group::*,
     component::*,
     player::Player,
     souls::*,
+    weapon::{wooden_bow_prefab, Weapon},
 };
 
 #[derive(Component)]
@@ -19,22 +20,25 @@ struct SimpleAI {
     target_range: f32, // the distance at which enemy will stop chasing player
     attack_range: f32, // min distance before attempting to attack
     shoot_speed: f32,  // amount of time between attacks (in seconds)
+    weapon: Weapon,
 }
 
+// ai that just wanders aimlessly around on the spot
 #[derive(Component)]
 struct LoiterAI {
-    // ai that just wanders aimlessly around on the spot
+    speed: f32,
+    chaos: f32,        // how often changes direction
+    attack_range: f32, // min distance before attempting to attack
+    shoot_speed: f32,  // amount of time between attacks (in seconds)
 }
 
+// circles around target
 #[derive(Component)]
-struct CircleAI {
-    // circles around target
-}
+struct CircleAI {}
 
+// dashes straight towards target
 #[derive(Component)]
-struct ChargeAI {
-    // dashes straight towards target
-}
+struct ChargeAI {}
 
 pub struct EnemyPlugin;
 
@@ -92,6 +96,7 @@ fn _spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2, color: Color) {
             target_range: 100.,
             attack_range: 200.,
             shoot_speed: 1.,
+            weapon: wooden_bow_prefab(),
         },
         rb: RigidBody::Dynamic,
         col: Collider::cuboid(0.5, 0.5),
@@ -139,7 +144,7 @@ fn simple_enemy_attack_system(
             attack_timer.0.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
-            enemy_bullet(&mut cmd, transform.translation, bullet_dir);
+            (ai.weapon.attack_fn)(&mut cmd, Attacker::Enemy, transform.translation, bullet_dir);
         }
     }
 }
