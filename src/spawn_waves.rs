@@ -59,8 +59,16 @@ impl Plugin for SpawnWavesPlugin {
                 spawn_count: 1,
             },
             WaveInfo {
+                spawn_pool: vec![bat, hornet],
+                spawn_count: 20,
+            },
+            WaveInfo {
                 spawn_pool: vec![bow_orc],
-                spawn_count: 10,
+                spawn_count: 5,
+            },
+            WaveInfo {
+                spawn_pool: vec![bow_orc],
+                spawn_count: 1,
             },
         ];
 
