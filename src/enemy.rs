@@ -10,7 +10,7 @@ use super::{
     component::*,
     player::Player,
     souls::*,
-    weapon::{wooden_bow_prefab, Weapon},
+    weapon::Weapon,
 };
 
 #[derive(Component)]
@@ -18,32 +18,32 @@ pub struct Enemy;
 
 #[derive(Component)]
 pub struct AttackPolicy {
-    attack_range: f32, // min distance before attempting to attack
-    shoot_speed: f32,  // amount of time between attacks (in seconds)
-    weapon: Weapon,
+    pub attack_range: f32, // min distance before attempting to attack
+    pub weapon: Weapon,
+    pub attack_timer: Stopwatch,
 }
 
 #[derive(Component)]
-struct SimpleMovement {
-    speed: f32,
-    target_range: f32, // the distance at which enemy will stop chasing player
+pub struct SimpleMovement {
+    pub speed: f32,
+    pub target_range: f32, // the distance at which enemy will stop chasing player
 }
 
 // ai that just wanders aimlessly around on the spot
 #[derive(Component)]
-struct LoiterMovement {
-    speed: f32,
-    chaos: u32, // how often changes direction
-    current_dir: Vec2,
+pub struct LoiterMovement {
+    pub speed: f32,
+    pub chaos: u32, // how often changes direction
+    pub current_dir: Vec2,
 }
 
 // circles around target
 #[derive(Component)]
-struct CircleMovement {}
+pub struct CircleMovement {}
 
 // dashes straight towards target
 #[derive(Component)]
-struct ChargeMovement {}
+pub struct ChargeMovement {}
 
 #[derive(Component)]
 pub struct Drops {
@@ -66,74 +66,33 @@ impl Plugin for EnemyPlugin {
 }
 
 #[derive(Bundle)]
-struct SimpleEnemyBundle {
-    enemy: Enemy,
+pub struct EnemyBundle {
+    pub enemy: Enemy,
     #[bundle]
-    sprite: SpriteBundle,
-    health: Health,
-    ap: AttackPolicy,
-    rb: RigidBody,
-    col: Collider,
-    attack_timer: AttackTimer,
-    drops: Drops,
+
+    pub drops: Drops,
+    pub sprite: SpriteBundle,
+    pub health: Health,
+    pub rb: RigidBody,
+    pub col: Collider,
+    pub active_events: ActiveEvents,
+    pub collision_groups: CollisionGroups,
 }
 
-#[derive(Component)]
-struct AttackTimer(Stopwatch);
-
-fn setup(mut cmd: Commands) {
-    spawn_simple_enemy(&mut cmd, Vec2::new(50., 50.));
+impl Default for EnemyBundle {
+    fn default() -> Self {
+        EnemyBundle {
+            enemy: Enemy,
+            sprite: SpriteBundle { ..default() },
+            health: Health(100),
+            rb: RigidBody::Dynamic,
+            col: Collider::cuboid(0.5, 0.5),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+            collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET),
+        }
+    }
 }
 
-pub fn spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2) {
-    _spawn_simple_enemy(cmd, spawn_pos, Color::rgb(0., 1., 0.));
-}
-pub fn spawn_simple_enemy_strong(cmd: &mut Commands, spawn_pos: Vec2) {
-    _spawn_simple_enemy(cmd, spawn_pos, Color::rgb(0., 1., 1.));
-}
-
-fn _spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2, color: Color) {
-    cmd.spawn_bundle(SimpleEnemyBundle {
-        enemy: Enemy,
-        sprite: SpriteBundle {
-            sprite: Sprite { color, ..default() },
-            transform: Transform {
-                translation: spawn_pos.extend(0.),
-                scale: Vec3::new(10., 10., 10.),
-                ..default()
-            },
-            ..default()
-        },
-        health: Health(20),
-        ap: AttackPolicy {
-            attack_range: 200.,
-            shoot_speed: 1.,
-            weapon: wooden_bow_prefab(),
-        },
-        rb: RigidBody::Dynamic,
-        col: Collider::cuboid(0.5, 0.5),
-        attack_timer: AttackTimer(Stopwatch::new()),
-        drops: Drops {
-            name: "bow".to_string(),
-            frame: 282,
-            souls: 2,
-            chance: 0.2,
-        },
-    })
-    // .insert(
-    //     SimpleMovement {
-    //         speed: 40.,
-    //         target_range: 100.,
-    //     }
-    // )
-    .insert(LoiterMovement {
-        speed: 40.,
-        chaos: 20,
-        current_dir: Vec2::ZERO,
-    })
-    .insert(ActiveEvents::COLLISION_EVENTS)
-    .insert(CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET));
-}
 
 fn simple_movement_system(
     time: Res<Time>,
@@ -173,20 +132,19 @@ fn loiter_movement_system(
 fn attack_system(
     mut cmd: Commands,
     time: Res<Time>,
-    mut enemy_query: Query<
-        (&Transform, &AttackPolicy, &mut AttackTimer),
-        (With<Enemy>, Without<Player>),
-    >,
+    mut enemy_query: Query<(&Transform, &mut AttackPolicy), (With<Enemy>, Without<Player>)>,
     player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
 ) {
     let player_transform = player_query.single();
 
-    for (transform, ap, mut attack_timer) in enemy_query.iter_mut() {
-        attack_timer.0.tick(time.delta());
+    for (transform, mut ap) in enemy_query.iter_mut() {
+        ap.attack_timer.tick(time.delta());
 
         let delta = player_transform.translation - transform.translation;
-        if delta.length() < ap.attack_range && attack_timer.0.elapsed_secs() > ap.shoot_speed {
-            attack_timer.0.reset();
+        if delta.length() < ap.attack_range
+            && ap.attack_timer.elapsed_secs() > ap.weapon.attack_speed
+        {
+            ap.attack_timer.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
             (ap.weapon.attack_fn)(&mut cmd, Attacker::Enemy, transform.translation, bullet_dir);

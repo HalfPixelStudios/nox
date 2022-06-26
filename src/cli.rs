@@ -1,4 +1,8 @@
-use super::{app::run_app, config::AppState, error::BoxResult};
+use super::{
+    app::{run_app, AppConfig},
+    config::AppState,
+    error::BoxResult,
+};
 use argparse::{Cli, Command, Flag, FlagParse};
 
 pub fn run_cli() -> BoxResult<()> {
@@ -15,6 +19,11 @@ pub fn run_cli() -> BoxResult<()> {
                     .desc("which app state to start in (mainmenu|ingame)")
                     .parameter(), // TOOD add default option to argparse
                 Flag::new('f').long("fullscreen"),
+                Flag::new('e').long("egui"),
+                Flag::new('r').long("debug-render"),
+                Flag::new('d')
+                    .long("debug-mode")
+                    .desc("enable all debug features"),
             ],
         },
         ..Default::default()
@@ -36,8 +45,23 @@ fn handle_run(flagparse: FlagParse) -> BoxResult<()> {
     };
 
     let fullscreen = flagparse.get_flag('f');
+    let egui_enabled = flagparse.get_flag('e');
+    let debug_render = flagparse.get_flag('r');
+    let debug_mode = flagparse.get_flag('d');
 
-    run_app(app_state, fullscreen);
+    let mut config = AppConfig {
+        app_state,
+        fullscreen,
+        egui_enabled,
+        debug_render,
+    };
+
+    if debug_mode {
+        config.egui_enabled = true;
+        config.debug_render = true;
+    }
+
+    run_app(config);
 
     Ok(())
 }

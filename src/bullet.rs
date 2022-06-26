@@ -9,22 +9,22 @@ pub type ShootFunction =
 
 #[derive(Component)]
 pub struct Bullet {
-    penetration: i32,
+    pub penetration: i32,
 }
 
 #[derive(Component)]
-struct DistanceLifetime {
+pub struct DistanceLifetime {
     distance_left: f32,
     previous_position: Vec3,
 }
 
 #[derive(Component)]
-struct DurationLifetime {
+pub struct DurationLifetime {
     timer: Timer,
 }
 
 impl DistanceLifetime {
-    fn new(max_distance: f32, start_position: Vec3) -> Self {
+    pub fn new(max_distance: f32, start_position: Vec3) -> Self {
         DistanceLifetime {
             distance_left: max_distance,
             previous_position: start_position,
@@ -40,7 +40,7 @@ impl DurationLifetime {
 }
 
 #[derive(Component)]
-struct Movement(f32, Vec2);
+pub struct Movement(pub f32, pub Vec2);
 
 pub struct BulletPlugin;
 
@@ -60,35 +60,39 @@ pub enum Attacker {
     Enemy,
 }
 
+#[derive(Bundle)]
+pub struct BulletBundle {
+    pub bullet: Bullet,
+    #[bundle]
+    pub sprite: SpriteBundle,
+    pub damage: Damage,
+    pub movement: Movement,
+    pub rb: RigidBody,
+    pub sensor: Sensor,
+    pub col: Collider,
+    pub active_events: ActiveEvents,
+}
+
+impl Default for BulletBundle {
+    fn default() -> Self {
+        BulletBundle {
+            bullet: Bullet { penetration: 1 },
+            sprite: SpriteBundle { ..default() },
+            damage: Damage(10),
+            movement: Movement(500., Vec2::ZERO),
+            rb: RigidBody::Dynamic,
+            sensor: Sensor(true),
+            col: Collider::cuboid(0.05, 0.01),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+        }
+    }
+}
+
 pub fn attacker_collision_group(attacker: Attacker) -> CollisionGroups {
     match attacker {
         Attacker::Player => CollisionGroups::new(PLAYER_BULLET, ENEMY),
         Attacker::Enemy => CollisionGroups::new(ENEMY_BULLET, PLAYER),
     }
-}
-
-pub fn steel_sword_bullet(cmd: &mut Commands, attacker: Attacker, pos: Vec3, dir: Vec2) {
-    cmd.spawn_bundle(SpriteBundle {
-        sprite: Sprite {
-            color: Color::rgb(1., 0., 1.),
-            ..default()
-        },
-        transform: Transform {
-            translation: pos,
-            scale: Vec3::new(10., 2., 1.),
-            ..default()
-        },
-        ..default()
-    })
-    .insert(Bullet { penetration: 1 })
-    .insert(Damage(10))
-    .insert(Movement(500., dir))
-    .insert(RigidBody::Dynamic)
-    .insert(Sensor(true))
-    .insert(Collider::cuboid(0.05, 0.01))
-    .insert(ActiveEvents::COLLISION_EVENTS)
-    .insert(DistanceLifetime::new(200., pos))
-    .insert(attacker_collision_group(attacker));
 }
 
 fn bullet_movement_system(

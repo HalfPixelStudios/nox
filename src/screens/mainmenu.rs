@@ -1,36 +1,20 @@
 use bevy::{prelude::*, ui::FocusPolicy};
 
 use super::super::config::AppState;
-
-struct UIAssets {
-    font: Handle<Font>,
-}
-
-#[derive(Component)]
-struct UIRoot;
+use super::UIRoot;
 
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(AppState::MainMenu)
-                .with_system(setup)
-                .with_system(render_ui),
-        )
-        .add_system_set(SystemSet::on_update(AppState::MainMenu).with_system(button_listener))
-        .add_system_set(SystemSet::on_exit(AppState::MainMenu).with_system(destroy_ui));
+        app.add_system_set(SystemSet::on_enter(AppState::MainMenu).with_system(render_ui))
+            .add_system_set(SystemSet::on_update(AppState::MainMenu).with_system(button_listener))
+            .add_system_set(SystemSet::on_exit(AppState::MainMenu).with_system(destroy_ui));
     }
 }
 
-fn setup(mut cmd: Commands) {
-    cmd.spawn_bundle(UiCameraBundle::default());
-}
-
 fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
-    let ui_assets = UIAssets {
-        font: assets.load("fonts/arcadeclassic.ttf"),
-    };
+    let font_handle = assets.load("fonts/arcadeclassic.ttf");
 
     cmd.spawn_bundle(NodeBundle {
         style: Style {
@@ -66,7 +50,7 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
                     text: Text::with_section(
                         "Play",
                         TextStyle {
-                            font: ui_assets.font.clone(),
+                            font: font_handle,
                             font_size: 40.,
                             color: Color::rgb(0., 0., 0.),
                             ..default()
@@ -78,7 +62,6 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
                 });
             });
     });
-    cmd.insert_resource(ui_assets);
 }
 
 fn destroy_ui(mut cmd: Commands, query: Query<Entity, With<UIRoot>>) {

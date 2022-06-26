@@ -2,7 +2,7 @@ use bevy::{core::Stopwatch, prelude::*};
 use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::seq::SliceRandom;
 
-use super::enemy::{spawn_simple_enemy, spawn_simple_enemy_strong};
+use super::prefabs::enemy::bow_orc;
 
 pub struct SpawnWavesPlugin;
 
@@ -14,12 +14,12 @@ struct WaveInfo {
 }
 
 #[derive(Inspectable)]
-struct WaveResource {
-    wave_number: u8,
+pub struct WaveResource {
+    pub wave_number: u8,
     spawns_left: u32,
-    wave_ongoing: bool,
+    pub wave_ongoing: bool,
     #[inspectable(ignore)]
-    wave_timer: Stopwatch,
+    pub wave_timer: Stopwatch,
     #[inspectable(ignore)]
     spawn_timer: Stopwatch,
 
@@ -48,11 +48,11 @@ impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
         let waves = vec![
             WaveInfo {
-                spawn_pool: vec![spawn_simple_enemy],
+                spawn_pool: vec![bow_orc],
                 spawn_count: 5,
             },
             WaveInfo {
-                spawn_pool: vec![spawn_simple_enemy_strong],
+                spawn_pool: vec![bow_orc],
                 spawn_count: 10,
             },
         ];
