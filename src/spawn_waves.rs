@@ -32,6 +32,7 @@ pub struct WaveResource {
     spawn_speed: f32,
     #[inspectable(ignore)]
     waves: Vec<WaveInfo>,
+    pub paused: bool, // manual pausing (for debug)
 }
 
 impl Default for WaveResource {
@@ -45,6 +46,7 @@ impl Default for WaveResource {
             cooldown_period: 20.,
             spawn_speed: 1.,
             waves: vec![],
+            paused: false,
         }
     }
 }
@@ -68,6 +70,7 @@ impl Plugin for SpawnWavesPlugin {
             .insert_resource(WaveResource {
                 cooldown_period: 1.,
                 waves,
+                paused: false,
                 ..default()
             });
     }
@@ -88,6 +91,10 @@ impl WaveResource {
 }
 
 fn wave_system(time: Res<Time>, mut res: ResMut<WaveResource>) {
+    if res.paused {
+        return;
+    }
+
     // start new wave
     if res.spawns_left == 0 && res.wave_timer.elapsed_secs() > res.cooldown_period {
         res.wave_timer.pause();
@@ -108,7 +115,7 @@ fn wave_spawn_system(
     time: Res<Time>,
     mut res: ResMut<WaveResource>,
 ) {
-    if res.wave_ongoing == false {
+    if res.wave_ongoing == false || res.paused {
         return;
     }
 

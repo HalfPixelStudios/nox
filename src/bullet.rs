@@ -88,7 +88,7 @@ impl Default for BulletBundle {
             movement: Movement(500., Vec2::ZERO),
             rb: RigidBody::Dynamic,
             sensor: Sensor(true),
-            col: Collider::cuboid(0.05, 0.01),
+            col: Collider::cuboid(1., 1.),
             active_events: ActiveEvents::COLLISION_EVENTS,
         }
     }

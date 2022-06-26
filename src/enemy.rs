@@ -9,6 +9,7 @@ use super::{
     collision_group::*,
     component::*,
     player::Player,
+    prefabs::enemy::bow_orc,
     souls::*,
     weapon::Weapon,
 };
@@ -56,7 +57,8 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(simple_movement_system)
+        app.add_startup_system(setup)
+            .add_system(simple_movement_system)
             .add_system(loiter_movement_system)
             .add_system(attack_system)
             .add_system(enemy_die_system)
@@ -91,6 +93,14 @@ impl Default for EnemyBundle {
             drops: Drops { ..default() },
         }
     }
+}
+
+fn setup(
+    mut cmd: Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    // bow_orc(&mut cmd, assets, texture_atlases, Vec2::ZERO);
 }
 
 fn simple_movement_system(
@@ -164,9 +174,9 @@ fn enemy_die_system(
     mut cmd: Commands,
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    query: Query<(Entity, &Sprite, &Health, &Transform, &Drops), (With<Enemy>, Without<Decay>)>,
+    query: Query<(Entity, &Health, &Transform, &Drops), (With<Enemy>, Without<Decay>)>,
 ) {
-    for (entity, sprite, health, transform, drops) in query.iter() {
+    for (entity, health, transform, drops) in query.iter() {
         if health.0 <= 0 {
             spawn_soul(
                 &mut cmd,
@@ -182,6 +192,7 @@ fn enemy_die_system(
                 transform.translation,
             );
 
+            /*
             cmd.spawn_bundle(SpriteBundle {
                 sprite: Sprite {
                     color: sprite.color,
@@ -197,6 +208,7 @@ fn enemy_die_system(
             .insert(Decay {
                 timer: Timer::new(Duration::from_secs(3), true),
             });
+            */
             cmd.entity(entity).despawn();
         }
     }
