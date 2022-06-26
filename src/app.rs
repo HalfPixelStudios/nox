@@ -7,7 +7,7 @@ use bevy_tweening::{lens::*, *};
 
 use super::{
     animator, bullet, camera, component, config::AppState, enemy, inventory, particles, physics,
-    player, screens::mainmenu, spawn_waves,
+    player, screens::mainmenu, spawn_waves, worldgen,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -44,6 +44,7 @@ pub fn run_app(app_state: AppState, fullscreen: bool) {
         .add_plugin(particles::ParticlePlugin)
         .add_system(component_animator_system::<TextureAtlasSprite>)
         .add_system(component::decay_system)
+        .add_plugin(worldgen::WorldgenPlugin)
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         .add_system(animator::animate_sprite)

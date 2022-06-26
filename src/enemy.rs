@@ -183,11 +183,17 @@ fn attack_system(
 fn enemy_die_system(
     mut cmd: Commands,
     assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     query: Query<(Entity, &Sprite, &Health, &Transform), (With<Enemy>, Without<Decay>)>,
 ) {
     for (entity, sprite, health, transform) in query.iter() {
         if health.0 <= 0 {
-            spawn_soul(&mut cmd, &assets, transform.translation);
+            spawn_soul(
+                &mut cmd,
+                &assets,
+                &mut texture_atlases,
+                transform.translation,
+            );
             cmd.spawn_bundle(SpriteBundle {
                 sprite: Sprite {
                     color: sprite.color,

@@ -9,6 +9,7 @@ use bevy_rapier2d::prelude::*;
 
 use super::{
     animator::*,
+    assetloader::get_tileset,
     bullet::{Attacker, Bullet},
     camera::{CameraFollow, Cursor},
     collision_group::*,
@@ -44,11 +45,7 @@ fn spawn_player(
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let texture_handle = assets.load("tilesheet.png");
-    let atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(16.0, 16.0), 49, 22);
-    let atlas_handle = texture_atlases.add(atlas);
-
-	let tween = Tween::new(
+    let tween = Tween::new(
         EaseFunction::SineInOut,
         TweeningType::PingPong,
         std::time::Duration::from_millis(500),
@@ -64,19 +61,17 @@ fn spawn_player(
         TweeningType::PingPong,
         std::time::Duration::from_millis(500),
         TransformRotationLens {
-            start: Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI/8.),
-            end: Quat::from_axis_angle(Vec3::Z, -std::f32::consts::PI/8.)
-        });
-    
-    
-
+            start: Quat::from_axis_angle(Vec3::Z, std::f32::consts::PI / 8.),
+            end: Quat::from_axis_angle(Vec3::Z, -std::f32::consts::PI / 8.),
+        },
+    );
 
     cmd.spawn_bundle(SpriteSheetBundle {
-        sprite: TextureAtlasSprite{
-            index:25,
+        sprite: TextureAtlasSprite {
+            index: 25,
             ..default()
         },
-        texture_atlas: atlas_handle,
+        texture_atlas: get_tileset(&assets, &mut texture_atlases),
         transform: Transform {
             scale: Vec3::new(1.5, 1.5, 0.),
             ..default()
@@ -104,7 +99,7 @@ fn spawn_player(
 fn player_controller(
     time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Movement, &mut EntityState ), With<Player>>,
+    mut query: Query<(&mut Transform, &Movement, &mut EntityState), With<Player>>,
 ) {
     let (mut transform, movement, mut state) = query.single_mut();
 
@@ -122,10 +117,9 @@ fn player_controller(
         input_vec += Vec2::X;
         state.direction = Dir::RIGHT;
     }
-    if input_vec.eq(&Vec2::ZERO){
+    if input_vec.eq(&Vec2::ZERO) {
         state.action = Action::IDLE;
-    }
-    else{
+    } else {
         state.action = Action::WALK;
     }
 
