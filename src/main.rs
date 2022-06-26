@@ -6,7 +6,7 @@ use bevy_tweening::{lens::*, *};
 
 
 use nox::{
-    animator, bullet, camera, enemy, inventory, physics, player, screens::mainmenu, spawn_waves,component
+    animator, bullet, camera, enemy, inventory, physics, player, screens::mainmenu, spawn_waves,component,
 };
 
 
@@ -34,9 +34,10 @@ fn main() {
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)
+        .add_system(component_animator_system::<TextureAtlasSprite>)
 
         .add_system(component::decay_system)
-        .add_plugin(spawn_waves::SpawnWavesPlugin)
+//        .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         // .add_plugin(mainmenu::MainMenuPlugin)
         .add_startup_system(setup)
