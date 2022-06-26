@@ -1,3 +1,6 @@
+use bevy::prelude::*;
+use std::f32::consts::PI;
+
 use super::super::{
     assetloader::get_tileset,
     bullet::{
@@ -5,7 +8,10 @@ use super::super::{
     },
     component::Damage,
 };
-use bevy::prelude::*;
+
+fn rotation_from_dir(dir: Vec2, offset: f32) -> Quat {
+    Quat::from_rotation_z(Vec2::X.angle_between(dir) + offset)
+}
 
 pub fn steel_sword_bullet(
     cmd: &mut Commands,
@@ -15,6 +21,7 @@ pub fn steel_sword_bullet(
     pos: Vec3,
     dir: Vec2,
 ) {
+    const ROTATION_OFFSET: f32 = -PI / 4.;
     cmd.spawn_bundle(BulletBundle {
         sprite: SpriteSheetBundle {
             sprite: TextureAtlasSprite {
@@ -24,6 +31,7 @@ pub fn steel_sword_bullet(
             texture_atlas: get_tileset(assets, texture_atlases),
             transform: Transform {
                 translation: pos,
+                rotation: rotation_from_dir(dir, ROTATION_OFFSET),
                 ..default()
             },
             ..default()
@@ -45,6 +53,7 @@ pub fn wooden_bow_bullet(
     pos: Vec3,
     dir: Vec2,
 ) {
+    const ROTATION_OFFSET: f32 = -PI / 4.;
     cmd.spawn_bundle(BulletBundle {
         sprite: SpriteSheetBundle {
             sprite: TextureAtlasSprite {
@@ -54,6 +63,7 @@ pub fn wooden_bow_bullet(
             texture_atlas: get_tileset(assets, texture_atlases),
             transform: Transform {
                 translation: pos,
+                rotation: rotation_from_dir(dir, ROTATION_OFFSET),
                 ..default()
             },
             ..default()
@@ -75,6 +85,7 @@ pub fn flamethrower_staff_bolt(
     pos: Vec3,
     dir: Vec2,
 ) {
+    const ROTATION_OFFSET: f32 = 5. * PI / 4.;
     cmd.spawn_bundle(BulletBundle {
         sprite: SpriteSheetBundle {
             sprite: TextureAtlasSprite {
@@ -84,6 +95,7 @@ pub fn flamethrower_staff_bolt(
             texture_atlas: get_tileset(assets, texture_atlases),
             transform: Transform {
                 translation: pos,
+                rotation: rotation_from_dir(dir, ROTATION_OFFSET),
                 ..default()
             },
             ..default()

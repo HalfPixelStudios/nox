@@ -3,6 +3,7 @@ use bevy::{
     math::Vec2,
     prelude::*,
 };
+use rand::{seq::SliceRandom, Rng};
 
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
@@ -10,12 +11,14 @@ use bevy_rapier2d::prelude::*;
 use super::{
     animator::*,
     assetloader::get_tileset,
+    audio::{PlaySoundEvent, SoundEmitter},
     bullet::{Attacker, Bullet},
     camera::{CameraFollow, Cursor},
     collision_group::*,
     component::{Damage, Health},
     config::AppState,
     inventory::InventoryResource,
+    physics::{CollisionStartEvent, PhysicsBundle},
     utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
@@ -37,6 +40,35 @@ impl Plugin for PlayerPlugin {
             .add_system(player_attack)
             .add_system(player_switch_weapon)
             .add_system(handle_collision);
+    }
+}
+
+#[derive(Bundle)]
+struct PlayerBundle {
+    name: Name,
+    player: Player,
+    health: Health,
+    movement: Movement,
+    #[bundle]
+    sprite: SpriteSheetBundle,
+    #[bundle]
+    physics: PhysicsBundle,
+    collision_groups: CollisionGroups,
+    sound_emitter: SoundEmitter,
+}
+
+impl Default for PlayerBundle {
+    fn default() -> Self {
+        PlayerBundle {
+            name: Name::new("Player"),
+            player: Player,
+            health: Health(100),
+            movement: Movement { speed: 100. },
+            sprite: SpriteSheetBundle::default(),
+            physics: PhysicsBundle::default(),
+            collision_groups: CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET),
+            sound_emitter: SoundEmitter::default(),
+        }
     }
 }
 
@@ -66,21 +98,22 @@ fn spawn_player(
         },
     );
 
-    cmd.spawn_bundle(SpriteSheetBundle {
-        sprite: TextureAtlasSprite {
-            index: 25,
+    cmd.spawn_bundle(PlayerBundle {
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 25,
+                ..default()
+            },
+            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            transform: Transform { ..default() },
             ..default()
         },
-        texture_atlas: get_tileset(&assets, &mut texture_atlases),
-        transform: Transform { ..default() },
+        sound_emitter: SoundEmitter {
+            hurt_sounds: vec![],
+            die_sounds: vec!["player/die.wav".to_string()],
+        },
         ..default()
     })
-    .insert(Name::new("Player"))
-    .insert(Player)
-    .insert(Health(100))
-    .insert(Movement { speed: 100. })
-    .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(5., 5.))
     .insert(EntityState {
         action: Action::IDLE,
         direction: Dir::RIGHT,
@@ -120,8 +153,8 @@ fn player_controller(
         state.action = Action::WALK;
     }
 
-    let move_vec = input_vec.normalize_or_zero().extend(0.);
-    transform.translation += move_vec * movement.speed * time.delta_seconds();
+    let move_vec = input_vec.normalize_or_zero();
+    transform.translation += move_vec.extend(0.) * movement.speed * time.delta_seconds();
 }
 
 fn player_attack(
@@ -132,6 +165,7 @@ fn player_attack(
     cursor: Res<Cursor>,
     inventory: Res<InventoryResource>,
     mut player_query: Query<&Transform, With<Player>>,
+    mut writer: EventWriter<PlaySoundEvent>,
 ) {
     let player_trans = player_query.single_mut();
 
@@ -149,6 +183,11 @@ fn player_attack(
             player_trans.translation,
             bullet_direction,
         );
+
+        // play attack sound
+        if let Some(sound_file) = current_weapon.attack_sounds.choose(&mut rand::thread_rng()) {
+            writer.send(PlaySoundEvent(sound_file.clone()));
+        }
     }
 }
 
@@ -164,20 +203,13 @@ fn player_switch_weapon(mut inventory: ResMut<InventoryResource>, input: Res<Inp
 fn handle_collision(
     mut player_query: Query<(Entity, &mut Health), With<Player>>,
     bullet_query: Query<&Damage, With<Bullet>>,
-    mut events: EventReader<CollisionEvent>,
+    mut events: EventReader<CollisionStartEvent>,
 ) {
-    for event in events.iter() {
-        if let CollisionEvent::Started(e1, e2, flags) = event {
-            if let (Ok(mut health), Ok(damage)) = (
-                player_query.get_component_mut::<Health>(*e1),
-                bullet_query.get_component::<Damage>(*e2),
-            ) {
-                health.0 -= damage.0;
-            } else if let (Ok(mut health), Ok(damage)) = (
-                player_query.get_component_mut::<Health>(*e2),
-                bullet_query.get_component::<Damage>(*e1),
-            ) {
-                health.0 -= damage.0;
+    for CollisionStartEvent { me, other } in events.iter() {
+        if let Ok(mut health) = player_query.get_component_mut::<Health>(*me) {
+            // hit by bullet
+            if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
+                health.take(damage.0);
             }
         }
     }

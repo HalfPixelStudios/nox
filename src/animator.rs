@@ -29,7 +29,6 @@ pub struct AnchorXAxisLens {
 impl Lens<TextureAtlasSprite> for AnchorXAxisLens {
     fn lerp(&mut self, target: &mut TextureAtlasSprite, ratio: f32) {
         let value = self.start + (self.end - self.start) * ratio;
-        println!("doing");
 
         target.anchor = Anchor::Custom(Vec2::new(value, target.anchor.as_vec().y));
     }
@@ -41,7 +40,6 @@ pub struct AnchorYAxisLens {
 impl Lens<TextureAtlasSprite> for AnchorYAxisLens {
     fn lerp(&mut self, target: &mut TextureAtlasSprite, ratio: f32) {
         let value = self.start + (self.end - self.start) * ratio;
-        println!("doing");
 
         target.anchor = Anchor::Custom(Vec2::new(target.anchor.as_vec().x, value));
     }

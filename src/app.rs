@@ -3,11 +3,12 @@ use bevy_hanabi::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_tweening::{lens::*, *};
+
 // use web_sys::console;
 
 use super::{
-    animator, bullet, camera, component, config::AppState, enemy, inventory, particles, physics,
-    player, screens, spawn_waves, worldgen,
+    animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
+    physics, player, screens, souls, spawn_waves, worldgen,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -37,11 +38,13 @@ pub fn run_app(app_config: AppConfig) {
     let mut app = App::new();
     app.insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(window_descriptor)
+        .add_state(app_config.app_state)
+        .add_system(bevy::input::system::exit_on_esc_system)
         .add_plugins(DefaultPlugins)
+        .add_plugin(audio::AudioPlugin)
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(TweeningPlugin)
         .add_plugin(HanabiPlugin)
-        .add_state(app_config.app_state)
         .add_system_set(SystemSet::on_update(AppState::InGame))
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
@@ -54,7 +57,8 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(spawn_waves::SpawnWavesPlugin)
         .add_plugin(inventory::InventoryPlugin)
         .add_system(animator::animate_sprite)
-        .add_plugin(screens::UIPlugin);
+        .add_plugin(screens::UIPlugin)
+        .add_plugin(souls::ItemPlugin);
 
     if app_config.egui_enabled {
         app.add_plugin(WorldInspectorPlugin::new());

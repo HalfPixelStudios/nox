@@ -2,7 +2,7 @@ use bevy::{core::Stopwatch, prelude::*};
 use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::seq::SliceRandom;
 
-use super::prefabs::enemy::bow_orc;
+use super::prefabs::enemy::*;
 
 pub struct SpawnWavesPlugin;
 
@@ -55,7 +55,7 @@ impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
         let waves = vec![
             WaveInfo {
-                spawn_pool: vec![bow_orc],
+                spawn_pool: vec![bow_orc, bat],
                 spawn_count: 5,
             },
             WaveInfo {

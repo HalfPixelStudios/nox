@@ -8,4 +8,5 @@ pub struct Weapon {
     pub name: String,
     pub attack_fn: ShootFunction,
     pub attack_speed: f32, // time between consecutive attacks
+    pub attack_sounds: Vec<String>,
 }

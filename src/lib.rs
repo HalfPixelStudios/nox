@@ -1,6 +1,7 @@
 pub mod animator;
 pub mod app;
 pub mod assetloader;
+pub mod audio;
 pub mod bullet;
 pub mod camera;
 pub mod cli;
