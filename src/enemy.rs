@@ -45,6 +45,14 @@ struct CircleMovement {}
 #[derive(Component)]
 struct ChargeMovement {}
 
+#[derive(Component)]
+pub struct Drops{
+    pub name:String,
+    pub frame:usize,
+    pub souls:i32,
+    pub chance:f32
+
+}
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
@@ -68,6 +76,7 @@ struct SimpleEnemyBundle {
     rb: RigidBody,
     col: Collider,
     attack_timer: AttackTimer,
+    drops: Drops
 }
 
 #[derive(Component)]
@@ -105,6 +114,7 @@ fn _spawn_simple_enemy(cmd: &mut Commands, spawn_pos: Vec2, color: Color) {
         rb: RigidBody::Dynamic,
         col: Collider::cuboid(0.5, 0.5),
         attack_timer: AttackTimer(Stopwatch::new()),
+        drops: Drops{name:"bow".to_string(), frame:119, souls:2 ,chance:0.2}
     })
     // .insert(
     //     SimpleMovement {
@@ -183,11 +193,14 @@ fn attack_system(
 fn enemy_die_system(
     mut cmd: Commands,
     assets: Res<AssetServer>,
-    query: Query<(Entity, &Sprite, &Health, &Transform), (With<Enemy>, Without<Decay>)>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    query: Query<(Entity, &Sprite, &Health, &Transform, &Drops), (With<Enemy>, Without<Decay>)>,
 ) {
-    for (entity, sprite, health, transform) in query.iter() {
+    for (entity, sprite, health, transform, drops) in query.iter() {
         if health.0 <= 0 {
             spawn_soul(&mut cmd, &assets, transform.translation);
+            spawn_drop(&mut cmd, &assets,&mut texture_atlases,&drops,transform.translation);
+
             cmd.spawn_bundle(SpriteBundle {
                 sprite: Sprite {
                     color: sprite.color,
