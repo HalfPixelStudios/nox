@@ -16,6 +16,7 @@ use super::{
     component::{Damage, Health},
     config::AppState,
     inventory::InventoryResource,
+    physics::PhysicsBundle,
     utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
@@ -37,6 +38,33 @@ impl Plugin for PlayerPlugin {
             .add_system(player_attack)
             .add_system(player_switch_weapon)
             .add_system(handle_collision);
+    }
+}
+
+#[derive(Bundle)]
+struct PlayerBundle {
+    name: Name,
+    player: Player,
+    health: Health,
+    movement: Movement,
+    #[bundle]
+    sprite: SpriteSheetBundle,
+    #[bundle]
+    physics: PhysicsBundle,
+    collision_groups: CollisionGroups,
+}
+
+impl Default for PlayerBundle {
+    fn default() -> Self {
+        PlayerBundle {
+            name: Name::new("Player"),
+            player: Player,
+            health: Health(100),
+            movement: Movement { speed: 100. },
+            sprite: SpriteSheetBundle::default(),
+            physics: PhysicsBundle::default(),
+            collision_groups: CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET),
+        }
     }
 }
 
@@ -66,21 +94,18 @@ fn spawn_player(
         },
     );
 
-    cmd.spawn_bundle(SpriteSheetBundle {
-        sprite: TextureAtlasSprite {
-            index: 25,
+    cmd.spawn_bundle(PlayerBundle {
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 25,
+                ..default()
+            },
+            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            transform: Transform { ..default() },
             ..default()
         },
-        texture_atlas: get_tileset(&assets, &mut texture_atlases),
-        transform: Transform { ..default() },
         ..default()
     })
-    .insert(Name::new("Player"))
-    .insert(Player)
-    .insert(Health(100))
-    .insert(Movement { speed: 100. })
-    .insert(RigidBody::Dynamic)
-    .insert(Collider::cuboid(5., 5.))
     .insert(EntityState {
         action: Action::IDLE,
         direction: Dir::RIGHT,
@@ -88,9 +113,7 @@ fn spawn_player(
     .insert(Animatable)
     .insert(CameraFollow)
     .insert(AnimationTimer(Timer::from_seconds(0.1, true)))
-    .insert(Animator::new(rot_tween))
-    .insert(CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET))
-    .insert(ActiveEvents::COLLISION_EVENTS);
+    .insert(Animator::new(rot_tween));
 }
 
 fn player_controller(

@@ -14,6 +14,30 @@ impl Plugin for PhysicsPlugin {
     }
 }
 
+#[derive(Bundle)]
+pub struct PhysicsBundle {
+    pub rb: RigidBody,
+    pub col: Collider,
+    pub active_events: ActiveEvents,
+    pub locked_axes: LockedAxes,
+    pub damping: Damping,
+}
+
+impl Default for PhysicsBundle {
+    fn default() -> Self {
+        PhysicsBundle {
+            rb: RigidBody::Dynamic,
+            col: Collider::cuboid(5., 5.),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+            locked_axes: LockedAxes::ROTATION_LOCKED,
+            damping: Damping {
+                linear_damping: 1.,
+                ..default()
+            },
+        }
+    }
+}
+
 fn setup(mut cmd: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 

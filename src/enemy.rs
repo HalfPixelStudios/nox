@@ -8,6 +8,7 @@ use super::{
     bullet::{Attacker, Bullet},
     collision_group::*,
     component::*,
+    physics::PhysicsBundle,
     player::Player,
     prefabs::enemy::bow_orc,
     souls::*,
@@ -70,13 +71,11 @@ impl Plugin for EnemyPlugin {
 pub struct EnemyBundle {
     pub enemy: Enemy,
     pub drops: Drops,
-
     #[bundle]
     pub sprite: SpriteSheetBundle,
     pub health: Health,
-    pub rb: RigidBody,
-    pub col: Collider,
-    pub active_events: ActiveEvents,
+    #[bundle]
+    pub physics: PhysicsBundle,
     pub collision_groups: CollisionGroups,
 }
 
@@ -84,13 +83,11 @@ impl Default for EnemyBundle {
     fn default() -> Self {
         EnemyBundle {
             enemy: Enemy,
-            sprite: SpriteSheetBundle { ..default() },
+            sprite: SpriteSheetBundle::default(),
             health: Health(100),
-            rb: RigidBody::Dynamic,
-            col: Collider::cuboid(5., 5.),
-            active_events: ActiveEvents::COLLISION_EVENTS,
-            collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET),
-            drops: Drops { ..default() },
+            drops: Drops::default(),
+            physics: PhysicsBundle::default(),
+            collision_groups: CollisionGroups::new(ENEMY, PLAYER | PLAYER_BULLET | ENEMY),
         }
     }
 }
