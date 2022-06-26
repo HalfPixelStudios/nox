@@ -10,7 +10,7 @@ use bevy::prelude::*;
 use rand::prelude::*;
 use std::time::Duration;
 
-use super::{animator::*, assetloader::get_tileset, component::*, inventory::*};
+use super::{animator::*, assetloader::get_tileset, component::*, inventory::*, player::*};
 
 pub enum Rarity {
     COMMON,
@@ -48,10 +48,14 @@ impl Rarity {
     }
 }
 #[derive(Component)]
+struct ArrowUI;
+#[derive(Component)]
 struct Soul;
 #[derive(Component)]
-struct Equipable {
-    rarity: Rarity,
+pub struct Equipable {
+    pub rarity: Rarity,
+    pub name: String,
+    closest: bool,
 }
 
 #[derive(Bundle)]
@@ -101,11 +105,15 @@ pub fn spawn_drop(
         },
         ..default()
     })
-    .insert(Equipable { rarity })
+    .insert(Equipable {
+        rarity,
+        name: drops.name.clone(),
+        closest: false,
+    })
     .insert(RigidBody::Dynamic)
     .insert(Collider::cuboid(0.5, 0.5))
     .insert(ActiveEvents::COLLISION_EVENTS)
-    .insert(CollisionGroups::new(EQUIPABLE, PLAYER))
+    .insert(CollisionGroups::new(EQUIPABLE, EQUIPABLE))
     .insert(Animator::new(tween))
     .insert(Name::new(drops.name.clone()));
 }
@@ -136,39 +144,86 @@ pub fn spawn_soul(
         },
     });
 }
-
-fn handle_item_collision(
-    mut item_query: Query<(&Equipable, &mut Name)>,
-    mut events: EventReader<CollisionEvent>,
-    mut inventory: &mut ResMut<InventoryResource>,
+pub fn create_arrow_ui(
+    mut cmd: Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    for event in events.iter() {
-        if let CollisionEvent::Started(mut e1, mut e2, flags) = event {
-            if let Ok(equipable) = item_query.get_component_mut::<Equipable>(e1) {
-                let r = item_query.get_component_mut::<Name>(e1);
-                match r {
-                    Ok(name) => {
-                        if name.as_str() == "bow" {
-                            inventory.primary_weapon = wooden_bow();
-                        } else if (name.as_str() == "sword") {
-                            inventory.primary_weapon = steel_sword();
-                        }
-                    }
-                    Err(er) => println!("Error"),
-                }
-            } else if let equipable = item_query.get_component_mut::<Equipable>(e2) {
-                let r = item_query.get_component_mut::<Name>(e1);
-                match r {
-                    Ok(name) => {
-                        if name.as_str() == "bow" {
-                            inventory.primary_weapon = wooden_bow()
-                        } else if (name.as_str() == "sword") {
-                            inventory.primary_weapon = steel_sword()
-                        }
-                    }
-                    Err(er) => println!("Error"),
+    let tween = Tween::new(
+        EaseFunction::BounceOut,
+        TweeningType::PingPong,
+        std::time::Duration::from_millis(1000),
+        AnchorYAxisLens {
+            start: -0.1,
+            end: 0.1,
+        },
+    );
+
+    cmd.spawn_bundle(SpriteSheetBundle {
+        sprite: TextureAtlasSprite {
+            index: 25,
+            color: Color::Rgba {
+                red: 1.,
+                green: 1.,
+                blue: 1.,
+                alpha: 0.,
+            },
+            ..default()
+        },
+        texture_atlas: get_tileset(&assets, &mut texture_atlases),
+        transform: Transform {
+            scale: Vec3::new(1.5, 1.5, 0.),
+            ..default()
+        },
+        ..default()
+    })
+    .insert(Animator::new(tween))
+    .insert(ArrowUI);
+}
+
+fn equip_system(
+    mut cmd: Commands,
+    mut item_query: Query<(Entity, &mut Equipable, &mut Name, &Transform), Without<Player>>,
+    mut player_query: Query<&Transform, With<Player>>,
+    mut inventory: &mut ResMut<InventoryResource>,
+    input: Res<Input<KeyCode>>,
+) {
+    let ptransform = player_query.single();
+    let mut least_distance = 1000.;
+    let mut close_equip = None;
+    let mut close_entity = None;
+    for (entity, mut equipable, name, transform) in item_query.iter_mut() {
+        let dist = transform
+            .translation
+            .truncate()
+            .distance(ptransform.translation.truncate());
+
+        if dist < 20. && dist < least_distance {
+            close_equip = Some(equipable);
+            close_entity = Some(entity);
+
+            least_distance = dist;
+        }
+    }
+    match close_equip {
+        Some(mut e) => {
+            e.closest = true;
+            let mut created = false;
+
+            if input.just_pressed(KeyCode::E) {
+                if e.name == "bow" {
+                    inventory.primary_weapon = wooden_bow();
+                    created = true;
+                } else if (e.name == "sword") {
+                    inventory.primary_weapon = steel_sword();
+                    created = true;
                 }
             }
+            if created {
+                let entity = close_entity.unwrap();
+                cmd.entity(entity).despawn();
+            }
         }
+        None => (),
     }
 }
