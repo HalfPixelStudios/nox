@@ -4,4 +4,5 @@ pub const PPM: f32 = 100.;
 pub enum AppState {
     MainMenu,
     InGame,
+    GameOver,
 }

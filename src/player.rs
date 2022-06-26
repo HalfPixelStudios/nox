@@ -20,7 +20,6 @@ use super::{
     inventory::InventoryResource,
     physics::{CollisionStartEvent, PhysicsBundle},
     souls::*,
-    utils::find_collider,
 };
 use bevy_tweening::{lens::*, *};
 
@@ -37,8 +36,12 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
-            .add_system(player_controller)
-            .add_system(player_attack)
+            .add_system_set(
+                SystemSet::on_update(AppState::InGame)
+                    .with_system(player_controller)
+                    .with_system(player_attack)
+                    .with_system(player_die),
+            )
             .add_system(handle_collision)
             .add_system(eat_weapon);
     }
@@ -63,7 +66,7 @@ impl Default for PlayerBundle {
         PlayerBundle {
             name: Name::new("Player"),
             player: Player,
-            health: Health(100),
+            health: Health(1),
             movement: Movement { speed: 100. },
             sprite: SpriteSheetBundle::default(),
             physics: PhysicsBundle::default(),
@@ -208,6 +211,14 @@ fn eat_weapon(
             Rarity::RARE => health.0 += 100,
             Rarity::MYTHIC => health.0 += 300,
         }
+    }
+}
+
+fn player_die(mut app_state: ResMut<State<AppState>>, query: Query<&Health, With<Player>>) {
+    let health = query.single();
+
+    if health.0 <= 0 {
+        app_state.set(AppState::GameOver).unwrap();
     }
 }
 
