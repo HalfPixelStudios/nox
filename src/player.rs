@@ -242,7 +242,7 @@ fn handle_collision(
         ) {
             // hit by bullet
             if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
-                health.take(damage.0);
+                health.0 -= damage.0;
 
                 // play sound
                 if let Some(sound_file) = sound_emitter.pick_hurt_sound() {

@@ -12,19 +12,11 @@ pub fn bow_orc(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     spawn_pos: Vec2,
 ) {
-    _orc(cmd, assets, texture_atlases, spawn_pos, wooden_bow())
-}
-
-fn _orc(
-    cmd: &mut Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    spawn_pos: Vec2,
-    weapon: Weapon,
-) {
     cmd.spawn_bundle(EnemyBundle {
+
         health: Health(20),
         drops: Drops { ..default() },
+
         sound_emitter: SoundEmitter {
             hurt_sounds: vec!["orc/hurt1.wav".to_string(), "orc/hurt2.wav".to_string()],
             die_sounds: vec!["orc/die1.wav".to_string(), "orc/die2.wav".to_string()],
@@ -46,12 +38,90 @@ fn _orc(
     })
     .insert(AttackPolicy {
         attack_range: 200.,
-        weapon,
+        weapon: wooden_bow(),
         attack_timer: Stopwatch::new(),
     })
     .insert(SimpleMovement {
         speed: 40.,
         target_range: 100.,
+    });
+}
+
+pub fn greatsword_orc(
+    cmd: &mut Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    spawn_pos: Vec2,
+) {
+    cmd.spawn_bundle(EnemyBundle {
+        health: Health(50),
+        drops: Drops::default(),
+        sound_emitter: SoundEmitter {
+            hurt_sounds: vec!["orc/hurt1.wav".to_string(), "orc/hurt2.wav".to_string()],
+            die_sounds: vec!["orc/die1.wav".to_string(), "orc/die2.wav".to_string()],
+        },
+        ..default()
+    })
+    .insert_bundle(SpriteSheetBundle {
+        sprite: TextureAtlasSprite {
+            index: 126,
+            color: Color::rgb(0., 1., 0.),
+            ..default()
+        },
+        texture_atlas: get_tileset(&assets, &mut texture_atlases),
+        transform: Transform {
+            translation: spawn_pos.extend(0.),
+            ..default()
+        },
+        ..default()
+    })
+    .insert(AttackPolicy {
+        attack_range: 60.,
+        weapon: steel_greatsword(),
+        attack_timer: Stopwatch::new(),
+    })
+    .insert(SimpleMovement {
+        speed: 40.,
+        target_range: 40.,
+    });
+}
+
+pub fn royal_hammer_orc(
+    cmd: &mut Commands,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    spawn_pos: Vec2,
+) {
+    cmd.spawn_bundle(EnemyBundle {
+        health: Health(100),
+        drops: Drops::default(),
+        sound_emitter: SoundEmitter {
+            hurt_sounds: vec!["orc/hurt1.wav".to_string(), "orc/hurt2.wav".to_string()],
+            die_sounds: vec!["orc/die1.wav".to_string(), "orc/die2.wav".to_string()],
+        },
+        ..default()
+    })
+    .insert_bundle(SpriteSheetBundle {
+        sprite: TextureAtlasSprite {
+            index: 125,
+            color: Color::rgb(0., 1., 0.),
+            ..default()
+        },
+        texture_atlas: get_tileset(&assets, &mut texture_atlases),
+        transform: Transform {
+            translation: spawn_pos.extend(0.),
+            ..default()
+        },
+        ..default()
+    })
+    .insert(AttackPolicy {
+        attack_range: 100.,
+        weapon: royal_hammer(),
+        attack_timer: Stopwatch::new(),
+    })
+    .insert(SimpleMovement {
+        speed: 30.,
+        target_range: 10.,
     });
 }
 
@@ -102,7 +172,7 @@ pub fn hornet(
     spawn_pos: Vec2,
 ) {
     cmd.spawn_bundle(EnemyBundle {
-        health: Health(10),
+        health: Health(50),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
             hurt_sounds: vec!["bee/hurt1.wav".to_string()],
@@ -142,7 +212,7 @@ pub fn flame_mage(
     spawn_pos: Vec2,
 ) {
     cmd.spawn_bundle(EnemyBundle {
-        health: Health(10),
+        health: Health(70),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
             hurt_sounds: vec!["player/hurt1.wav".to_string()],
@@ -185,7 +255,7 @@ pub fn boss_grand_sphinx(
     let handle = assets.load("grand_sphinx.png");
 
     cmd.spawn_bundle(EnemyBundle {
-        health: Health(200),
+        health: Health(300),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
             hurt_sounds: vec![

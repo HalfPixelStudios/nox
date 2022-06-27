@@ -71,7 +71,7 @@ pub fn steel_greatsword_bullet(
             ..default()
         },
         bullet: Bullet { penetration: 1 },
-        damage: Damage(20),
+        damage: Damage(30),
         movement: Movement(150., dir),
         ..default()
     })
@@ -135,7 +135,7 @@ pub fn flamethrower_staff_bolt(
             ..default()
         },
         bullet: Bullet { penetration: 1 },
-        damage: Damage(5),
+        damage: Damage(10),
         movement: Movement(50., dir),
         ..default()
     })
@@ -167,7 +167,7 @@ pub fn posion_dagger_bullet(
             ..default()
         },
         bullet: Bullet { penetration: 1 },
-        damage: Damage(5),
+        damage: Damage(15),
         movement: Movement(50., dir),
         ..default()
     })
