@@ -1,8 +1,9 @@
-use bevy::{core::Stopwatch, prelude::*};
+use bevy::{core::Stopwatch, math::Mat2, prelude::*};
 use bevy_inspector_egui::{Inspectable, InspectorPlugin};
-use rand::seq::SliceRandom;
+use rand::{seq::SliceRandom, Rng};
+use std::f32::consts::PI;
 
-use super::{config::AppState, prefabs::enemy::*};
+use super::{config::AppState, player::Player, prefabs::enemy::*};
 
 pub struct SpawnWavesPlugin;
 
@@ -124,15 +125,24 @@ fn wave_spawn_system(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     time: Res<Time>,
     mut res: ResMut<WaveResource>,
+    player_query: Query<&Transform, With<Player>>,
 ) {
     if res.wave_ongoing == false || res.paused {
         return;
     }
 
+    let player_position = player_query.single().translation;
+
     // spawn a new enemy
     if res.spawn_timer.elapsed_secs() > res.spawn_speed {
         res.spawn_timer.reset();
-        spawn_enemy(&mut cmd, assets, texture_atlases, res.current_wave());
+        spawn_enemy(
+            &mut cmd,
+            assets,
+            texture_atlases,
+            res.current_wave(),
+            player_position.truncate(),
+        );
         res.spawns_left -= 1;
     }
 
@@ -150,8 +160,13 @@ fn spawn_enemy(
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     current_wave: &WaveInfo,
+    player_position: Vec2,
 ) {
-    let spawn_point: Vec2 = Vec2::new(0., 0.);
+    const SPAWN_DISTANCE: f32 = 250.;
+
+    let rand: i32 = rand::thread_rng().gen_range(0..360);
+    let angle = (rand as f32) * PI / 180.;
+    let spawn_point = player_position + Mat2::from_angle(angle) * Vec2::X * SPAWN_DISTANCE;
 
     let spawn_fn = current_wave.spawn_pool.choose(&mut rand::thread_rng());
     if spawn_fn.is_none() {
