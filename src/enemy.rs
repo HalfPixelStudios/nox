@@ -1,5 +1,6 @@
 use bevy::{core::Stopwatch, math::Mat2, prelude::*};
 use bevy_rapier2d::prelude::*;
+use rand::prelude::*;
 use rand::{seq::SliceRandom, Rng};
 use std::f32::consts::PI;
 use std::time::Duration;
@@ -49,12 +50,72 @@ pub struct CircleMovement {}
 #[derive(Component)]
 pub struct ChargeMovement {}
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Drops {
-    pub name: String,
+    pub name: i32,
     pub frame: usize,
-    pub souls: i32,
     pub chance: f32,
+}
+impl Default for Drops {
+    fn default() -> Self {
+        let mut rng = thread_rng();
+        let r = rng.gen_range(0..=9);
+        if r == 1 {
+            Drops {
+                name: 1,
+                frame: 282,
+                chance: 0.5,
+            }
+        } else if r == 2 {
+            Drops {
+                name: 2,
+                frame: 290,
+                chance: 0.4,
+            }
+        } else if r == 3 {
+            Drops {
+                name: 3,
+                frame: 380,
+                chance: 0.4,
+            }
+        } else if r == 4 {
+            Drops {
+                name: 4,
+                frame: 232,
+                chance: 0.4,
+            }
+        } else if r == 5 {
+            Drops {
+                name: 5,
+                frame: 376,
+                chance: 0.4,
+            }
+        } else if r == 6 {
+            Drops {
+                name: 6,
+                frame: 425,
+                chance: 0.4,
+            }
+        } else if r == 7 {
+            Drops {
+                name: 7,
+                frame: 523,
+                chance: 0.4,
+            }
+        } else if r == 8 {
+            Drops {
+                name: 8,
+                frame: 327,
+                chance: 0.4,
+            }
+        } else {
+            Drops {
+                name: 9,
+                frame: 291,
+                chance: 0.4,
+            }
+        }
+    }
 }
 
 pub struct EnemyPlugin;

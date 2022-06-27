@@ -24,12 +24,7 @@ fn _orc(
 ) {
     cmd.spawn_bundle(EnemyBundle {
         health: Health(20),
-        drops: Drops {
-            name: "bow".to_string(),
-            frame: 282,
-            souls: 2,
-            chance: 0.2,
-        },
+        drops: Drops { ..default() },
         sound_emitter: SoundEmitter {
             hurt_sounds: vec!["orc/hurt1.wav".to_string(), "orc/hurt2.wav".to_string()],
             die_sounds: vec!["orc/die1.wav".to_string(), "orc/die2.wav".to_string()],

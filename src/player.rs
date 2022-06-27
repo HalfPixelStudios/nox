@@ -208,9 +208,9 @@ fn eat_weapon(
         inventory.eaten = true;
         match inventory.eat_rarity {
             Rarity::COMMON => health.0 += 10,
-            Rarity::UNCOMMON => health.0 += 50,
-            Rarity::RARE => health.0 += 100,
-            Rarity::MYTHIC => health.0 += 300,
+            Rarity::UNCOMMON => health.0 += 30,
+            Rarity::RARE => health.0 += 50,
+            Rarity::MYTHIC => health.0 += 100,
         }
 
         // play sound
