@@ -13,7 +13,6 @@ pub fn bow_orc(
     spawn_pos: Vec2,
 ) {
     cmd.spawn_bundle(EnemyBundle {
-
         health: Health(20),
         drops: Drops { ..default() },
 

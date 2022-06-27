@@ -163,7 +163,7 @@ fn setup(
     assets: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    bow_orc(&mut cmd, assets, texture_atlases, Vec2::ZERO);
+    // bow_orc(&mut cmd, assets, texture_atlases, Vec2::ZERO);
 }
 
 fn simple_movement_system(
