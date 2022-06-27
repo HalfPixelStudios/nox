@@ -66,7 +66,7 @@ impl Default for PlayerBundle {
         PlayerBundle {
             name: Name::new("Player"),
             player: Player,
-            health: Health(1),
+            health: Health(100),
             movement: Movement { speed: 100. },
             sprite: SpriteSheetBundle::default(),
             physics: PhysicsBundle::default(),

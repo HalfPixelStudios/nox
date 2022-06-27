@@ -1,4 +1,4 @@
-use bevy::{prelude::*, ui::FocusPolicy};
+use bevy::{app::AppExit, prelude::*, ui::*};
 
 use super::super::config::AppState;
 use super::UIRoot;
@@ -19,9 +19,10 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
     cmd.spawn_bundle(NodeBundle {
         style: Style {
             align_self: AlignSelf::Center,
-            justify_content: JustifyContent::Center,
-            size: Size::new(Val::Percent(20.), Val::Percent(20.)),
+            justify_content: JustifyContent::SpaceBetween,
+            size: Size::new(Val::Percent(20.), Val::Percent(40.)),
             margin: Rect::all(Val::Auto),
+            flex_direction: FlexDirection::ColumnReverse,
             ..default()
         },
         color: UiColor(Color::NONE),
@@ -37,10 +38,10 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
                 ..default()
             },
             text: Text::with_section(
-                "Game Over!",
+                "Game Over",
                 TextStyle {
-                    font: font_handle,
-                    font_size: 40.,
+                    font: font_handle.clone(),
+                    font_size: 100.,
                     color: Color::rgb(0., 0., 0.),
                     ..default()
                 },
@@ -48,6 +49,44 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
             ),
             ..default()
         });
+
+        parent
+            .spawn_bundle(ButtonBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    justify_content: JustifyContent::Center,
+                    size: Size::new(Val::Percent(100.), Val::Percent(30.)),
+                    margin: Rect::all(Val::Auto),
+                    ..default()
+                },
+                ..default()
+            })
+            .with_children(|parent| {
+                parent.spawn_bundle(TextBundle {
+                    style: Style {
+                        justify_content: JustifyContent::Center,
+                        margin: Rect::all(Val::Auto),
+                        size: Size {
+                            height: Val::Percent(30.),
+                            ..default()
+                        },
+                        align_self: AlignSelf::Center,
+                        ..default()
+                    },
+                    text: Text::with_section(
+                        "Exit Game",
+                        TextStyle {
+                            font: font_handle.clone(),
+                            font_size: 40.,
+                            color: Color::rgb(0., 0., 0.),
+                            ..default()
+                        },
+                        default(),
+                    ),
+                    focus_policy: FocusPolicy::Pass,
+                    ..default()
+                });
+            });
     });
 }
 
@@ -58,6 +97,14 @@ fn destroy_ui(mut cmd: Commands, query: Query<Entity, With<UIRoot>>) {
 
 fn button_listener(
     query: Query<&Interaction, Changed<Interaction>>,
-    mut app_state: ResMut<State<AppState>>,
+    mut writer: EventWriter<AppExit>,
 ) {
+    for interaction in query.iter() {
+        match interaction {
+            Interaction::Clicked => {
+                writer.send(AppExit);
+            }
+            _ => {}
+        }
+    }
 }

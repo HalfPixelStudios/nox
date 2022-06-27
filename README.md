@@ -15,13 +15,6 @@ run for development
 $ cargo run
 ```
 
-## TODO
-
-- [x] enemy attacking
-- [ ] rewrite movement to use physics
-- [ ] attack collision detection
-- [ ] automatic bullet despawning
-
 ## LIBRARIES
 
 possible functionaity that can be abstracted into it's own library
