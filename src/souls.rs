@@ -62,7 +62,7 @@ struct ArrowUI;
 #[derive(Component)]
 pub struct Equipable {
     pub rarity: Rarity,
-    pub name: String,
+    pub name: i32,
     closest: bool,
 }
 
@@ -76,6 +76,9 @@ pub fn spawn_drop(
     let mut rng = thread_rng();
     let c: f32 = rng.gen();
     let r = rng.gen_range(0..=3);
+    if c > drops.chance {
+        return;
+    }
 
     let rarity = Rarity::new(r);
     let tween = Tween::new(
@@ -109,8 +112,7 @@ pub fn spawn_drop(
     })
     .insert_bundle(PhysicsBundle::default())
     .insert(CollisionGroups::new(EQUIPABLE, EQUIPABLE))
-    .insert(Animator::new(tween))
-    .insert(Name::new(drops.name.clone()));
+    .insert(Animator::new(tween));
 }
 
 pub fn create_arrow_ui(
@@ -171,7 +173,7 @@ fn move_arrow_ui(
 
 fn equip_system(
     mut cmd: Commands,
-    mut item_query: Query<(Entity, &mut Equipable, &mut Name, &Transform), Without<Player>>,
+    mut item_query: Query<(Entity, &mut Equipable, &Transform), Without<Player>>,
     mut player_query: Query<&Transform, With<Player>>,
     mut inventory: ResMut<InventoryResource>,
     input: Res<Input<KeyCode>>,
@@ -180,7 +182,9 @@ fn equip_system(
     let mut least_distance = 1000.;
     let mut close_equip = None;
     let mut close_entity = None;
-    for (entity, mut equipable, name, transform) in item_query.iter_mut() {
+    for (entity, mut equipable, transform) in item_query.iter_mut() {
+        println!("hello?");
+
         equipable.closest = false;
         let dist = transform
             .translation
@@ -188,6 +192,8 @@ fn equip_system(
             .distance(ptransform.translation.truncate());
 
         if dist < 20. && dist < least_distance {
+            println!("Close Enough");
+
             close_equip = Some(equipable);
             close_entity = Some(entity);
 
@@ -201,7 +207,8 @@ fn equip_system(
             let mut created = false;
 
             if input.just_pressed(KeyCode::E) {
-                inventory.switch_weapon(&e.name, &e.rarity);
+                println!("pickup");
+                inventory.switch_weapon(e.name, &e.rarity);
                 created = true;
             }
             if created {
