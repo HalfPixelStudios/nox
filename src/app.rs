@@ -40,8 +40,8 @@ pub fn run_app(app_config: AppConfig) {
     // app config
     app.insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(window_descriptor)
-        .add_state(app_config.app_state)
-        .add_system(bevy::input::system::exit_on_esc_system);
+        // .add_system(bevy::input::system::exit_on_esc_system)
+        .add_state(app_config.app_state);
 
     // external plugins
     app.add_plugins(DefaultPlugins)

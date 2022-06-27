@@ -2,7 +2,7 @@ use bevy::{core::Stopwatch, prelude::*};
 use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::seq::SliceRandom;
 
-use super::prefabs::enemy::*;
+use super::{config::AppState, prefabs::enemy::*};
 
 pub struct SpawnWavesPlugin;
 
@@ -72,15 +72,17 @@ impl Plugin for SpawnWavesPlugin {
             },
         ];
 
-        app.add_system(wave_system)
-            // .add_plugin(InspectorPlugin::<WaveResource>::new())
-            .add_system(wave_spawn_system)
-            .insert_resource(WaveResource {
-                cooldown_period: 1.,
-                waves,
-                paused: false,
-                ..default()
-            });
+        app.add_system_set(
+            SystemSet::on_update(AppState::InGame)
+                .with_system(wave_system)
+                .with_system(wave_spawn_system),
+        )
+        .insert_resource(WaveResource {
+            cooldown_period: 1.,
+            waves,
+            paused: false,
+            ..default()
+        });
     }
 }
 

@@ -9,6 +9,7 @@ use super::{
     bullet::{Attacker, Bullet},
     collision_group::*,
     component::*,
+    config::AppState,
     physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
     prefabs::enemy::bow_orc,
@@ -61,9 +62,12 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-            .add_system(simple_movement_system)
-            .add_system(loiter_movement_system)
-            .add_system(attack_system)
+            .add_system_set(
+                SystemSet::on_update(AppState::InGame)
+                    .with_system(simple_movement_system)
+                    .with_system(loiter_movement_system)
+                    .with_system(attack_system),
+            )
             .add_system(enemy_die_system)
             .add_system(handle_collision);
     }

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod gameover;
 pub mod ingame;
 pub mod mainmenu;
 
@@ -12,7 +13,8 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
             .add_plugin(mainmenu::MainMenuPlugin)
-            .add_plugin(ingame::IngameMenuPlugin);
+            .add_plugin(ingame::IngameMenuPlugin)
+            .add_plugin(gameover::GameOverPlugin);
     }
 }
 
