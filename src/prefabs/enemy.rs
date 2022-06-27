@@ -70,8 +70,8 @@ pub fn bat(
         health: Health(20),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
-            hurt_sounds: vec![],
-            die_sounds: vec![],
+            hurt_sounds: vec!["bat/hurt1.wav".to_string()],
+            die_sounds: vec!["bat/die1.wav".to_string()],
         },
         ..default()
     })
@@ -110,8 +110,8 @@ pub fn hornet(
         health: Health(10),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
-            hurt_sounds: vec![],
-            die_sounds: vec![],
+            hurt_sounds: vec!["bee/hurt1.wav".to_string()],
+            die_sounds: vec!["bee/die1.wav".to_string()],
         },
         ..default()
     })
@@ -150,8 +150,8 @@ pub fn flame_mage(
         health: Health(10),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
-            hurt_sounds: vec![],
-            die_sounds: vec![],
+            hurt_sounds: vec!["player/hurt1.wav".to_string()],
+            die_sounds: vec!["player/hurt1.wav".to_string()],
         },
         ..default()
     })
@@ -190,11 +190,14 @@ pub fn boss_grand_sphinx(
     let handle = assets.load("grand_sphinx.png");
 
     cmd.spawn_bundle(EnemyBundle {
-        health: Health(10),
+        health: Health(200),
         drops: Drops::default(),
         sound_emitter: SoundEmitter {
-            hurt_sounds: vec![],
-            die_sounds: vec![],
+            hurt_sounds: vec![
+                "grand_sphinx/hurt1.wav".to_string(),
+                "grand_sphinx/hurt2.wav".to_string(),
+            ],
+            die_sounds: vec!["grand_sphinx/die1.wav".to_string()],
         },
         ..default()
     })

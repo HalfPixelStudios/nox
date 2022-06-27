@@ -113,7 +113,7 @@ fn spawn_player(
             ..default()
         },
         sound_emitter: SoundEmitter {
-            hurt_sounds: vec![],
+            hurt_sounds: vec!["player/hurt.wav".to_string()],
             die_sounds: vec!["player/die.wav".to_string()],
         },
         ..default()
@@ -201,6 +201,7 @@ fn player_attack(
 fn eat_weapon(
     mut player_query: Query<&mut Health, With<Player>>,
     mut inventory: ResMut<InventoryResource>,
+    mut writer: EventWriter<PlaySoundEvent>,
 ) {
     let mut health = player_query.single_mut();
     if !inventory.eaten {
@@ -211,6 +212,11 @@ fn eat_weapon(
             Rarity::RARE => health.0 += 100,
             Rarity::MYTHIC => health.0 += 300,
         }
+
+        // play sound
+        let sounds = vec!["eat/eat1.wav", "eat/eat2.wav", "eat/eat3.wav"];
+        let sfx = sounds.choose(&mut rand::thread_rng()).unwrap();
+        writer.send(PlaySoundEvent(sfx.to_string()));
     }
 }
 
@@ -223,15 +229,25 @@ fn player_die(mut app_state: ResMut<State<AppState>>, query: Query<&Health, With
 }
 
 fn handle_collision(
-    mut player_query: Query<(Entity, &mut Health), With<Player>>,
+    mut health_query: Query<&mut Health, With<Player>>,
+    sound_query: Query<&SoundEmitter, With<Player>>,
     bullet_query: Query<&Damage, With<Bullet>>,
     mut events: EventReader<CollisionStartEvent>,
+    mut writer: EventWriter<PlaySoundEvent>,
 ) {
     for CollisionStartEvent { me, other } in events.iter() {
-        if let Ok(mut health) = player_query.get_component_mut::<Health>(*me) {
+        if let (Ok(mut health), Ok(sound_emitter)) = (
+            health_query.get_component_mut::<Health>(*me),
+            sound_query.get_component::<SoundEmitter>(*me),
+        ) {
             // hit by bullet
             if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
                 health.take(damage.0);
+
+                // play sound
+                if let Some(sound_file) = sound_emitter.pick_hurt_sound() {
+                    writer.send(PlaySoundEvent(sound_file.clone()));
+                }
             }
         }
     }

@@ -39,6 +39,15 @@ pub fn play_sound(assets: &Res<AssetServer>, audio: &Res<Audio>, sfx_path: &str)
     audio.play(assets.load(&path));
 }
 
+pub fn play_random_sound(assets: &Res<AssetServer>, audio: &Res<Audio>, sfx_paths: Vec<&str>) {
+    if sfx_paths.len() == 0 {
+        return;
+    }
+    let sfx_path = sfx_paths.choose(&mut rand::thread_rng()).unwrap();
+    let path = format!("sfx/{}", sfx_path);
+    audio.play(assets.load(&path));
+}
+
 fn play_sound_system(
     assets: Res<AssetServer>,
     audio: Res<Audio>,

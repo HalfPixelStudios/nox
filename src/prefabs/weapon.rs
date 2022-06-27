@@ -102,7 +102,7 @@ pub fn flamethrower_staff() -> Weapon {
         name: "flamethrower staff".to_string(),
         attack_fn: straight!(bullet::flamethrower_staff_bolt),
         attack_speed: 0.5,
-        attack_sounds: vec![],
+        attack_sounds: vec!["flamethrower_staff/attack1.wav".to_string()],
     }
 }
 
@@ -111,7 +111,7 @@ pub fn poison_dagger() -> Weapon {
         name: "poison_dagger".to_string(),
         attack_fn: straight!(bullet::posion_dagger_bullet),
         attack_speed: 0.75,
-        attack_sounds: vec![],
+        attack_sounds: vec!["poison_dagger/attack1.wav".to_string()],
     }
 }
 
@@ -120,7 +120,7 @@ pub fn tome_of_doom() -> Weapon {
         name: "tome of doom".to_string(),
         attack_fn: around!(bullet::flamethrower_staff_bolt, 8),
         attack_speed: 1.,
-        attack_sounds: vec![],
+        attack_sounds: vec!["flamethrower_staff/attack1.wav".to_string()],
     }
 }
 
@@ -147,7 +147,7 @@ pub fn orbs_of_despair() -> Weapon {
         name: "orbs of despair".to_string(),
         attack_fn: straight!(bullet::orbs_of_despair_bullet),
         attack_speed: 10.,
-        attack_sounds: vec![],
+        attack_sounds: vec!["orbs_of_despair/attack1.wav".to_string()],
     }
 }
 
