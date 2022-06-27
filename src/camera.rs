@@ -58,17 +58,22 @@ fn camera_controller(
         (&mut Camera, &mut GlobalTransform),
         (With<MainCamera>, Without<CameraFollow>),
     >,
+    mut cursor: ResMut<Cursor>,
 ) {
     let (mut camera, mut cam_transform) = camera_query.single_mut();
-    let mut avg_x = 0.0;
-    let mut avg_y = 0.0;
+    let mut pos: Vec2 = Vec2::ZERO;
     let mut query_len = 0.;
     for (transform) in entity_query.iter() {
-        avg_x += transform.translation.x;
-        avg_y += transform.translation.y;
+        pos.x += transform.translation.x;
+        pos.y += transform.translation.y;
         query_len += 1.;
     }
+    pos /= query_len;
+    let fp: Vec2 = Vec2::new(
+        0.85 * pos.x + 0.15 * cursor.0.x,
+        0.85 * pos.y + 0.15 * cursor.0.y,
+    );
 
-    cam_transform.translation.x = lerp(cam_transform.translation.x, avg_x / query_len, 0.1);
-    cam_transform.translation.y = lerp(cam_transform.translation.y, avg_y / query_len, 0.1);
+    cam_transform.translation.x = lerp(cam_transform.translation.x, fp.x, 0.1);
+    cam_transform.translation.y = lerp(cam_transform.translation.y, fp.y, 0.1);
 }
