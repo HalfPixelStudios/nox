@@ -22,7 +22,7 @@ impl Plugin for InventoryPlugin {
 impl Default for InventoryResource {
     fn default() -> Self {
         InventoryResource {
-            primary_weapon: steel_sword(),
+            primary_weapon: steel_greatsword(),
             rarity: Rarity::COMMON,
             eaten: true,
             eat_rarity: Rarity::COMMON,
