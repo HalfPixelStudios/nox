@@ -4,8 +4,7 @@ pub fn load_weapon_data() {
     let test_data = r#"
 {
     "steel_sword": (
-        display_name: "steel sword",
-        projectile: "sword bolt",
+        projectile: Key("sword bolt"),
         shoot_pattern: Around ( angle: 1. ),
         attack_speed: 1.
     )
