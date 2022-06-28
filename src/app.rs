@@ -4,8 +4,6 @@ use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_tweening::{lens::*, *};
 
-// use web_sys::console;
-
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
     physics, player, screens, souls, spawn_waves, worldgen,
@@ -23,9 +21,6 @@ pub struct AppConfig {
 }
 
 pub fn run_app(app_config: AppConfig) {
-    #[cfg(target_arch = "wasm32")]
-    console_error_panic_hook::set_once();
-
     let mut window_descriptor = WindowDescriptor {
         present_mode: bevy::window::PresentMode::Fifo,
         ..default()
