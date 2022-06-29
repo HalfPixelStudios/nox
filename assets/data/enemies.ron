@@ -1,0 +1,7 @@
+{
+    "bow_orc": (
+        health: 100,
+        speed: 200.,
+        sprite: "poo",
+    )
+}

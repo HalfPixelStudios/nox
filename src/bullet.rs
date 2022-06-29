@@ -9,6 +9,7 @@ use super::{
     component::{Damage, Displacement},
     physics::CollisionStartEvent,
     prefabs::{builder::*, *},
+    utils::rotation_from_dir,
 };
 
 pub struct SpawnBulletEvent {
@@ -140,9 +141,6 @@ fn bullet_distance_lifetime_system(
     }
 }
 
-fn rotation_from_dir(dir: Vec2, offset: f32) -> Quat {
-    Quat::from_rotation_z(Vec2::X.angle_between(dir) + offset)
-}
 fn spawn_bullet_system(
     mut cmds: Commands,
     mut events: EventReader<SpawnBulletEvent>,
@@ -157,30 +155,35 @@ fn spawn_bullet_system(
         dir,
     } in events.iter()
     {
-        if let Some(prefab) = prefab_res.get_bullet(bullet_id) {
-            let e = bullet_builder(&mut cmds, prefab);
-
-            cmds.entity(e)
-                .insert_bundle(SpriteSheetBundle {
-                    sprite: TextureAtlasSprite {
-                        index: 564,
-                        ..default()
-                    },
-                    texture_atlas: get_tileset(&assets, &mut texture_atlases),
-                    transform: Transform {
-                        translation: spawn_pos.clone(),
-                        // TODO do proper rotation offset
-                        rotation: rotation_from_dir(dir.clone(), 0.),
-                        ..default()
-                    },
-                    ..default()
-                })
-                .insert(attacker_collision_group(attacker.clone()))
-                .insert(Velocity {
-                    linvel: prefab.speed * dir.clone(),
-                    ..default()
-                });
+        let prefab = prefab_res.get_bullet(bullet_id);
+        if prefab.is_none() {
+            warn!("unable to fetch bullet prefab: {}", bullet_id);
+            continue;
         }
+        let prefab = prefab.unwrap();
+
+        let e = bullet_builder(&mut cmds, prefab);
+
+        cmds.entity(e)
+            .insert_bundle(SpriteSheetBundle {
+                sprite: TextureAtlasSprite {
+                    index: 564,
+                    ..default()
+                },
+                texture_atlas: get_tileset(&assets, &mut texture_atlases),
+                transform: Transform {
+                    translation: spawn_pos.clone(),
+                    // TODO do proper rotation offset
+                    rotation: rotation_from_dir(dir.clone(), 0.),
+                    ..default()
+                },
+                ..default()
+            })
+            .insert(attacker_collision_group(attacker.clone()))
+            .insert(Velocity {
+                linvel: prefab.speed * dir.clone(),
+                ..default()
+            });
     }
 }
 

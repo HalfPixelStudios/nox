@@ -4,7 +4,7 @@ use std::collections::HashMap;
 // ENEMY =-=-=-=-=-=-=
 
 #[derive(Debug, Serialize, Deserialize)]
-struct EnemyPrefab {
+pub struct EnemyPrefab {
     pub display_name: Option<String>,
     pub health: u32,
     pub speed: f32,
@@ -47,7 +47,7 @@ pub enum BulletRef {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WeaponPrefab {
     pub display_name: Option<String>,
-    pub projectile: BulletRef, // name of projectile that is fired (or inline definition)
+    pub projectile: String, // name of projectile that is fired (or inline definition)
     pub shoot_pattern: ShootPattern,
     pub attack_speed: f32, // time between consecutive attacks
 }

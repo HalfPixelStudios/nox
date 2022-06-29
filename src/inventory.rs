@@ -1,11 +1,9 @@
 use bevy::prelude::*;
 
-use super::prefabs::weapon::*;
 use super::souls::*;
-use super::weapon::Weapon;
 
 pub struct InventoryResource {
-    pub primary_weapon: Weapon,
+    pub primary_weapon: String,
     pub rarity: Rarity,
     pub eaten: bool,
     pub eat_rarity: Rarity,
@@ -22,7 +20,7 @@ impl Plugin for InventoryPlugin {
 impl Default for InventoryResource {
     fn default() -> Self {
         InventoryResource {
-            primary_weapon: steel_sword(),
+            primary_weapon: "steel_sword".to_string(),
             rarity: Rarity::COMMON,
             eaten: true,
             eat_rarity: Rarity::COMMON,

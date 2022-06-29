@@ -15,7 +15,6 @@ use super::{
     player::Player,
     prefabs::enemy::bow_orc,
     souls::*,
-    weapon::Weapon,
 };
 
 #[derive(Component)]
@@ -24,7 +23,7 @@ pub struct Enemy;
 #[derive(Component)]
 pub struct AttackPolicy {
     pub attack_range: f32, // min distance before attempting to attack
-    pub weapon: Weapon,
+    pub weapon: String,
     pub attack_timer: Stopwatch,
 }
 
@@ -163,23 +162,17 @@ fn attack_system(
         ap.attack_timer.tick(time.delta());
 
         let delta = player_transform.translation - transform.translation;
+        /*
         if delta.length() < ap.attack_range
             && ap.attack_timer.elapsed_secs() > ap.weapon.attack_speed
         {
             ap.attack_timer.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
-            /*
-            (ap.weapon.attack_fn)(
-                &mut cmd,
-                &assets,
-                &mut texture_atlases,
-                Attacker::Enemy,
-                transform.translation,
-                bullet_dir,
-            );
-            */
+
+            // TODO spawn bullet code here
         }
+        */
     }
 }
 

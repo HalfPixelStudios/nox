@@ -1,10 +1,7 @@
 use bevy::{core::Stopwatch, prelude::*};
 
-use super::super::{
-    assetloader::get_tileset, audio::SoundEmitter, component::Health, enemy::*, weapon::Weapon,
-};
+use super::super::{assetloader::get_tileset, audio::SoundEmitter, component::Health, enemy::*};
 use super::bullet::*;
-use super::weapon::*;
 
 pub fn bow_orc(
     cmd: &mut Commands,
@@ -37,7 +34,7 @@ pub fn bow_orc(
     })
     .insert(AttackPolicy {
         attack_range: 200.,
-        weapon: steel_sword(),
+        weapon: "steel_sword".to_string(),
         attack_timer: Stopwatch::new(),
     })
     .insert(SimpleMovement {

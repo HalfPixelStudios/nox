@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use super::super::bullet::*;
 use super::super::component::*;
-use super::super::weapon::*;
 use super::models::*;
 
 pub fn weapon_builder(prefab: WeaponPrefab) {}

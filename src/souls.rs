@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use super::{
     animator::*, assetloader::get_tileset, collision_group::*, component::*, enemy::*,
-    inventory::*, physics::PhysicsBundle, player::*, prefabs::weapon::*,
+    inventory::*, physics::PhysicsBundle, player::*,
 };
 
 pub struct ItemPlugin;

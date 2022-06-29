@@ -19,6 +19,7 @@ use super::{
     config::AppState,
     inventory::InventoryResource,
     physics::{CollisionStartEvent, PhysicsBundle},
+    prefabs::PrefabResource,
     souls::*,
 };
 use bevy_tweening::{lens::*, *};
@@ -165,6 +166,8 @@ fn player_attack(
     mut cmd: Commands,
     input: Res<Input<KeyCode>>,
     cursor: Res<Cursor>,
+    inventory: Res<InventoryResource>,
+    prefabs: Res<PrefabResource>,
     mut player_query: Query<&Transform, With<Player>>,
     mut sound_writer: EventWriter<PlaySoundEvent>,
     mut bullet_writer: EventWriter<SpawnBulletEvent>,
@@ -175,24 +178,20 @@ fn player_attack(
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
 
+        let primary_weapon_id = &inventory.primary_weapon;
+        let prefab = prefabs.get_weapon(primary_weapon_id);
+        if prefab.is_none() {
+            warn!("unable to fetch player weapon {}", primary_weapon_id);
+            return;
+        }
+        let prefab = prefab.unwrap();
+
         bullet_writer.send(SpawnBulletEvent {
-            bullet_id: "steel_sword_bullet".to_string(),
+            bullet_id: prefab.projectile.clone(),
             attacker: Attacker::Player,
             spawn_pos: player_trans.translation,
             dir: bullet_direction,
         })
-
-        /*
-        let shoot_fn = inventory.primary_weapon.attack_fn;
-        shoot_fn(
-            &mut cmd,
-            &assets,
-            &mut texture_atlases,
-            Attacker::Player,
-            player_trans.translation,
-            bullet_direction,
-        );
-        */
 
         // play attack sound
         /*
