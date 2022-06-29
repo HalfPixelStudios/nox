@@ -3,16 +3,21 @@ use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
 use super::config::AppState;
-use super::{collision_group::*, component::Damage, physics::CollisionStartEvent};
+use super::{
+    assetloader::*,
+    collision_group::*,
+    component::{Damage, Displacement},
+    physics::CollisionStartEvent,
+    prefabs::{builder::*, *},
+    utils::rotation_from_dir,
+};
 
-pub type ShootFunction = fn(
-    cmd: &mut Commands,
-    assets: &Res<AssetServer>,
-    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
-    attacker: Attacker,
-    spawn_pos: Vec3,
-    dir: Vec2,
-) -> ();
+pub struct SpawnBulletEvent {
+    pub bullet_id: String,
+    pub attacker: Attacker,
+    pub spawn_pos: Vec3,
+    pub dir: Vec2,
+}
 
 #[derive(Component)]
 pub struct Bullet {
@@ -21,8 +26,8 @@ pub struct Bullet {
 
 #[derive(Component)]
 pub struct DistanceLifetime {
-    distance_left: f32,
-    previous_position: Vec3,
+    max_distance: f32,
+    pub displacement: Displacement,
 }
 
 #[derive(Component)]
@@ -31,10 +36,10 @@ pub struct DurationLifetime {
 }
 
 impl DistanceLifetime {
-    pub fn new(max_distance: f32, start_position: Vec3) -> Self {
+    pub fn new(max_distance: f32) -> Self {
         DistanceLifetime {
-            distance_left: max_distance,
-            previous_position: start_position,
+            max_distance,
+            displacement: Displacement::new(),
         }
     }
 }
@@ -47,16 +52,17 @@ impl DurationLifetime {
 }
 
 #[derive(Component)]
-pub struct Movement(pub f32, pub Vec2);
+pub struct Movement(pub f32);
 
 pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(bullet_movement_system)
+        app.add_event::<SpawnBulletEvent>()
             .add_system(bullet_distance_lifetime_system)
             .add_system(bullet_duration_lifetime_system)
             .add_system(handle_collision)
+            .add_system(spawn_bullet_system)
             .add_system(bullet_die_system);
     }
 }
@@ -70,8 +76,6 @@ pub enum Attacker {
 #[derive(Bundle)]
 pub struct BulletBundle {
     pub bullet: Bullet,
-    #[bundle]
-    pub sprite: SpriteSheetBundle,
     pub damage: Damage,
     pub movement: Movement,
     pub rb: RigidBody,
@@ -84,9 +88,8 @@ impl Default for BulletBundle {
     fn default() -> Self {
         BulletBundle {
             bullet: Bullet { penetration: 1 },
-            sprite: SpriteSheetBundle { ..default() },
             damage: Damage(10),
-            movement: Movement(500., Vec2::ZERO),
+            movement: Movement(500.),
             rb: RigidBody::Dynamic,
             sensor: Sensor(true),
             col: Collider::cuboid(1., 1.),
@@ -99,15 +102,6 @@ pub fn attacker_collision_group(attacker: Attacker) -> CollisionGroups {
     match attacker {
         Attacker::Player => CollisionGroups::new(PLAYER_BULLET, ENEMY),
         Attacker::Enemy => CollisionGroups::new(ENEMY_BULLET, PLAYER),
-    }
-}
-
-fn bullet_movement_system(
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &Movement), With<Bullet>>,
-) {
-    for (mut transform, movement) in query.iter_mut() {
-        transform.translation += movement.0 * movement.1.extend(0.) * time.delta_seconds();
     }
 }
 
@@ -130,16 +124,66 @@ fn bullet_distance_lifetime_system(
     mut query: Query<(Entity, &Transform, &mut DistanceLifetime), With<Bullet>>,
 ) {
     for (entity, transform, mut lifetime) in query.iter_mut() {
-        lifetime.distance_left -= transform.translation.distance(lifetime.previous_position);
-        lifetime.previous_position = transform.translation;
-
-        if lifetime.distance_left < 0. {
+        if lifetime.displacement.get_distance() > lifetime.max_distance {
             bullet_die(&mut cmd, entity);
         }
+
+        lifetime.displacement.update(transform.translation);
     }
 }
 
-fn bullet_die_system(mut cmd: Commands, mut query: Query<(Entity, &Bullet)>) {
+fn spawn_bullet_system(
+    mut cmds: Commands,
+    mut events: EventReader<SpawnBulletEvent>,
+    prefab_res: Res<PrefabResource>,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    for SpawnBulletEvent {
+        bullet_id,
+        attacker,
+        spawn_pos,
+        dir,
+    } in events.iter()
+    {
+        let prefab = prefab_res.get_bullet(bullet_id);
+        if prefab.is_none() {
+            warn!("unable to fetch bullet prefab: {}", bullet_id);
+            continue;
+        }
+        let prefab = prefab.unwrap();
+
+        let e = bullet_builder(&mut cmds, prefab);
+
+        cmds.entity(e)
+            .insert_bundle(SpriteSheetBundle {
+                sprite: TextureAtlasSprite {
+                    index: prefab.sprite_index as usize,
+                    color: Color::rgb(
+                        prefab.sprite_color.0,
+                        prefab.sprite_color.1,
+                        prefab.sprite_color.2,
+                    ),
+                    ..default()
+                },
+                texture_atlas: get_tileset(&assets, &mut texture_atlases),
+                transform: Transform {
+                    translation: spawn_pos.clone(),
+                    // TODO do proper rotation offset
+                    rotation: rotation_from_dir(dir.clone(), 0.),
+                    ..default()
+                },
+                ..default()
+            })
+            .insert(attacker_collision_group(attacker.clone()))
+            .insert(Velocity {
+                linvel: prefab.speed * dir.clone(),
+                ..default()
+            });
+    }
+}
+
+fn bullet_die_system(mut cmd: Commands, query: Query<(Entity, &Bullet)>) {
     for (entity, bullet) in query.iter() {
         if bullet.penetration <= 0 {
             bullet_die(&mut cmd, entity);

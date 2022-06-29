@@ -1,7 +1,7 @@
 {
     "steel_sword": (
-        projectile: Key("sword bolt"),
-        shoot_pattern: Around ( angle: 1. ),
+        projectile: "steel_sword_bullet",
+        shoot_pattern: Around ( shots: 12 ),
         attack_speed: 1.
     )
 }

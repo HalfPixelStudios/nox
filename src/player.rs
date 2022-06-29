@@ -12,14 +12,16 @@ use super::{
     animator::*,
     assetloader::get_tileset,
     audio::{PlaySoundEvent, SoundEmitter},
-    bullet::{Attacker, Bullet},
+    bullet::{Attacker, Bullet, SpawnBulletEvent},
     camera::{CameraFollow, Cursor},
     collision_group::*,
     component::{Damage, Health},
     config::AppState,
     inventory::InventoryResource,
     physics::{CollisionStartEvent, PhysicsBundle},
+    prefabs::PrefabResource,
     souls::*,
+    weapon::*,
 };
 use bevy_tweening::{lens::*, *};
 
@@ -163,13 +165,13 @@ fn player_controller(
 
 fn player_attack(
     mut cmd: Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     input: Res<Input<KeyCode>>,
     cursor: Res<Cursor>,
     inventory: Res<InventoryResource>,
+    prefabs: Res<PrefabResource>,
     mut player_query: Query<&Transform, With<Player>>,
-    mut writer: EventWriter<PlaySoundEvent>,
+    mut sound_writer: EventWriter<PlaySoundEvent>,
+    mut bullet_writer: EventWriter<SpawnBulletEvent>,
 ) {
     let player_trans = player_query.single_mut();
 
@@ -177,17 +179,24 @@ fn player_attack(
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
 
-        let shoot_fn = inventory.primary_weapon.attack_fn;
-        shoot_fn(
-            &mut cmd,
-            &assets,
-            &mut texture_atlases,
+        let primary_weapon_id = &inventory.primary_weapon;
+        let prefab = prefabs.get_weapon(primary_weapon_id);
+        if prefab.is_none() {
+            warn!("unable to fetch player weapon {}", primary_weapon_id);
+            return;
+        }
+        let prefab = prefab.unwrap();
+
+        attack_pattern(
+            &mut bullet_writer,
+            prefab,
             Attacker::Player,
             player_trans.translation,
             bullet_direction,
         );
 
         // play attack sound
+        /*
         if let Some(sound_file) = inventory
             .primary_weapon
             .attack_sounds
@@ -195,6 +204,7 @@ fn player_attack(
         {
             writer.send(PlaySoundEvent(sound_file.clone()));
         }
+        */
     }
 }
 

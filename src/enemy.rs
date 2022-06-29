@@ -6,26 +6,42 @@ use std::f32::consts::PI;
 use std::time::Duration;
 
 use super::{
+    assetloader::*,
     audio::{PlaySoundEvent, SoundEmitter},
-    bullet::{Attacker, Bullet},
+    bullet::{Attacker, Bullet, SpawnBulletEvent},
     collision_group::*,
     component::*,
     config::AppState,
     physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
-    prefabs::enemy::bow_orc,
+    prefabs::{builder::enemy_builder, PrefabResource},
     souls::*,
-    weapon::Weapon,
+    weapon::*,
 };
+
+pub struct SpawnEnemyEvent {
+    pub enemy_id: String,
+    pub spawn_pos: Vec2,
+}
 
 #[derive(Component)]
 pub struct Enemy;
 
 #[derive(Component)]
 pub struct AttackPolicy {
-    pub attack_range: f32, // min distance before attempting to attack
-    pub weapon: Weapon,
-    pub attack_timer: Stopwatch,
+    attack_range: f32, // min distance before attempting to attack
+    weapon: String,
+    attack_timer: Stopwatch,
+}
+
+impl AttackPolicy {
+    pub fn new(attack_range: f32, weapon: String) -> Self {
+        AttackPolicy {
+            attack_range,
+            weapon,
+            attack_timer: Stopwatch::new(),
+        }
+    }
 }
 
 #[derive(Component)]
@@ -58,62 +74,10 @@ pub struct Drops {
 }
 impl Default for Drops {
     fn default() -> Self {
-        let mut rng = thread_rng();
-        let r = rng.gen_range(0..=9);
-        if r == 1 {
-            Drops {
-                name: 1,
-                frame: 282,
-                chance: 0.5,
-            }
-        } else if r == 2 {
-            Drops {
-                name: 2,
-                frame: 290,
-                chance: 0.4,
-            }
-        } else if r == 3 {
-            Drops {
-                name: 3,
-                frame: 380,
-                chance: 0.4,
-            }
-        } else if r == 4 {
-            Drops {
-                name: 4,
-                frame: 232,
-                chance: 0.4,
-            }
-        } else if r == 5 {
-            Drops {
-                name: 5,
-                frame: 376,
-                chance: 0.4,
-            }
-        } else if r == 6 {
-            Drops {
-                name: 6,
-                frame: 425,
-                chance: 0.4,
-            }
-        } else if r == 7 {
-            Drops {
-                name: 7,
-                frame: 523,
-                chance: 0.4,
-            }
-        } else if r == 8 {
-            Drops {
-                name: 8,
-                frame: 327,
-                chance: 0.4,
-            }
-        } else {
-            Drops {
-                name: 9,
-                frame: 291,
-                chance: 0.4,
-            }
+        Drops {
+            name: 0,
+            frame: 0,
+            chance: 0.,
         }
     }
 }
@@ -122,9 +86,11 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
+        app.add_event::<SpawnEnemyEvent>()
+            .add_startup_system(setup)
             .add_system_set(
                 SystemSet::on_update(AppState::InGame)
+                    .with_system(spawn_enemy_system)
                     .with_system(simple_movement_system)
                     .with_system(loiter_movement_system)
                     .with_system(attack_system),
@@ -204,10 +170,10 @@ fn loiter_movement_system(
 fn attack_system(
     mut cmd: Commands,
     time: Res<Time>,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    prefabs: Res<PrefabResource>,
     mut enemy_query: Query<(&Transform, &mut AttackPolicy), (With<Enemy>, Without<Player>)>,
     player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
+    mut bullet_writer: EventWriter<SpawnBulletEvent>,
 ) {
     let player_transform = player_query.single();
 
@@ -215,21 +181,69 @@ fn attack_system(
         ap.attack_timer.tick(time.delta());
 
         let delta = player_transform.translation - transform.translation;
-        if delta.length() < ap.attack_range
-            && ap.attack_timer.elapsed_secs() > ap.weapon.attack_speed
+
+        // fetch enemy weapon (TOOD this is sorta disgusting)
+        let weapon = prefabs.get_weapon(&ap.weapon);
+        if weapon.is_none() {
+            warn!("unable to fetch enemy weapon: {}", &ap.weapon);
+        }
+        let weapon = weapon.unwrap();
+
+        if delta.length() < ap.attack_range && ap.attack_timer.elapsed_secs() > weapon.attack_speed
         {
             ap.attack_timer.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
-            (ap.weapon.attack_fn)(
-                &mut cmd,
-                &assets,
-                &mut texture_atlases,
+
+            attack_pattern(
+                &mut bullet_writer,
+                weapon,
                 Attacker::Enemy,
                 transform.translation,
                 bullet_dir,
             );
         }
+    }
+}
+
+fn spawn_enemy_system(
+    mut cmd: Commands,
+    prefabs: Res<PrefabResource>,
+    mut events: EventReader<SpawnEnemyEvent>,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    for SpawnEnemyEvent {
+        enemy_id,
+        spawn_pos,
+    } in events.iter()
+    {
+        let prefab = prefabs.get_enemy(enemy_id);
+        if prefab.is_none() {
+            warn!("unable to fetch enemy prefab: {}", enemy_id);
+            continue;
+        }
+        let prefab = prefab.unwrap();
+
+        let e = enemy_builder(&mut cmd, prefab);
+
+        cmd.entity(e).insert_bundle(SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: prefab.sprite_index as usize,
+                color: Color::rgb(
+                    prefab.sprite_color.0,
+                    prefab.sprite_color.1,
+                    prefab.sprite_color.2,
+                ),
+                ..default()
+            },
+            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            transform: Transform {
+                translation: spawn_pos.extend(0.),
+                ..default()
+            },
+            ..default()
+        });
     }
 }
 
