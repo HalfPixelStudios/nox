@@ -37,7 +37,7 @@ pub fn bow_orc(
     })
     .insert(AttackPolicy {
         attack_range: 200.,
-        weapon: wooden_bow(),
+        weapon: steel_sword(),
         attack_timer: Stopwatch::new(),
     })
     .insert(SimpleMovement {

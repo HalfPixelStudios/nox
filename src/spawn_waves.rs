@@ -54,52 +54,10 @@ impl Default for WaveResource {
 
 impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
-        let waves = vec![
-            WaveInfo {
-                spawn_pool: vec![bow_orc],
-                spawn_count: 5,
-            },
-            WaveInfo {
-                spawn_pool: vec![bat, hornet],
-                spawn_count: 10,
-            },
-            WaveInfo {
-                spawn_pool: vec![bow_orc, greatsword_orc],
-                spawn_count: 10,
-            },
-            WaveInfo {
-                spawn_pool: vec![bat, hornet, greatsword_orc],
-                spawn_count: 20,
-            },
-            WaveInfo {
-                spawn_pool: vec![royal_hammer_orc, greatsword_orc],
-                spawn_count: 10,
-            },
-            WaveInfo {
-                spawn_pool: vec![flame_mage],
-                spawn_count: 10,
-            },
-            WaveInfo {
-                spawn_pool: vec![royal_hammer_orc, greatsword_orc, flame_mage],
-                spawn_count: 30,
-            },
-            WaveInfo {
-                spawn_pool: vec![boss_grand_sphinx],
-                spawn_count: 1,
-            },
-            WaveInfo {
-                spawn_pool: vec![greatsword_orc, flame_mage],
-                spawn_count: 20,
-            },
-            WaveInfo {
-                spawn_pool: vec![boss_grand_sphinx],
-                spawn_count: 3,
-            },
-            WaveInfo {
-                spawn_pool: vec![boss_grand_sphinx, royal_hammer_orc, flame_mage],
-                spawn_count: 50,
-            },
-        ];
+        let waves = vec![WaveInfo {
+            spawn_pool: vec![bow_orc],
+            spawn_count: 5,
+        }];
 
         app.add_system_set(
             SystemSet::on_update(AppState::InGame)

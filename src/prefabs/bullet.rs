@@ -10,10 +10,6 @@ use super::super::{
     component::Damage,
 };
 
-fn rotation_from_dir(dir: Vec2, offset: f32) -> Quat {
-    Quat::from_rotation_z(Vec2::X.angle_between(dir) + offset)
-}
-
 /*
 pub fn steel_sword_bullet(
     cmd: &mut Commands,

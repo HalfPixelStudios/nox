@@ -4,15 +4,18 @@ use std::time::Duration;
 
 use super::config::AppState;
 use super::{
+    assetloader::*,
     collision_group::*,
     component::{Damage, Displacement},
     physics::CollisionStartEvent,
+    prefabs::{builder::*, *},
 };
 
-struct SpawnBulletEvent {
-    bullet_id: String,
-    spawn_pos: Vec3,
-    dir: Vec3,
+pub struct SpawnBulletEvent {
+    pub bullet_id: String,
+    pub attacker: Attacker,
+    pub spawn_pos: Vec3,
+    pub dir: Vec2,
 }
 
 pub type ShootFunction = fn(
@@ -57,17 +60,17 @@ impl DurationLifetime {
 }
 
 #[derive(Component)]
-pub struct Movement(pub f32, pub Vec2);
+pub struct Movement(pub f32);
 
 pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnBulletEvent>()
-            .add_system(bullet_movement_system)
             .add_system(bullet_distance_lifetime_system)
             .add_system(bullet_duration_lifetime_system)
             .add_system(handle_collision)
+            .add_system(spawn_bullet_system)
             .add_system(bullet_die_system);
     }
 }
@@ -94,7 +97,7 @@ impl Default for BulletBundle {
         BulletBundle {
             bullet: Bullet { penetration: 1 },
             damage: Damage(10),
-            movement: Movement(500., Vec2::ZERO),
+            movement: Movement(500.),
             rb: RigidBody::Dynamic,
             sensor: Sensor(true),
             col: Collider::cuboid(1., 1.),
@@ -107,15 +110,6 @@ pub fn attacker_collision_group(attacker: Attacker) -> CollisionGroups {
     match attacker {
         Attacker::Player => CollisionGroups::new(PLAYER_BULLET, ENEMY),
         Attacker::Enemy => CollisionGroups::new(ENEMY_BULLET, PLAYER),
-    }
-}
-
-fn bullet_movement_system(
-    time: Res<Time>,
-    mut query: Query<(&mut Transform, &Movement), With<Bullet>>,
-) {
-    for (mut transform, movement) in query.iter_mut() {
-        transform.translation += movement.0 * movement.1.extend(0.) * time.delta_seconds();
     }
 }
 
@@ -146,13 +140,48 @@ fn bullet_distance_lifetime_system(
     }
 }
 
-fn spawn_bullet_system(mut cmd: Commands, mut events: EventReader<SpawnBulletEvent>) {
+fn rotation_from_dir(dir: Vec2, offset: f32) -> Quat {
+    Quat::from_rotation_z(Vec2::X.angle_between(dir) + offset)
+}
+fn spawn_bullet_system(
+    mut cmds: Commands,
+    mut events: EventReader<SpawnBulletEvent>,
+    prefab_res: Res<PrefabResource>,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
     for SpawnBulletEvent {
         bullet_id,
+        attacker,
         spawn_pos,
         dir,
     } in events.iter()
-    {}
+    {
+        if let Some(prefab) = prefab_res.get_bullet(bullet_id) {
+            let e = bullet_builder(&mut cmds, prefab);
+
+            cmds.entity(e)
+                .insert_bundle(SpriteSheetBundle {
+                    sprite: TextureAtlasSprite {
+                        index: 564,
+                        ..default()
+                    },
+                    texture_atlas: get_tileset(&assets, &mut texture_atlases),
+                    transform: Transform {
+                        translation: spawn_pos.clone(),
+                        // TODO do proper rotation offset
+                        rotation: rotation_from_dir(dir.clone(), 0.),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .insert(attacker_collision_group(attacker.clone()))
+                .insert(Velocity {
+                    linvel: prefab.speed * dir.clone(),
+                    ..default()
+                });
+        }
+    }
 }
 
 fn bullet_die_system(mut cmd: Commands, mut query: Query<(Entity, &Bullet)>) {

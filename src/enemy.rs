@@ -58,62 +58,10 @@ pub struct Drops {
 }
 impl Default for Drops {
     fn default() -> Self {
-        let mut rng = thread_rng();
-        let r = rng.gen_range(0..=9);
-        if r == 1 {
-            Drops {
-                name: 1,
-                frame: 282,
-                chance: 0.5,
-            }
-        } else if r == 2 {
-            Drops {
-                name: 2,
-                frame: 290,
-                chance: 0.4,
-            }
-        } else if r == 3 {
-            Drops {
-                name: 3,
-                frame: 380,
-                chance: 0.4,
-            }
-        } else if r == 4 {
-            Drops {
-                name: 4,
-                frame: 232,
-                chance: 0.4,
-            }
-        } else if r == 5 {
-            Drops {
-                name: 5,
-                frame: 376,
-                chance: 0.4,
-            }
-        } else if r == 6 {
-            Drops {
-                name: 6,
-                frame: 425,
-                chance: 0.4,
-            }
-        } else if r == 7 {
-            Drops {
-                name: 7,
-                frame: 523,
-                chance: 0.4,
-            }
-        } else if r == 8 {
-            Drops {
-                name: 8,
-                frame: 327,
-                chance: 0.4,
-            }
-        } else {
-            Drops {
-                name: 9,
-                frame: 291,
-                chance: 0.4,
-            }
+        Drops {
+            name: 0,
+            frame: 0,
+            chance: 0.,
         }
     }
 }
@@ -221,6 +169,7 @@ fn attack_system(
             ap.attack_timer.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
+            /*
             (ap.weapon.attack_fn)(
                 &mut cmd,
                 &assets,
@@ -229,6 +178,7 @@ fn attack_system(
                 transform.translation,
                 bullet_dir,
             );
+            */
         }
     }
 }

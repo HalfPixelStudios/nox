@@ -6,7 +6,7 @@ use bevy_tweening::{lens::*, *};
 
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
-    physics, player, screens, souls, spawn_waves, worldgen,
+    physics, player, prefabs, screens, souls, spawn_waves, worldgen,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -46,7 +46,8 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(physics::PhysicsPlugin);
 
     // internal plugins
-    app.add_plugin(player::PlayerPlugin)
+    app.add_plugin(prefabs::PrefabPlugin)
+        .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(camera::CameraPlugin)

@@ -1,0 +1,9 @@
+{
+    "steel_sword_bullet": (
+        damage: 20,
+        penetration: 1,
+        speed: 200.,
+        lifetime: Distance(200.),
+        sprite: "steel_sword_bullet.png",
+    )
+}
