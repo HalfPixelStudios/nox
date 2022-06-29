@@ -8,7 +8,7 @@ use std::time::Duration;
 use super::{
     assetloader::*,
     audio::{PlaySoundEvent, SoundEmitter},
-    bullet::{Attacker, Bullet},
+    bullet::{Attacker, Bullet, SpawnBulletEvent},
     collision_group::*,
     component::*,
     config::AppState,
@@ -16,6 +16,7 @@ use super::{
     player::Player,
     prefabs::{builder::enemy_builder, PrefabResource},
     souls::*,
+    weapon::*,
 };
 
 pub struct SpawnEnemyEvent {
@@ -169,10 +170,10 @@ fn loiter_movement_system(
 fn attack_system(
     mut cmd: Commands,
     time: Res<Time>,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    prefabs: Res<PrefabResource>,
     mut enemy_query: Query<(&Transform, &mut AttackPolicy), (With<Enemy>, Without<Player>)>,
     player_query: Query<&Transform, (With<Player>, Without<Enemy>)>,
+    mut bullet_writer: EventWriter<SpawnBulletEvent>,
 ) {
     let player_transform = player_query.single();
 
@@ -180,17 +181,28 @@ fn attack_system(
         ap.attack_timer.tick(time.delta());
 
         let delta = player_transform.translation - transform.translation;
-        /*
-        if delta.length() < ap.attack_range
-            && ap.attack_timer.elapsed_secs() > ap.weapon.attack_speed
+
+        // fetch enemy weapon (TOOD this is sorta disgusting)
+        let weapon = prefabs.get_weapon(&ap.weapon);
+        if weapon.is_none() {
+            warn!("unable to fetch enemy weapon: {}", &ap.weapon);
+        }
+        let weapon = weapon.unwrap();
+
+        if delta.length() < ap.attack_range && ap.attack_timer.elapsed_secs() > weapon.attack_speed
         {
             ap.attack_timer.reset();
 
             let bullet_dir = delta.truncate().normalize_or_zero();
 
-            // TODO spawn bullet code here
+            attack_pattern(
+                &mut bullet_writer,
+                weapon,
+                Attacker::Enemy,
+                transform.translation,
+                bullet_dir,
+            );
         }
-        */
     }
 }
 

@@ -19,4 +19,5 @@ pub mod screens;
 pub mod souls;
 pub mod spawn_waves;
 pub mod utils;
+pub mod weapon;
 pub mod worldgen;

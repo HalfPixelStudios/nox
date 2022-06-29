@@ -187,7 +187,7 @@ fn spawn_bullet_system(
     }
 }
 
-fn bullet_die_system(mut cmd: Commands, mut query: Query<(Entity, &Bullet)>) {
+fn bullet_die_system(mut cmd: Commands, query: Query<(Entity, &Bullet)>) {
     for (entity, bullet) in query.iter() {
         if bullet.penetration <= 0 {
             bullet_die(&mut cmd, entity);

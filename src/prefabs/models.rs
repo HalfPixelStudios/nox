@@ -41,7 +41,7 @@ pub struct BulletPrefab {
 pub enum ShootPattern {
     Straight,
     Shotgun { shots: u32, angle: f32 },
-    Around { angle: f32 },
+    Around { shots: u32 },
 }
 
 #[derive(Debug, Serialize, Deserialize)]

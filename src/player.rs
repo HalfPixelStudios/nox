@@ -21,6 +21,7 @@ use super::{
     physics::{CollisionStartEvent, PhysicsBundle},
     prefabs::PrefabResource,
     souls::*,
+    weapon::*,
 };
 use bevy_tweening::{lens::*, *};
 
@@ -186,12 +187,13 @@ fn player_attack(
         }
         let prefab = prefab.unwrap();
 
-        bullet_writer.send(SpawnBulletEvent {
-            bullet_id: prefab.projectile.clone(),
-            attacker: Attacker::Player,
-            spawn_pos: player_trans.translation,
-            dir: bullet_direction,
-        })
+        attack_pattern(
+            &mut bullet_writer,
+            prefab,
+            Attacker::Player,
+            player_trans.translation,
+            bullet_direction,
+        );
 
         // play attack sound
         /*
