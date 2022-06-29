@@ -1,8 +1,8 @@
 {
     "bow_orc": (
         health: 100,
-        speed: 200.,
-        ai: Simple(100.),
+        speed: 50.,
+        ai: Simple( target_range: 50.),
         sprite: "poo",
     )
 }

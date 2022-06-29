@@ -6,6 +6,7 @@ use std::f32::consts::PI;
 use std::time::Duration;
 
 use super::{
+    assetloader::*,
     audio::{PlaySoundEvent, SoundEmitter},
     bullet::{Attacker, Bullet},
     collision_group::*,
@@ -13,7 +14,7 @@ use super::{
     config::AppState,
     physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
-    prefabs::PrefabResource,
+    prefabs::{builder::enemy_builder, PrefabResource},
     souls::*,
 };
 
@@ -197,6 +198,8 @@ fn spawn_enemy_system(
     mut cmd: Commands,
     prefabs: Res<PrefabResource>,
     mut events: EventReader<SpawnEnemyEvent>,
+    assets: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     for SpawnEnemyEvent {
         enemy_id,
@@ -209,6 +212,22 @@ fn spawn_enemy_system(
             continue;
         }
         let prefab = prefab.unwrap();
+
+        let e = enemy_builder(&mut cmd, prefab);
+
+        cmd.entity(e).insert_bundle(SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: 123,
+                color: Color::rgb(0., 1., 0.),
+                ..default()
+            },
+            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            transform: Transform {
+                translation: spawn_pos.extend(0.),
+                ..default()
+            },
+            ..default()
+        });
     }
 }
 

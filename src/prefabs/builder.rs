@@ -7,10 +7,10 @@ use super::models::*;
 
 pub fn weapon_builder(prefab: WeaponPrefab) {}
 
-pub fn bullet_builder(cmds: &mut Commands, prefab: &BulletPrefab) -> Entity {
-    let e = cmds.spawn().id();
+pub fn bullet_builder(cmd: &mut Commands, prefab: &BulletPrefab) -> Entity {
+    let e = cmd.spawn().id();
 
-    cmds.entity(e).insert_bundle(BulletBundle {
+    cmd.entity(e).insert_bundle(BulletBundle {
         bullet: Bullet {
             penetration: prefab.penetration as i32,
         },
@@ -22,20 +22,20 @@ pub fn bullet_builder(cmds: &mut Commands, prefab: &BulletPrefab) -> Entity {
     match prefab.lifetime {
         // TODO fix distance lifetime to not need spawn pos
         Lifetime::Distance(d) => {
-            cmds.entity(e).insert(DistanceLifetime::new(d));
+            cmd.entity(e).insert(DistanceLifetime::new(d));
         }
         Lifetime::Duration(d) => {
-            cmds.entity(e).insert(DurationLifetime::new(d));
+            cmd.entity(e).insert(DurationLifetime::new(d));
         }
     };
 
     return e;
 }
 
-pub fn enemy_builder(cmds: &mut Commands, prefab: &EnemyPrefab) -> Entity {
-    let e = cmds.spawn().id();
+pub fn enemy_builder(cmd: &mut Commands, prefab: &EnemyPrefab) -> Entity {
+    let e = cmd.spawn().id();
 
-    cmds.entity(e)
+    cmd.entity(e)
         .insert_bundle(EnemyBundle {
             health: Health(prefab.health as i32),
             ..default()
@@ -44,19 +44,18 @@ pub fn enemy_builder(cmds: &mut Commands, prefab: &EnemyPrefab) -> Entity {
 
     match prefab.ai {
         AI::Simple { target_range } => {
-            cmds.entity(e).insert(SimpleMovement {
+            cmd.entity(e).insert(SimpleMovement {
                 speed: prefab.speed,
                 target_range,
             });
         }
         AI::Loiter { chaos } => {
-            cmds.entity(e).insert(LoiterMovement {
+            cmd.entity(e).insert(LoiterMovement {
                 speed: prefab.speed,
                 chaos,
                 current_dir: Vec2::ZERO, //TODO exposing current dir is a bit ugly
             });
         }
-        _ => {}
     }
 
     return e;

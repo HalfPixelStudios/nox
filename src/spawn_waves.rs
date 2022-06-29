@@ -3,19 +3,12 @@ use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::{seq::SliceRandom, Rng};
 use std::f32::consts::PI;
 
-use super::{config::AppState, player::Player, prefabs::enemy::*};
+use super::{config::AppState, enemy::SpawnEnemyEvent, player::Player, prefabs::enemy::*};
 
 pub struct SpawnWavesPlugin;
 
-type SpawnFunction = fn(
-    cmd: &mut Commands,
-    assets: Res<AssetServer>,
-    texture_atlases: ResMut<Assets<TextureAtlas>>,
-    spawn_pos: Vec2,
-) -> ();
-
 struct WaveInfo {
-    spawn_pool: Vec<SpawnFunction>,
+    spawn_pool: Vec<String>,
     spawn_count: u32,
 }
 
@@ -55,7 +48,7 @@ impl Default for WaveResource {
 impl Plugin for SpawnWavesPlugin {
     fn build(&self, app: &mut App) {
         let waves = vec![WaveInfo {
-            spawn_pool: vec![bow_orc],
+            spawn_pool: vec!["bow_orc".to_string()],
             spawn_count: 5,
         }];
 
@@ -106,11 +99,9 @@ fn wave_system(time: Res<Time>, mut res: ResMut<WaveResource>) {
 }
 
 fn wave_spawn_system(
-    mut cmd: Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     time: Res<Time>,
     mut res: ResMut<WaveResource>,
+    mut writer: EventWriter<SpawnEnemyEvent>,
     player_query: Query<&Transform, With<Player>>,
 ) {
     if res.wave_ongoing == false || res.paused {
@@ -122,13 +113,7 @@ fn wave_spawn_system(
     // spawn a new enemy
     if res.spawn_timer.elapsed_secs() > res.spawn_speed {
         res.spawn_timer.reset();
-        spawn_enemy(
-            &mut cmd,
-            assets,
-            texture_atlases,
-            res.current_wave(),
-            player_position.truncate(),
-        );
+        spawn_enemy(res.current_wave(), player_position.truncate(), &mut writer);
         res.spawns_left -= 1;
     }
 
@@ -142,22 +127,24 @@ fn wave_spawn_system(
 }
 
 fn spawn_enemy(
-    cmd: &mut Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     current_wave: &WaveInfo,
     player_position: Vec2,
+    writer: &mut EventWriter<SpawnEnemyEvent>,
 ) {
     const SPAWN_DISTANCE: f32 = 250.;
 
     let rand: i32 = rand::thread_rng().gen_range(0..360);
     let angle = (rand as f32) * PI / 180.;
-    let spawn_point = player_position + Mat2::from_angle(angle) * Vec2::X * SPAWN_DISTANCE;
+    let spawn_pos = player_position + Mat2::from_angle(angle) * Vec2::X * SPAWN_DISTANCE;
 
-    let spawn_fn = current_wave.spawn_pool.choose(&mut rand::thread_rng());
-    if spawn_fn.is_none() {
+    let enemy_id = current_wave.spawn_pool.choose(&mut rand::thread_rng());
+    if enemy_id.is_none() {
         return;
     }
-    let spawn_fn = spawn_fn.unwrap();
-    spawn_fn(cmd, assets, texture_atlases, spawn_point);
+    let enemy_id = enemy_id.unwrap().clone();
+
+    writer.send(SpawnEnemyEvent {
+        enemy_id,
+        spawn_pos,
+    });
 }

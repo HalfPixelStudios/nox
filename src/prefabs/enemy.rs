@@ -32,11 +32,7 @@ pub fn bow_orc(
         },
         ..default()
     })
-    .insert(AttackPolicy {
-        attack_range: 200.,
-        weapon: "steel_sword".to_string(),
-        attack_timer: Stopwatch::new(),
-    })
+    .insert(AttackPolicy::new(200., "steel_sword".to_string()))
     .insert(SimpleMovement {
         speed: 40.,
         target_range: 100.,
