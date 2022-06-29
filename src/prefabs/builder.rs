@@ -6,15 +6,15 @@ use super::models::*;
 
 pub fn weapon_builder(prefab: WeaponPrefab) {}
 
-pub fn projectile_builder(cmds: &mut Commands, prefab: ProjectilePrefab) -> Entity {
+pub fn bullet_builder(cmds: &mut Commands, prefab: BulletPrefab) -> Entity {
     let e = cmds.spawn().id();
 
     cmds.entity(e).insert_bundle(BulletBundle {
         bullet: Bullet {
-            penetration: prefab.penetration,
+            penetration: prefab.penetration as i32,
         },
-        damage: Damage(prefab.damage),
-        movement: Movement(prefab.speed, dir),
+        // damage: Damage(prefab.damage),
+        // movement: Movement(prefab.speed, Vec2::ZERO),
         ..default()
     });
 

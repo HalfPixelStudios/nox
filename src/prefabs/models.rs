@@ -20,7 +20,7 @@ pub enum Lifetime {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ProjectilePrefab {
+pub struct BulletPrefab {
     pub display_name: Option<String>,
     pub damage: u32,
     pub penetration: u32,
@@ -39,17 +39,15 @@ pub enum ShootPattern {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub enum ProjectileRef {
+pub enum BulletRef {
     Key(String),
-    Inline(ProjectilePrefab),
+    Inline(BulletPrefab),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WeaponPrefab {
     pub display_name: Option<String>,
-    pub projectile: ProjectileRef, // name of projectile that is fired (or inline definition)
+    pub projectile: BulletRef, // name of projectile that is fired (or inline definition)
     pub shoot_pattern: ShootPattern,
     pub attack_speed: f32, // time between consecutive attacks
 }
-
-pub type WeaponMap = HashMap<String, WeaponPrefab>;
