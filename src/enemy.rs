@@ -13,18 +13,33 @@ use super::{
     config::AppState,
     physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
-    prefabs::enemy::bow_orc,
+    prefabs::PrefabResource,
     souls::*,
 };
+
+pub struct SpawnEnemyEvent {
+    pub enemy_id: String,
+    pub spawn_pos: Vec2,
+}
 
 #[derive(Component)]
 pub struct Enemy;
 
 #[derive(Component)]
 pub struct AttackPolicy {
-    pub attack_range: f32, // min distance before attempting to attack
-    pub weapon: String,
-    pub attack_timer: Stopwatch,
+    attack_range: f32, // min distance before attempting to attack
+    weapon: String,
+    attack_timer: Stopwatch,
+}
+
+impl AttackPolicy {
+    pub fn new(attack_range: f32, weapon: String) -> Self {
+        AttackPolicy {
+            attack_range,
+            weapon,
+            attack_timer: Stopwatch::new(),
+        }
+    }
 }
 
 #[derive(Component)]
@@ -69,9 +84,11 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup)
+        app.add_event::<SpawnEnemyEvent>()
+            .add_startup_system(setup)
             .add_system_set(
                 SystemSet::on_update(AppState::InGame)
+                    .with_system(spawn_enemy_system)
                     .with_system(simple_movement_system)
                     .with_system(loiter_movement_system)
                     .with_system(attack_system),
@@ -173,6 +190,25 @@ fn attack_system(
             // TODO spawn bullet code here
         }
         */
+    }
+}
+
+fn spawn_enemy_system(
+    mut cmd: Commands,
+    prefabs: Res<PrefabResource>,
+    mut events: EventReader<SpawnEnemyEvent>,
+) {
+    for SpawnEnemyEvent {
+        enemy_id,
+        spawn_pos,
+    } in events.iter()
+    {
+        let prefab = prefabs.get_enemy(enemy_id);
+        if prefab.is_none() {
+            warn!("unable to fetch enemy prefab: {}", enemy_id);
+            continue;
+        }
+        let prefab = prefab.unwrap();
     }
 }
 

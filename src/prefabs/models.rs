@@ -2,12 +2,18 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 // ENEMY =-=-=-=-=-=-=
+#[derive(Debug, Serialize, Deserialize)]
+pub enum AI {
+    Simple { target_range: f32 },
+    Loiter { chaos: u32 },
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EnemyPrefab {
     pub display_name: Option<String>,
     pub health: u32,
     pub speed: f32,
+    pub ai: AI,
     pub sprite: String,
 }
 

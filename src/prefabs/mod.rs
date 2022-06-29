@@ -58,4 +58,7 @@ impl PrefabResource {
     pub fn get_weapon(&self, weapon_id: &str) -> Option<&WeaponPrefab> {
         self.weapon_map.get(weapon_id)
     }
+    pub fn get_enemy(&self, enemy_id: &str) -> Option<&EnemyPrefab> {
+        self.enemy_map.get(enemy_id)
+    }
 }
