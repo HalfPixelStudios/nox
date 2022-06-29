@@ -9,6 +9,12 @@ use super::{
     physics::CollisionStartEvent,
 };
 
+struct SpawnBulletEvent {
+    bullet_id: String,
+    spawn_pos: Vec3,
+    dir: Vec3,
+}
+
 pub type ShootFunction = fn(
     cmd: &mut Commands,
     assets: &Res<AssetServer>,
@@ -57,7 +63,8 @@ pub struct BulletPlugin;
 
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(bullet_movement_system)
+        app.add_event::<SpawnBulletEvent>()
+            .add_system(bullet_movement_system)
             .add_system(bullet_distance_lifetime_system)
             .add_system(bullet_duration_lifetime_system)
             .add_system(handle_collision)
@@ -74,7 +81,6 @@ pub enum Attacker {
 #[derive(Bundle)]
 pub struct BulletBundle {
     pub bullet: Bullet,
-    #[bundle]
     pub damage: Damage,
     pub movement: Movement,
     pub rb: RigidBody,
@@ -138,6 +144,15 @@ fn bullet_distance_lifetime_system(
 
         lifetime.displacement.update(transform.translation);
     }
+}
+
+fn spawn_bullet_system(mut cmd: Commands, mut events: EventReader<SpawnBulletEvent>) {
+    for SpawnBulletEvent {
+        bullet_id,
+        spawn_pos,
+        dir,
+    } in events.iter()
+    {}
 }
 
 fn bullet_die_system(mut cmd: Commands, mut query: Query<(Entity, &Bullet)>) {
