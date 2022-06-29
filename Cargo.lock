@@ -2467,10 +2467,9 @@ dependencies = [
  "bevy_kira_audio",
  "bevy_rapier2d",
  "bevy_tweening",
- "console_error_panic_hook",
  "rand",
- "wasm-bindgen",
- "web-sys",
+ "ron",
+ "serde",
 ]
 
 [[package]]
