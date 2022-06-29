@@ -40,7 +40,10 @@ pub fn enemy_builder(cmd: &mut Commands, prefab: &EnemyPrefab) -> Entity {
             health: Health(prefab.health as i32),
             ..default()
         })
-        .insert(AttackPolicy::new(200., "steel_sword".to_string()));
+        .insert(AttackPolicy::new(
+            prefab.attack_range,
+            prefab.weapon.clone(),
+        ));
 
     match prefab.ai {
         AI::Simple { target_range } => {

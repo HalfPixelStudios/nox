@@ -4,6 +4,7 @@
         penetration: 1,
         speed: 200.,
         lifetime: Distance(200.),
-        sprite: "steel_sword_bullet.png",
+        sprite_index: 564,
+        sprite_color: (1., 1., 1.),
     )
 }

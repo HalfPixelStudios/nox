@@ -229,8 +229,12 @@ fn spawn_enemy_system(
 
         cmd.entity(e).insert_bundle(SpriteSheetBundle {
             sprite: TextureAtlasSprite {
-                index: 123,
-                color: Color::rgb(0., 1., 0.),
+                index: prefab.sprite_index as usize,
+                color: Color::rgb(
+                    prefab.sprite_color.0,
+                    prefab.sprite_color.1,
+                    prefab.sprite_color.2,
+                ),
                 ..default()
             },
             texture_atlas: get_tileset(&assets, &mut texture_atlases),

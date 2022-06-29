@@ -3,6 +3,9 @@
         health: 100,
         speed: 50.,
         ai: Simple( target_range: 50.),
-        sprite: "poo",
+        weapon: "steel_sword",
+        attack_range: 100.,
+        sprite_index: 123,
+        sprite_color: (0., 1., 0.)
     )
 }

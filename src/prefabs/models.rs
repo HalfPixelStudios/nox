@@ -14,7 +14,10 @@ pub struct EnemyPrefab {
     pub health: u32,
     pub speed: f32,
     pub ai: AI,
-    pub sprite: String,
+    pub weapon: String,
+    pub attack_range: f32,
+    pub sprite_index: u32,
+    pub sprite_color: (f32, f32, f32),
 }
 
 // PROJECTILE =-=-=-=-=-=-=
@@ -32,7 +35,8 @@ pub struct BulletPrefab {
     pub penetration: u32,
     pub speed: f32,
     pub lifetime: Lifetime,
-    pub sprite: String,
+    pub sprite_index: u32,
+    pub sprite_color: (f32, f32, f32),
 }
 
 // WEAPON =-=-=-=-=-=-=

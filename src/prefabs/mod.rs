@@ -1,6 +1,4 @@
 pub mod builder;
-pub mod bullet;
-pub mod enemy;
 pub mod models;
 
 use bevy::prelude::*;

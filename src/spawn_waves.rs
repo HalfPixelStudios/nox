@@ -3,7 +3,7 @@ use bevy_inspector_egui::{Inspectable, InspectorPlugin};
 use rand::{seq::SliceRandom, Rng};
 use std::f32::consts::PI;
 
-use super::{config::AppState, enemy::SpawnEnemyEvent, player::Player, prefabs::enemy::*};
+use super::{config::AppState, enemy::SpawnEnemyEvent, player::Player};
 
 pub struct SpawnWavesPlugin;
 

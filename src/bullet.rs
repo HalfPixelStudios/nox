@@ -19,15 +19,6 @@ pub struct SpawnBulletEvent {
     pub dir: Vec2,
 }
 
-pub type ShootFunction = fn(
-    cmd: &mut Commands,
-    assets: &Res<AssetServer>,
-    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
-    attacker: Attacker,
-    spawn_pos: Vec3,
-    dir: Vec2,
-) -> ();
-
 #[derive(Component)]
 pub struct Bullet {
     pub penetration: i32,
@@ -167,7 +158,12 @@ fn spawn_bullet_system(
         cmds.entity(e)
             .insert_bundle(SpriteSheetBundle {
                 sprite: TextureAtlasSprite {
-                    index: 564,
+                    index: prefab.sprite_index as usize,
+                    color: Color::rgb(
+                        prefab.sprite_color.0,
+                        prefab.sprite_color.1,
+                        prefab.sprite_color.2,
+                    ),
                     ..default()
                 },
                 texture_atlas: get_tileset(&assets, &mut texture_atlases),
