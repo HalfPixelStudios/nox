@@ -3,7 +3,11 @@ use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
 use super::config::AppState;
-use super::{collision_group::*, component::Damage, physics::CollisionStartEvent};
+use super::{
+    collision_group::*,
+    component::{Damage, Displacement},
+    physics::CollisionStartEvent,
+};
 
 pub type ShootFunction = fn(
     cmd: &mut Commands,
@@ -21,8 +25,8 @@ pub struct Bullet {
 
 #[derive(Component)]
 pub struct DistanceLifetime {
-    distance_left: f32,
-    previous_position: Vec3,
+    max_distance: f32,
+    pub displacement: Displacement,
 }
 
 #[derive(Component)]
@@ -31,10 +35,10 @@ pub struct DurationLifetime {
 }
 
 impl DistanceLifetime {
-    pub fn new(max_distance: f32, start_position: Vec3) -> Self {
+    pub fn new(max_distance: f32) -> Self {
         DistanceLifetime {
-            distance_left: max_distance,
-            previous_position: start_position,
+            max_distance,
+            displacement: Displacement::new(),
         }
     }
 }
@@ -71,7 +75,6 @@ pub enum Attacker {
 pub struct BulletBundle {
     pub bullet: Bullet,
     #[bundle]
-    pub sprite: SpriteSheetBundle,
     pub damage: Damage,
     pub movement: Movement,
     pub rb: RigidBody,
@@ -84,7 +87,6 @@ impl Default for BulletBundle {
     fn default() -> Self {
         BulletBundle {
             bullet: Bullet { penetration: 1 },
-            sprite: SpriteSheetBundle { ..default() },
             damage: Damage(10),
             movement: Movement(500., Vec2::ZERO),
             rb: RigidBody::Dynamic,
@@ -130,12 +132,11 @@ fn bullet_distance_lifetime_system(
     mut query: Query<(Entity, &Transform, &mut DistanceLifetime), With<Bullet>>,
 ) {
     for (entity, transform, mut lifetime) in query.iter_mut() {
-        lifetime.distance_left -= transform.translation.distance(lifetime.previous_position);
-        lifetime.previous_position = transform.translation;
-
-        if lifetime.distance_left < 0. {
+        if lifetime.displacement.get_distance() > lifetime.max_distance {
             bullet_die(&mut cmd, entity);
         }
+
+        lifetime.displacement.update(transform.translation);
     }
 }
 
