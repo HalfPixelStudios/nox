@@ -140,8 +140,12 @@ impl Material2d for FoliageMaterial {
         })
     }
 
+    fn vertex_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
+        Some(asset_server.load("shaders/foliage_material_vert.wgsl"))
+    }
+
     fn fragment_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
-        Some(asset_server.load("shaders/foliage_material.wgsl"))
+        Some(asset_server.load("shaders/foliage_material_frag.wgsl"))
     }
 }
 

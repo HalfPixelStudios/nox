@@ -69,7 +69,7 @@ impl Default for PlayerBundle {
             name: Name::new("Player"),
             player: Player,
             health: Health(100),
-            movement: Movement { speed: 100. },
+            movement: Movement { speed: 300. },
             sprite: SpriteSheetBundle::default(),
             physics: PhysicsBundle::default(),
             collision_groups: CollisionGroups::new(PLAYER, ENEMY | ENEMY_BULLET),
@@ -133,11 +133,10 @@ fn spawn_player(
 }
 
 fn player_controller(
-    time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut Transform, &Movement, &mut EntityState), With<Player>>,
+    mut query: Query<(&Movement, &mut Velocity, &mut EntityState), With<Player>>,
 ) {
-    let (mut transform, movement, mut state) = query.single_mut();
+    let (movement, mut velocity, mut state) = query.single_mut();
 
     let mut input_vec = Vec2::ZERO;
 
@@ -160,7 +159,7 @@ fn player_controller(
     }
 
     let move_vec = input_vec.normalize_or_zero();
-    transform.translation += move_vec.extend(0.) * movement.speed * time.delta_seconds();
+    velocity.linvel = move_vec * movement.speed;
 }
 
 fn player_attack(

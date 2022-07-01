@@ -7,11 +7,12 @@ use bevy::{
         *,
     },
 };
+use bevy_inspector_egui::Inspectable;
 use bevy_rapier2d::prelude::*;
 
 use super::super::player::Player;
 
-#[derive(Deref)]
+#[derive(Deref, Inspectable, Default)]
 pub struct ExtractedVelocity(pub Vec2);
 
 pub fn extract_velocity(mut cmd: Commands, query: Query<&Velocity, With<Player>>) {
