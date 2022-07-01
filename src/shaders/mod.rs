@@ -1,4 +1,3 @@
-
 pub mod simple_material;
 
 use bevy::{prelude::*, sprite::*};
@@ -9,8 +8,7 @@ pub struct ShaderPlugin;
 
 impl Plugin for ShaderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(Material2dPlugin::<SimpleMaterial>::default())
-            .add_startup_system(setup);
+        app.add_plugin(Material2dPlugin::<SimpleMaterial>::default());
     }
 }
 

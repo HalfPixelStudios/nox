@@ -1,4 +1,3 @@
-
 use bevy::{
     ecs::system::{lifetimeless::*, *},
     prelude::*,
@@ -33,7 +32,11 @@ pub struct SimpleMaterialGPU {
 impl RenderAsset for SimpleMaterial {
     type ExtractedAsset = SimpleMaterial;
     type PreparedAsset = SimpleMaterialGPU;
-    type Param = (SRes<RenderDevice>, SRes<Material2dPipeline<SimpleMaterial>>, SRes<RenderAssets<Image>>);
+    type Param = (
+        SRes<RenderDevice>,
+        SRes<Material2dPipeline<SimpleMaterial>>,
+        SRes<RenderAssets<Image>>,
+    );
 
     fn extract_asset(&self) -> Self::ExtractedAsset {
         self.clone()
@@ -43,8 +46,10 @@ impl RenderAsset for SimpleMaterial {
         extracted_asset: Self::ExtractedAsset,
         (render_device, pipeline, images): &mut SystemParamItem<Self::Param>,
     ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
-
-        let (view, sampler) = if let Some(result) = pipeline.mesh2d_pipeline.get_image_texture(images, &Some(extracted_asset.texture.clone())) {
+        let (view, sampler) = if let Some(result) = pipeline
+            .mesh2d_pipeline
+            .get_image_texture(images, &Some(extracted_asset.texture.clone()))
+        {
             result
         } else {
             return Err(PrepareAssetError::RetryNextUpdate(extracted_asset));
