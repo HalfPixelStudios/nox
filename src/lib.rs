@@ -16,6 +16,7 @@ pub mod physics;
 pub mod player;
 pub mod prefabs;
 pub mod screens;
+pub mod shaders;
 pub mod souls;
 pub mod spawn_waves;
 pub mod utils;
