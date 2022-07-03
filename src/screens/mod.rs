@@ -3,6 +3,7 @@ use kayak_ui::bevy::{BevyKayakUIPlugin, FontMapping, BevyContext};
 
 pub mod mainmenu;
 pub mod ingame;
+pub mod gameover;
 
 pub struct UIPlugin;
 
@@ -11,7 +12,8 @@ impl Plugin for UIPlugin {
         app.add_plugin(BevyKayakUIPlugin)
             .add_startup_system(setup)
             .add_plugin(mainmenu::MainMenuPlugin)
-            .add_plugin(ingame::InGamePlugin);
+            .add_plugin(ingame::InGamePlugin)
+            .add_plugin(gameover::GameOverPlugin);
     }
 }
 
