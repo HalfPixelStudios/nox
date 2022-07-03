@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone, Eq, PartialEq)]
 pub struct Health(pub i32);
+
 impl Health {
     pub fn take(&mut self, dmg: i32) {
         self.0 -= dmg;

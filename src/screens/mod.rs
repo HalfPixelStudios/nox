@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use kayak_ui::bevy::{BevyKayakUIPlugin, FontMapping, BevyContext};
 
 pub mod mainmenu;
+pub mod ingame;
 
 pub struct UIPlugin;
 
@@ -9,7 +10,8 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(BevyKayakUIPlugin)
             .add_startup_system(setup)
-            .add_plugin(mainmenu::MainMenuPlugin);
+            .add_plugin(mainmenu::MainMenuPlugin)
+            .add_plugin(ingame::InGamePlugin);
     }
 }
 
