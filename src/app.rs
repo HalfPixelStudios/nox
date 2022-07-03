@@ -4,7 +4,7 @@ use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use bevy_tweening::{lens::*, *};
 
-use crate::shaders;
+use crate::{shaders, command};
 
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
@@ -59,6 +59,7 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(inventory::InventoryPlugin)
         .add_plugin(screens::UIPlugin)
         .add_plugin(shaders::ShaderPlugin)
+        .add_plugin(command::CommandPlugin)
         .add_plugin(souls::ItemPlugin);
 
     // loose systems
