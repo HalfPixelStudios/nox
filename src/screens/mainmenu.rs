@@ -6,7 +6,6 @@ use kayak_ui::{
 };
 
 use super::super::config::AppState;
-use super::UIRoot;
 
 pub struct MainMenuPlugin;
 
@@ -20,9 +19,6 @@ impl Plugin for MainMenuPlugin {
 
 fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
     let ctx = BevyContext::new(|context| {
-        if context.get_global::<World>().is_err() {
-            return;
-        }
 
         let button_style = Style {
             width: StyleProp::Value(Units::Pixels(200.)),
@@ -41,6 +37,6 @@ fn render_ui(mut cmd: Commands, assets: Res<AssetServer>) {
     cmd.insert_resource(ctx);
 }
 
-fn destroy_ui(mut cmd: Commands, query: Query<Entity, With<UIRoot>>) {}
+fn destroy_ui(mut cmd: Commands) {}
 
 fn button_listener(mut app_state: ResMut<State<AppState>>) {}
