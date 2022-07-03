@@ -14,7 +14,7 @@ struct WaveInfo {
 
 #[derive(Inspectable)]
 pub struct WaveResource {
-    pub wave_number: u8,
+    pub wave_number: u32,
     spawns_left: u32,
     pub wave_ongoing: bool,
     #[inspectable(ignore)]
@@ -67,8 +67,8 @@ impl Plugin for SpawnWavesPlugin {
 }
 
 impl WaveResource {
-    fn total_waves(&self) -> u8 {
-        self.waves.len() as u8
+    fn total_waves(&self) -> u32 {
+        self.waves.len() as u32
     }
     fn current_wave(&self) -> &WaveInfo {
         // TODO: will die if we have zero waves defined

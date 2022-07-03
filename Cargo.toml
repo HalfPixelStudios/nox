@@ -12,12 +12,13 @@ bevy_sprite = ["bevy/bevy_sprite", "bevy/bevy_render"]
 bevy_ui = ["bevy/bevy_ui", "bevy/bevy_text", "bevy/bevy_render"]
 
 [dependencies]
-bevy = { version = "0.7.0", default-features = false, features = [ "render", "animation", "bevy_winit", "bevy_gilrs", "png", "hdr", "filesystem_watcher", "x11" ] }
+bevy = { version = "0.7.0", default-features = false, features = [ "render", "animation", "bevy_winit", "bevy_gilrs", "png", "hdr", "filesystem_watcher", "x11", "trace", "dynamic" ] }
 bevy_kira_audio = { version = "0.10.0", default-features = false, features = [ "wav" ] }
 bevy_rapier2d = { version = "0.14.1", features = ["debug-render"] }
 bevy-inspector-egui = { version = "0.11" }
 bevy_tweening = { version = "0.4" }
 bevy_hanabi = { version = "0.2.0" }
+kayak_ui = { git="https://github.com/StarArawn/kayak_ui", features = ["bevy_renderer"] }
 
 rand = "0.8.5"
 argparse = { git = "https://github.com/MrPicklePinosaur/pino.rs" }
