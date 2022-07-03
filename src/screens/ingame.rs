@@ -8,7 +8,8 @@ use kayak_ui::{
 use super::super::{
     player::Player,
     component::Health,
-    config::AppState
+    config::AppState,
+    spawn_waves::WaveResource
 };
 
 pub struct InGamePlugin;
@@ -16,21 +17,25 @@ pub struct InGamePlugin;
 impl Plugin for InGamePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_system_set(SystemSet::on_enter(AppState::InGame).with_system(render_ui))
-            .add_system_set(SystemSet::on_update(AppState::InGame).with_system(update_player_hp))
+            .add_system_set(SystemSet::on_update(AppState::InGame).with_system(update_player_hp).with_system(update_wave_number))
             .add_system_set(SystemSet::on_exit(AppState::InGame).with_system(destroy_ui));
     }
 }
 
+#[derive(Default, Clone, Eq, PartialEq)]
+struct WaveNumber(u32);
+
 fn render_ui(mut cmd: Commands) {
 
-    let hp_binding = bind(Health::default());
-    cmd.insert_resource(hp_binding);
+    cmd.insert_resource(bind(Health::default()));
+    cmd.insert_resource(bind(WaveNumber::default()));
 
     let context = BevyContext::new(|context| {
 
         render! {
             <kayak_ui::widgets::App>
                 <HealthWidget />
+                <WaveWidget />
             </kayak_ui::widgets::App>
         }
     });
@@ -50,9 +55,31 @@ fn HealthWidget() {
     }
 }
 
+#[widget]
+fn WaveWidget() {
+
+    let wave_binding = context.query_world::<Res<Binding<WaveNumber>>, _, _>(|wave_number| wave_number.clone());
+    context.bind(&wave_binding);
+
+    let wave_style = Style {
+        padding_left: StyleProp::Value(Units::Pixels(100.)),
+        ..Style::default()
+    };
+
+    rsx! {
+        <Window styles={Some(wave_style)}>
+            <Text size={30.0} content={format!("Wave {}", wave_binding.get().0)} />
+        </Window>
+    }
+}
+
 fn update_player_hp(query: Query<&Health, With<Player>>, binding: Res<Binding<Health>>) {
     let health = query.single();
     binding.set(health.clone());
+}
+
+fn update_wave_number(wave_resource: Res<WaveResource>, binding: Res<Binding<WaveNumber>>) {
+    binding.set(WaveNumber(wave_resource.wave_number));
 }
 
 fn destroy_ui(mut cmd: Commands) {
