@@ -32,11 +32,11 @@ fn setup(
     mut material_assets: ResMut<Assets<FoliageMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
-    let texture_handle = asset_server.load("player.png");
+    let texture_handle: Handle<Image> = asset_server.load("player.png");
 
     cmd.spawn_bundle(MaterialMesh2dBundle {
         mesh: mesh_assets
-            .add(Mesh::from(shape::Quad::new(Vec2::splat(100.))))
+            .add(Mesh::from(shape::Quad::new(Vec2::splat(1.))))
             .into(),
         material: material_assets.add(FoliageMaterial {
             color: Color::RED,

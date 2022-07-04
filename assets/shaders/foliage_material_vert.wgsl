@@ -18,7 +18,7 @@ struct FoliageMaterial {
 [[stage(vertex)]]
 fn vertex(input: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    out.clip_position = vec4<f32>(0.0, 1.0, 0.0, 1.0);
+    out.clip_position = vec4<f32>(input.position, 1.0);
     out.uv = input.uv;
     return out;
 }
