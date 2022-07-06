@@ -27,6 +27,7 @@ fn setup(
             .into(),
         material: material_assets.add(DaylightMaterial {
             color: Color::rgba(0.01, 0.01, 0.01, 1.0),
+            lights: vec!(Light::new(Vec2::new(0., 0.), 10.), Light::new(Vec2::new(100., 100.), 10.))
         }),
         transform: Transform {
             translation: Vec3::new(0., 0., 1.),

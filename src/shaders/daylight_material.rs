@@ -13,15 +13,36 @@ use bevy::{
     sprite::*,
 };
 
-#[derive(TypeUuid, Clone)]
+pub const MAX_LIGHTS: usize = 64;
+
+#[derive(Clone, AsStd140, Copy, Default)]
+pub struct Light {
+    pos: Vec2,
+    radius: f32,
+    enabled: u32,
+}
+
+impl Light {
+    pub fn new(pos: Vec2, radius: f32) -> Self {
+        Light {
+            pos,
+            radius,
+            enabled: 1
+        }
+    }
+}
+
+#[derive(TypeUuid, Clone, Default)]
 #[uuid = "683f2a9e-c026-448d-a7d6-0a80b63d0f6f"]
 pub struct DaylightMaterial {
     pub color: Color,
+    pub lights: Vec<Light>,
 }
 
 #[derive(Clone, AsStd140)]
 struct DaylightMaterialUniformData {
     color: Vec4,
+    lights: [Light; MAX_LIGHTS]
 }
 
 pub struct DaylightMaterialGPU {
@@ -45,8 +66,14 @@ impl RenderAsset for DaylightMaterial {
         (render_device, pipeline): &mut SystemParamItem<Self::Param>,
     ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
 
+        let mut lights = [Light::default(); MAX_LIGHTS];
+        for (i, light) in extracted_asset.lights.iter().enumerate() {
+            lights[i] = *light;
+        }
+
         let data = DaylightMaterialUniformData {
             color: extracted_asset.color.as_linear_rgba_f32().into(),
+            lights
         };
 
         let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
