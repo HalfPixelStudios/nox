@@ -23,7 +23,7 @@ fn setup(
 ) {
     cmd.spawn_bundle(MaterialMesh2dBundle {
         mesh: mesh_assets
-            .add(Mesh::from(shape::Quad::new(Vec2::splat(100.))))
+            .add(Mesh::from(shape::Quad::new(Vec2::splat(500.))))
             .into(),
         material: material_assets.add(DaylightMaterial {
             color: Color::rgba(1., 0., 0., 0.5),
