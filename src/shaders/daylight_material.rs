@@ -48,6 +48,7 @@ struct DaylightMaterialUniformData {
 
 pub struct DaylightMaterialGPU {
     bind_group: BindGroup,
+    uniform_data: DaylightMaterialUniformData,
 }
 
 impl RenderAsset for DaylightMaterial {
@@ -93,7 +94,7 @@ impl RenderAsset for DaylightMaterial {
                 },
             ],
         });
-        Ok(DaylightMaterialGPU { bind_group })
+        Ok(DaylightMaterialGPU { bind_group, uniform_data })
     }
 }
 
@@ -127,18 +128,20 @@ impl Material2d for DaylightMaterial {
     }
 }
 
-pub fn extract_lights(render_queue: Res<RenderQueue>, query: Query<&Light>) {
+pub struct ExtractedLights(Vec<Light>);
 
-    /*
-
-    // TODO might not be very efficient to copy all lights every render cycle
-    for light in query.iter() {
+pub fn extract_lights(mut cmd: Commands, query: Query<&Light>) {
+    cmd.insert_resource(ExtractedLights(query.iter().copied().collect()));
+}
+pub fn prepare_lights(mut material_assets: ResMut<RenderAssets<DaylightMaterial>>, render_queue: Res<RenderQueue>, lights: Res<ExtractedLights>) {
+    for light in lights.0.iter() {
         match light {
             Light::PointLight{ radius, intensity } => {
+                for mat in material_assets.values_mut() {
+                    // mat.uniform_data.point_lights
+                }
             },
             _ => {}
         };
     }
-
-    */
 }
