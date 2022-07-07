@@ -12,19 +12,20 @@ use bevy::{
     },
     sprite::*,
 };
+use super::super::light::*;
 
-pub const MAX_LIGHTS: usize = 64;
+pub const MAX_POINT_LIGHTS: usize = 64;
 
 #[derive(Clone, AsStd140, Copy, Default)]
-pub struct Light {
+pub struct PointLightGPU {
     pos: Vec2,
     radius: f32,
     enabled: u32,
 }
 
-impl Light {
+impl PointLightGPU {
     pub fn new(pos: Vec2, radius: f32) -> Self {
-        Light {
+        PointLightGPU {
             pos,
             radius,
             enabled: 1
@@ -36,13 +37,13 @@ impl Light {
 #[uuid = "683f2a9e-c026-448d-a7d6-0a80b63d0f6f"]
 pub struct DaylightMaterial {
     pub color: Color,
-    pub lights: Vec<Light>,
+    pub point_lights: Vec<PointLightGPU>,
 }
 
 #[derive(Clone, AsStd140)]
 struct DaylightMaterialUniformData {
     color: Vec4,
-    lights: [Light; MAX_LIGHTS]
+    point_lights: [PointLightGPU; MAX_POINT_LIGHTS]
 }
 
 pub struct DaylightMaterialGPU {
@@ -66,14 +67,14 @@ impl RenderAsset for DaylightMaterial {
         (render_device, pipeline): &mut SystemParamItem<Self::Param>,
     ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
 
-        let mut lights = [Light::default(); MAX_LIGHTS];
-        for (i, light) in extracted_asset.lights.iter().enumerate() {
-            lights[i] = *light;
+        let mut point_lights = [PointLightGPU::default(); MAX_POINT_LIGHTS];
+        for (i, point_light) in extracted_asset.point_lights.iter().enumerate() {
+            point_lights[i] = *point_light;
         }
 
         let data = DaylightMaterialUniformData {
             color: extracted_asset.color.as_linear_rgba_f32().into(),
-            lights
+            point_lights
         };
 
         let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
@@ -124,4 +125,20 @@ impl Material2d for DaylightMaterial {
     fn fragment_shader(asset_server: &AssetServer) -> Option<Handle<Shader>> {
         Some(asset_server.load("shaders/daylight_material.wgsl"))
     }
+}
+
+pub fn extract_lights(render_queue: Res<RenderQueue>, query: Query<&Light>) {
+
+    /*
+
+    // TODO might not be very efficient to copy all lights every render cycle
+    for light in query.iter() {
+        match light {
+            Light::PointLight{ radius, intensity } => {
+            },
+            _ => {}
+        };
+    }
+
+    */
 }

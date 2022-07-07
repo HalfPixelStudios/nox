@@ -22,3 +22,4 @@ pub mod spawn_waves;
 pub mod utils;
 pub mod weapon;
 pub mod worldgen;
+pub mod light;

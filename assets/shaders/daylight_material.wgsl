@@ -6,9 +6,9 @@ struct VertexOutput {
     [[location(2)]] uv: vec2<f32>;
 };
 
-let MAX_LIGHTS = 64;
+let MAX_POINT_LIGHTS = 64;
 
-struct Light {
+struct PointLight {
     pos: vec2<f32>;
     radius: f32;
     enabled: u32;
@@ -16,7 +16,7 @@ struct Light {
 
 struct DaylightMaterial {
     color: vec4<f32>;
-    lights: array<Light, MAX_LIGHTS>;
+    point_lights: array<PointLight, MAX_POINT_LIGHTS>;
 };
 
 [[group(1), binding(0)]]
@@ -45,8 +45,8 @@ fn fragment(input: VertexOutput) -> [[location(0)]] vec4<f32> {
     var radius = 0.1;
 
     var final_alpha = 1.0;
-    for (var i: i32 = 0; i < MAX_LIGHTS; i = i+1) {
-        var light_info = uniform_data.lights[i];
+    for (var i: i32 = 0; i < MAX_POINT_LIGHTS; i = i+1) {
+        var light_info = uniform_data.point_lights[i];
         var output_color = vec3<f32>(uniform_data.color.x, uniform_data.color.y, uniform_data.color.z);
         var pos = vec2<f32>(input.world_position.x, input.world_position.y);
 
