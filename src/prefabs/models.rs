@@ -9,6 +9,12 @@ pub enum AI {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Drops {
+    pub item_id: String,
+    pub weight: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct EnemyPrefab {
     pub display_name: Option<String>,
     pub health: u32,
@@ -20,6 +26,7 @@ pub struct EnemyPrefab {
     pub sprite_color: (f32, f32, f32),
     pub hurt_sounds: Vec<String>,
     pub die_sounds: Vec<String>,
+    pub drops: Vec<Drops>,
 }
 
 // PROJECTILE =-=-=-=-=-=-=
