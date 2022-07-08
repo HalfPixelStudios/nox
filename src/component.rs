@@ -4,11 +4,15 @@ use bevy::prelude::*;
 pub struct Health(pub i32);
 
 impl Health {
-    pub fn take(&mut self, dmg: i32) {
-        self.0 -= dmg;
+    pub fn take(&mut self, amount: i32) {
+        self.0 -= amount;
         if self.0 <= 0 {
             self.0 = 0;
         }
+    }
+
+    pub fn heal(&mut self, amount: u32) {
+        self.0 += amount as i32;
     }
 }
 

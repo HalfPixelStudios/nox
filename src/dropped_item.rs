@@ -21,7 +21,7 @@ pub struct PickupItemEvent {
 pub struct DroppedItemPlugin;
 impl Plugin for DroppedItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnDroppedItemEvent>().add_event::<PickupItemEvent>().add_system(pickup_detection_system).add_system(spawn_dropped_item);
+        app.add_event::<SpawnDroppedItemEvent>().add_event::<PickupItemEvent>().add_system(pickup_system).add_system(spawn_dropped_item);
     }
 }
 
@@ -60,7 +60,7 @@ pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppe
     }
 }
 
-pub fn pickup_detection_system(
+pub fn pickup_system(
     mut cmd: Commands,
     input: Res<Input<KeyCode>>,
     item_query: Query<(Entity, &DroppedItem, &Transform), Without<Player>>,
@@ -74,7 +74,7 @@ pub fn pickup_detection_system(
     let (player_trans, pickup) = player_query.single();
 
     // find closest item to pickup
-    let closest = item_query.iter().fold(None, |min, item@(_, dropped_item, item_trans)| {
+    let closest = item_query.iter().fold(None, |min, item@(_, _, item_trans)| {
         if player_trans.translation.truncate().distance(item_trans.translation.truncate()) <= pickup.range {
             Some(item)
         } else {
