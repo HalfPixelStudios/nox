@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 
-use super::super::bullet::*;
-use super::super::component::*;
-use super::super::enemy::*;
 use super::models::*;
+use crate::audio::SoundEmitter;
+use crate::bullet::*;
+use crate::component::*;
+use crate::enemy::*;
 
 pub fn weapon_builder(prefab: WeaponPrefab) {}
 
@@ -38,6 +39,10 @@ pub fn enemy_builder(cmd: &mut Commands, prefab: &EnemyPrefab) -> Entity {
     cmd.entity(e)
         .insert_bundle(EnemyBundle {
             health: Health(prefab.health as i32),
+            sound_emitter: SoundEmitter {
+                hurt_sounds: prefab.hurt_sounds.clone(),
+                die_sounds: prefab.die_sounds.clone(),
+            },
             ..default()
         })
         .insert(AttackPolicy::new(

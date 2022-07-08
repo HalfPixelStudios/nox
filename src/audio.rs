@@ -2,21 +2,21 @@ use bevy::prelude::*;
 use bevy_kira_audio::Audio;
 use rand::{seq::SliceRandom, Rng};
 
-pub struct PlaySoundEvent(pub String);
+pub struct PlaySoundEvent(Vec<String>);
+
+impl PlaySoundEvent {
+    pub fn sound(sound_file: String) -> Self {
+        PlaySoundEvent(vec![sound_file])
+    }
+    pub fn random_sound(sound_files: Vec<String>) -> Self {
+        PlaySoundEvent(sound_files)
+    }
+}
 
 #[derive(Component, Default)]
 pub struct SoundEmitter {
     pub hurt_sounds: Vec<String>,
     pub die_sounds: Vec<String>,
-}
-
-impl SoundEmitter {
-    pub fn pick_hurt_sound(&self) -> Option<&String> {
-        self.hurt_sounds.choose(&mut rand::thread_rng())
-    }
-    pub fn pick_die_sound(&self) -> Option<&String> {
-        self.die_sounds.choose(&mut rand::thread_rng())
-    }
 }
 
 pub struct AudioPlugin;
@@ -54,6 +54,8 @@ fn play_sound_system(
     mut sound_requests: EventReader<PlaySoundEvent>,
 ) {
     for event in sound_requests.iter() {
-        play_sound(&assets, &audio, &event.0);
+        if let Some(sound_file) = event.0.choose(&mut rand::thread_rng()) {
+            play_sound(&assets, &audio, sound_file);
+        }
     }
 }
