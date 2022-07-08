@@ -1,15 +1,12 @@
 use bevy::{app::*, ecs::prelude::*};
 use kayak_ui::{
     bevy::*,
-    core::{styles::*, bind, render, rsx, widget, Binding, Bound, MutableBound},
+    core::{bind, render, rsx, styles::*, widget, Binding, Bound, MutableBound},
     widgets::*,
 };
 
 use super::super::{
-    player::Player,
-    component::Health,
-    config::AppState,
-    spawn_waves::WaveResource
+    component::Health, config::AppState, player::Player, spawn_waves::WaveResource,
 };
 
 pub struct InGamePlugin;
@@ -17,7 +14,11 @@ pub struct InGamePlugin;
 impl Plugin for InGamePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_system_set(SystemSet::on_enter(AppState::InGame).with_system(render_ui))
-            .add_system_set(SystemSet::on_update(AppState::InGame).with_system(update_player_hp).with_system(update_wave_number))
+            .add_system_set(
+                SystemSet::on_update(AppState::InGame)
+                    .with_system(update_player_hp)
+                    .with_system(update_wave_number),
+            )
             .add_system_set(SystemSet::on_exit(AppState::InGame).with_system(destroy_ui));
     }
 }
@@ -26,12 +27,10 @@ impl Plugin for InGamePlugin {
 struct WaveNumber(u32);
 
 fn render_ui(mut cmd: Commands) {
-
     cmd.insert_resource(bind(Health::default()));
     cmd.insert_resource(bind(WaveNumber::default()));
 
     let context = BevyContext::new(|context| {
-
         render! {
             <kayak_ui::widgets::App>
                 <HealthWidget />
@@ -44,7 +43,6 @@ fn render_ui(mut cmd: Commands) {
 
 #[widget]
 fn HealthWidget() {
-
     let hp_binding = context.query_world::<Res<Binding<Health>>, _, _>(|hp| hp.clone());
     context.bind(&hp_binding);
 
@@ -57,8 +55,8 @@ fn HealthWidget() {
 
 #[widget]
 fn WaveWidget() {
-
-    let wave_binding = context.query_world::<Res<Binding<WaveNumber>>, _, _>(|wave_number| wave_number.clone());
+    let wave_binding =
+        context.query_world::<Res<Binding<WaveNumber>>, _, _>(|wave_number| wave_number.clone());
     context.bind(&wave_binding);
 
     let wave_style = Style {
@@ -85,4 +83,3 @@ fn update_wave_number(wave_resource: Res<WaveResource>, binding: Res<Binding<Wav
 fn destroy_ui(mut cmd: Commands) {
     cmd.remove_resource::<BevyContext>();
 }
-

@@ -5,9 +5,7 @@ use kayak_ui::{
     widgets::*,
 };
 
-use super::super::{
-    config::AppState,
-};
+use super::super::config::AppState;
 
 pub struct GameOverPlugin;
 
@@ -20,7 +18,6 @@ impl Plugin for GameOverPlugin {
 
 fn render_ui(mut cmd: Commands) {
     let context = BevyContext::new(|context| {
-
         let button_style = Style {
             width: StyleProp::Value(Units::Pixels(200.)),
             height: StyleProp::Value(Units::Pixels(50.)),
@@ -29,7 +26,9 @@ fn render_ui(mut cmd: Commands) {
 
         let click_event = OnEvent::new(move |context, evt| {
             context.query_world::<EventWriter<AppExit>, _, _>(|mut writer| match evt.event_type {
-                EventType::Click(..) => { writer.send(AppExit); },
+                EventType::Click(..) => {
+                    writer.send(AppExit);
+                }
                 _ => {}
             });
         });
@@ -48,4 +47,3 @@ fn render_ui(mut cmd: Commands) {
 fn destroy_ui(mut cmd: Commands) {
     cmd.remove_resource::<BevyContext>();
 }
-

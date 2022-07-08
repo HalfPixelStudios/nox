@@ -1,4 +1,5 @@
 use bevy::{
+    core::Stopwatch,
     input::{keyboard::KeyCode, Input},
     math::Vec2,
     prelude::*,
@@ -163,29 +164,35 @@ fn player_controller(
     transform.translation += move_vec.extend(0.) * movement.speed * time.delta_seconds();
 }
 
+#[derive(Default)]
+struct PlayerAttackLocal {
+    timer: Stopwatch,
+}
 fn player_attack(
-    mut cmd: Commands,
     input: Res<Input<KeyCode>>,
     cursor: Res<Cursor>,
     inventory: Res<InventoryResource>,
     prefabs: Res<PrefabResource>,
+    time: Res<Time>,
+    mut local: Local<PlayerAttackLocal>,
     mut player_query: Query<&Transform, With<Player>>,
     mut sound_writer: EventWriter<PlaySoundEvent>,
     mut bullet_writer: EventWriter<SpawnBulletEvent>,
 ) {
     let player_trans = player_query.single_mut();
 
-    if input.just_pressed(KeyCode::Space) {
+    let primary_weapon_id = &inventory.primary_weapon;
+    let prefab = prefabs.get_weapon(primary_weapon_id);
+    if prefab.is_none() {
+        warn!("unable to fetch player weapon {}", primary_weapon_id);
+        return;
+    }
+    let prefab = prefab.unwrap();
+
+    if input.pressed(KeyCode::Space) && local.timer.elapsed_secs() > prefab.attack_speed {
+        local.timer.reset();
         // TODO: should error if bullet direction is ever zero
         let bullet_direction = (cursor.0 - player_trans.translation.truncate()).normalize_or_zero();
-
-        let primary_weapon_id = &inventory.primary_weapon;
-        let prefab = prefabs.get_weapon(primary_weapon_id);
-        if prefab.is_none() {
-            warn!("unable to fetch player weapon {}", primary_weapon_id);
-            return;
-        }
-        let prefab = prefab.unwrap();
 
         attack_pattern(
             &mut bullet_writer,
@@ -206,6 +213,7 @@ fn player_attack(
         }
         */
     }
+    local.timer.tick(time.delta());
 }
 
 fn eat_weapon(

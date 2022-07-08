@@ -27,7 +27,7 @@ impl Light {
         Light {
             pos,
             radius,
-            enabled: 1
+            enabled: 1,
         }
     }
 }
@@ -42,7 +42,7 @@ pub struct DaylightMaterial {
 #[derive(Clone, AsStd140)]
 struct DaylightMaterialUniformData {
     color: Vec4,
-    lights: [Light; MAX_LIGHTS]
+    lights: [Light; MAX_LIGHTS],
 }
 
 pub struct DaylightMaterialGPU {
@@ -65,7 +65,6 @@ impl RenderAsset for DaylightMaterial {
         extracted_asset: Self::ExtractedAsset,
         (render_device, pipeline): &mut SystemParamItem<Self::Param>,
     ) -> Result<Self::PreparedAsset, PrepareAssetError<Self::ExtractedAsset>> {
-
         let mut lights = [Light::default(); MAX_LIGHTS];
         for (i, light) in extracted_asset.lights.iter().enumerate() {
             lights[i] = *light;
@@ -73,7 +72,7 @@ impl RenderAsset for DaylightMaterial {
 
         let data = DaylightMaterialUniformData {
             color: extracted_asset.color.as_linear_rgba_f32().into(),
-            lights
+            lights,
         };
 
         let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
@@ -85,12 +84,10 @@ impl RenderAsset for DaylightMaterial {
         let bind_group = render_device.create_bind_group(&BindGroupDescriptor {
             label: None,
             layout: &&pipeline.material2d_layout,
-            entries: &[
-                BindGroupEntry {
-                    binding: 0,
-                    resource: buffer.as_entire_binding(),
-                },
-            ],
+            entries: &[BindGroupEntry {
+                binding: 0,
+                resource: buffer.as_entire_binding(),
+            }],
         });
         Ok(DaylightMaterialGPU { bind_group })
     }
@@ -104,20 +101,18 @@ impl Material2d for DaylightMaterial {
     fn bind_group_layout(render_device: &RenderDevice) -> BindGroupLayout {
         render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
             label: None,
-            entries: &[
-                BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: ShaderStages::FRAGMENT,
-                    ty: BindingType::Buffer {
-                        ty: BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: BufferSize::new(
-                            DaylightMaterialUniformData::std140_size_static() as u64,
-                        ),
-                    },
-                    count: None,
+            entries: &[BindGroupLayoutEntry {
+                binding: 0,
+                visibility: ShaderStages::FRAGMENT,
+                ty: BindingType::Buffer {
+                    ty: BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: BufferSize::new(
+                        DaylightMaterialUniformData::std140_size_static() as u64,
+                    ),
                 },
-            ],
+                count: None,
+            }],
         })
     }
 
