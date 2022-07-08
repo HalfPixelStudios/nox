@@ -18,7 +18,6 @@ impl Plugin for MainMenuPlugin {
 
 fn render_ui(mut cmd: Commands) {
     let context = BevyContext::new(|context| {
-
         let button_style = Style {
             width: StyleProp::Value(Units::Pixels(200.)),
             height: StyleProp::Value(Units::Pixels(50.)),
@@ -26,9 +25,13 @@ fn render_ui(mut cmd: Commands) {
         };
 
         let click_event = OnEvent::new(move |context, evt| {
-            context.query_world::<ResMut<State<AppState>>, _, ()>(|mut app_state| match evt.event_type {
-                EventType::Click(..) => { app_state.set(AppState::InGame).unwrap(); },
-                _ => {}
+            context.query_world::<ResMut<State<AppState>>, _, ()>(|mut app_state| {
+                match evt.event_type {
+                    EventType::Click(..) => {
+                        app_state.set(AppState::InGame).unwrap();
+                    }
+                    _ => {}
+                }
             });
         });
 
@@ -46,4 +49,3 @@ fn render_ui(mut cmd: Commands) {
 fn destroy_ui(mut cmd: Commands) {
     cmd.remove_resource::<BevyContext>();
 }
-

@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use kayak_ui::bevy::{BevyKayakUIPlugin, FontMapping, BevyContext};
+use kayak_ui::bevy::{BevyContext, BevyKayakUIPlugin, FontMapping};
 
-pub mod mainmenu;
-pub mod ingame;
 pub mod gameover;
+pub mod ingame;
+pub mod mainmenu;
 
 pub struct UIPlugin;
 
