@@ -4,7 +4,6 @@ use bevy::{
     math::Vec2,
     prelude::*,
 };
-use rand::{seq::SliceRandom, Rng};
 
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
@@ -203,15 +202,7 @@ fn player_attack(
         );
 
         // play attack sound
-        /*
-        if let Some(sound_file) = inventory
-            .primary_weapon
-            .attack_sounds
-            .choose(&mut rand::thread_rng())
-        {
-            writer.send(PlaySoundEvent(sound_file.clone()));
-        }
-        */
+        sound_writer.send(PlaySoundEvent::random_sound(prefab.attack_sounds.clone()));
     }
     local.timer.tick(time.delta());
 }
@@ -232,9 +223,11 @@ fn eat_weapon(
         }
 
         // play sound
-        let sounds = vec!["eat/eat1.wav", "eat/eat2.wav", "eat/eat3.wav"];
-        let sfx = sounds.choose(&mut rand::thread_rng()).unwrap();
-        writer.send(PlaySoundEvent(sfx.to_string()));
+        writer.send(PlaySoundEvent::random_sound(vec![
+            "eat/eat1.wav".into(),
+            "eat/eat2.wav".into(),
+            "eat/eat3.wav".into(),
+        ]));
     }
 }
 
@@ -263,9 +256,9 @@ fn handle_collision(
                 health.0 -= damage.0;
 
                 // play sound
-                if let Some(sound_file) = sound_emitter.pick_hurt_sound() {
-                    writer.send(PlaySoundEvent(sound_file.clone()));
-                }
+                writer.send(PlaySoundEvent::random_sound(
+                    sound_emitter.hurt_sounds.clone(),
+                ));
             }
         }
     }

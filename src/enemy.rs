@@ -1,7 +1,5 @@
 use bevy::{core::Stopwatch, math::Mat2, prelude::*};
 use bevy_rapier2d::prelude::*;
-use rand::prelude::*;
-use rand::{seq::SliceRandom, Rng};
 use std::f32::consts::PI;
 use std::time::Duration;
 
@@ -267,9 +265,9 @@ fn enemy_die_system(
                 transform.translation,
             );
 
-            if let Some(sound_file) = sound_emitter.pick_die_sound() {
-                writer.send(PlaySoundEvent(sound_file.clone()));
-            }
+            writer.send(PlaySoundEvent::random_sound(
+                sound_emitter.die_sounds.clone(),
+            ));
 
             cmd.entity(entity).despawn();
         }
@@ -293,9 +291,9 @@ fn handle_collision(
                 health.take(damage.0);
 
                 // play hit sound
-                if let Some(sound_file) = sound_emitter.pick_hurt_sound() {
-                    writer.send(PlaySoundEvent(sound_file.clone()));
-                }
+                writer.send(PlaySoundEvent::random_sound(
+                    sound_emitter.hurt_sounds.clone(),
+                ));
             }
         }
     }

@@ -18,6 +18,8 @@ pub struct EnemyPrefab {
     pub attack_range: f32,
     pub sprite_index: u32,
     pub sprite_color: (f32, f32, f32),
+    pub hurt_sounds: Vec<String>,
+    pub die_sounds: Vec<String>,
 }
 
 // PROJECTILE =-=-=-=-=-=-=
@@ -60,4 +62,5 @@ pub struct WeaponPrefab {
     pub projectile: String, // name of projectile that is fired (or inline definition)
     pub shoot_pattern: ShootPattern,
     pub attack_speed: f32, // time between consecutive attacks
+    pub attack_sounds: Vec<String>,
 }
