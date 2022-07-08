@@ -265,16 +265,15 @@ fn choose_drop_item(drops: &Drops) -> Option<String> {
         return None;
     }
     
-    let total_weight = drops.iter().fold(0, |acc, x| acc + x.weight);
     let mut rng = rand::thread_rng();
-    let choice = rng.gen_range(0..total_weight);
+    let choice = rng.gen_range(0..100);
 
     let mut cur_weight = 0;
     for drop in drops.iter() {
-        if cur_weight + drop.weight >= choice {
+        cur_weight += drop.chance;
+        if choice < cur_weight {
             return Some(drop.item_id.clone());
         }
-        cur_weight += drop.weight;
     }
 
     None

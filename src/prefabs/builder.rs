@@ -36,6 +36,11 @@ pub fn bullet_builder(cmd: &mut Commands, prefab: &BulletPrefab) -> Entity {
 pub fn enemy_builder(cmd: &mut Commands, prefab: &EnemyPrefab) -> Entity {
     let e = cmd.spawn().id();
 
+    // check that total drop chance do not exceed 100
+    if prefab.drops.iter().fold(0, |acc, x| acc + x.chance) > 100 {
+        panic!("total drop chance exceeds 100");
+    }
+
     cmd.entity(e)
         .insert_bundle(EnemyBundle {
             health: Health(prefab.health as i32),

@@ -11,7 +11,7 @@ pub enum AI {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Drop {
     pub item_id: String,
-    pub weight: u32,
+    pub chance: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

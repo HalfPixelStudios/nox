@@ -12,7 +12,7 @@
         drops: [
             Drop (
                 item_id: "steel_sword",
-                weight: 1,
+                chance: 50,
             ),
         ],
     )
