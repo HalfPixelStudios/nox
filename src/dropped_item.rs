@@ -17,7 +17,7 @@ pub struct SpawnDroppedItemEvent {
 pub struct DroppedItemPlugin;
 impl Plugin for DroppedItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(pickup_system);
+        app.add_event::<SpawnDroppedItemEvent>().add_system(pickup_system).add_system(spawn_dropped_item);
     }
 }
 
@@ -45,7 +45,6 @@ pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppe
             },
             texture_atlas: get_tileset(&assets, &mut texture_atlases),
             transform: Transform {
-                scale: Vec3::new(1.5, 1.5, 0.),
                 translation: spawn_pos.extend(0.),
                 ..default()
             },

@@ -43,6 +43,7 @@ pub fn enemy_builder(cmd: &mut Commands, prefab: &EnemyPrefab) -> Entity {
                 hurt_sounds: prefab.hurt_sounds.clone(),
                 die_sounds: prefab.die_sounds.clone(),
             },
+            drops: Drops(prefab.drops.clone()),
             ..default()
         })
         .insert(AttackPolicy::new(

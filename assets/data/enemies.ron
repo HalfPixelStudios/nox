@@ -9,5 +9,11 @@
         sprite_color: (0., 1., 0.),
         hurt_sounds: ["orc/hurt1.wav", "orc/hurt2.wav"],
         die_sounds: ["orc/die1.wav", "orc/die2.wav"],
+        drops: [
+            Drop (
+                item_id: "steel_sword",
+                weight: 1,
+            ),
+        ],
     )
 }

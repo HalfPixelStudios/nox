@@ -254,7 +254,8 @@ fn handle_collision(
         ) {
             // hit by bullet
             if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
-                health.0 -= damage.0;
+                // TEMP invulnerable
+                // health.0 -= damage.0;
 
                 // play sound
                 writer.send(PlaySoundEvent::random_sound(
