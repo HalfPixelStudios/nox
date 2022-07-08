@@ -2,8 +2,9 @@ use bevy::{core::Stopwatch, math::Mat2, prelude::*};
 use bevy_rapier2d::prelude::*;
 use std::f32::consts::PI;
 use std::time::Duration;
+use rand::{seq::SliceRandom, Rng};
 
-use super::{
+use crate::{
     assetloader::*,
     audio::{PlaySoundEvent, SoundEmitter},
     bullet::{Attacker, Bullet, SpawnBulletEvent},
@@ -12,9 +13,9 @@ use super::{
     config::AppState,
     physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
-    prefabs::{builder::enemy_builder, PrefabResource},
-    souls::*,
+    prefabs::{builder::enemy_builder, PrefabResource, models::*},
     weapon::*,
+    dropped_item::*,
 };
 
 pub struct SpawnEnemyEvent {
@@ -61,24 +62,11 @@ pub struct LoiterMovement {
 pub struct CircleMovement {}
 
 // dashes straight towards target
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct ChargeMovement {}
 
-#[derive(Component)]
-pub struct Drops {
-    pub name: i32,
-    pub frame: usize,
-    pub chance: f32,
-}
-impl Default for Drops {
-    fn default() -> Self {
-        Drops {
-            name: 0,
-            frame: 0,
-            chance: 0.,
-        }
-    }
-}
+#[derive(Component, Default, Deref, Clone)]
+pub struct Drops(pub Vec<Drop>);
 
 pub struct EnemyPlugin;
 
@@ -247,31 +235,48 @@ fn spawn_enemy_system(
 
 fn enemy_die_system(
     mut cmd: Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     query: Query<
         (Entity, &Health, &Transform, &Drops, &SoundEmitter),
         (With<Enemy>, Without<Decay>),
     >,
-    mut writer: EventWriter<PlaySoundEvent>,
+    mut sound_writer: EventWriter<PlaySoundEvent>,
+    mut dropped_item_writer: EventWriter<SpawnDroppedItemEvent>,
 ) {
     for (entity, health, transform, drops, sound_emitter) in query.iter() {
         if health.0 <= 0 {
-            spawn_drop(
-                &mut cmd,
-                &assets,
-                &mut texture_atlases,
-                &drops,
-                transform.translation,
-            );
+            
+            if let Some(dropped_item_id) = choose_drop_item(drops) {
+                dropped_item_writer.send(SpawnDroppedItemEvent { weapon_id: "steel_sword".into(), spawn_pos: transform.translation.truncate() });
+            }
 
-            writer.send(PlaySoundEvent::random_sound(
+            sound_writer.send(PlaySoundEvent::random_sound(
                 sound_emitter.die_sounds.clone(),
             ));
 
             cmd.entity(entity).despawn();
         }
     }
+}
+
+// TODO this could prob be done in a better way (probability strip)
+fn choose_drop_item(drops: &Drops) -> Option<String> {
+
+    if drops.len() == 0 {
+        return None;
+    }
+    
+    let mut rng = rand::thread_rng();
+    let choice = rng.gen_range(0..100);
+
+    let mut cur_weight = 0;
+    for drop in drops.iter() {
+        cur_weight += drop.chance;
+        if choice < cur_weight {
+            return Some(drop.item_id.clone());
+        }
+    }
+
+    None
 }
 
 fn handle_collision(

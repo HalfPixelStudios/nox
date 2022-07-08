@@ -1,8 +1,10 @@
 {
     "steel_sword": (
         projectile: "steel_sword_bullet",
-        shoot_pattern: Around ( shots: 12 ),
-        attack_speed: 1.,
-        attack_sounds: ["steel_sword/attack1.wav", "steel_sword/attack2/wav"],
+        shoot_pattern: Straight,
+        attack_speed: 0.2,
+        attack_sounds: ["steel_sword/attack1.wav", "steel_sword/attack2.wav"],
+        sprite_index: 282,
+        sprite_color: (1., 1., 1.),
     )
 }

@@ -20,7 +20,6 @@ use super::{
     inventory::InventoryResource,
     physics::{CollisionStartEvent, PhysicsBundle},
     prefabs::PrefabResource,
-    souls::*,
     weapon::*,
 };
 use bevy_tweening::{lens::*, *};
@@ -212,6 +211,7 @@ fn eat_weapon(
     mut inventory: ResMut<InventoryResource>,
     mut writer: EventWriter<PlaySoundEvent>,
 ) {
+    /*
     let mut health = player_query.single_mut();
     if !inventory.eaten {
         inventory.eaten = true;
@@ -229,6 +229,7 @@ fn eat_weapon(
             "eat/eat3.wav".into(),
         ]));
     }
+    */
 }
 
 fn player_die(mut app_state: ResMut<State<AppState>>, query: Query<&Health, With<Player>>) {
@@ -253,7 +254,8 @@ fn handle_collision(
         ) {
             // hit by bullet
             if let Ok(damage) = bullet_query.get_component::<Damage>(*other) {
-                health.0 -= damage.0;
+                // TEMP invulnerable
+                // health.0 -= damage.0;
 
                 // play sound
                 writer.send(PlaySoundEvent::random_sound(

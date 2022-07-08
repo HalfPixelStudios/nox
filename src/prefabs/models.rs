@@ -8,6 +8,12 @@ pub enum AI {
     Loiter { chaos: u32 },
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Drop {
+    pub item_id: String,
+    pub chance: u32,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct EnemyPrefab {
     pub display_name: Option<String>,
@@ -20,6 +26,7 @@ pub struct EnemyPrefab {
     pub sprite_color: (f32, f32, f32),
     pub hurt_sounds: Vec<String>,
     pub die_sounds: Vec<String>,
+    pub drops: Vec<Drop>,
 }
 
 // PROJECTILE =-=-=-=-=-=-=
@@ -63,4 +70,6 @@ pub struct WeaponPrefab {
     pub shoot_pattern: ShootPattern,
     pub attack_speed: f32, // time between consecutive attacks
     pub attack_sounds: Vec<String>,
+    pub sprite_index: u32,
+    pub sprite_color: (f32, f32, f32),
 }
