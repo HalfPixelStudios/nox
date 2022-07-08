@@ -14,16 +14,20 @@ pub struct SpawnDroppedItemEvent {
     pub spawn_pos: Vec2,
 }
 
+pub struct PickupItemEvent {
+    pub weapon_id: String
+}
+
 pub struct DroppedItemPlugin;
 impl Plugin for DroppedItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnDroppedItemEvent>().add_system(pickup_system).add_system(spawn_dropped_item);
+        app.add_event::<SpawnDroppedItemEvent>().add_event::<PickupItemEvent>().add_system(pickup_detection_system).add_system(spawn_dropped_item);
     }
 }
 
 #[derive(Component)]
 pub struct DroppedItem {
-    pub weapon_prefab: WeaponPrefab
+    pub weapon_id: String
 }
 
 pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppedItemEvent>, prefab_res: Res<PrefabResource>, assets: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
@@ -51,10 +55,35 @@ pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppe
             ..default()
         })
         .insert_bundle(PhysicsBundle::default())
+        .insert(DroppedItem { weapon_id: weapon_id.clone() })
         .insert(CollisionGroups::new(EQUIPABLE, EQUIPABLE));
     }
 }
 
-pub fn pickup_system() {
+pub fn pickup_detection_system(
+    mut cmd: Commands,
+    input: Res<Input<KeyCode>>,
+    item_query: Query<(Entity, &DroppedItem, &Transform), Without<Player>>,
+    player_query: Query<(&Transform, &Pickup), With<Player>>,
+    mut writer: EventWriter<PickupItemEvent>
+) {
+    if !input.just_pressed(KeyCode::E) {
+        return;
+    }
 
+    let (player_trans, pickup) = player_query.single();
+
+    // find closest item to pickup
+    let closest = item_query.iter().fold(None, |min, item@(_, dropped_item, item_trans)| {
+        if player_trans.translation.truncate().distance(item_trans.translation.truncate()) <= pickup.range {
+            Some(item)
+        } else {
+            min
+        }
+    });
+
+    if let Some((e, dropped_item, _)) = closest {
+        writer.send(PickupItemEvent { weapon_id: dropped_item.weapon_id.clone() });
+        cmd.entity(e).despawn();
+    }
 }

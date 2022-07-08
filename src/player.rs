@@ -32,6 +32,11 @@ pub struct Movement {
     pub speed: f32,
 }
 
+#[derive(Component)]
+pub struct Pickup {
+    pub range: f32,
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -124,6 +129,7 @@ fn spawn_player(
         direction: Dir::RIGHT,
     })
     .insert(Animatable)
+    .insert(Pickup{ range: 100. })
     .insert(CameraFollow)
     .insert(AnimationTimer(Timer::from_seconds(0.05, true)))
     .insert(Animator::new(rot_tween))
