@@ -8,7 +8,7 @@ use crate::shaders;
 
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
-    physics, player, prefabs, screens, souls, spawn_waves, worldgen,
+    physics, player, prefabs, screens, dropped_item, spawn_waves, worldgen,
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -59,7 +59,7 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(inventory::InventoryPlugin)
         .add_plugin(screens::UIPlugin)
         .add_plugin(shaders::ShaderPlugin)
-        .add_plugin(souls::ItemPlugin);
+        .add_plugin(dropped_item::DroppedItemPlugin);
 
     // loose systems
     app.add_system(component_animator_system::<TextureAtlasSprite>)

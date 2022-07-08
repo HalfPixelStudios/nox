@@ -63,4 +63,6 @@ pub struct WeaponPrefab {
     pub shoot_pattern: ShootPattern,
     pub attack_speed: f32, // time between consecutive attacks
     pub attack_sounds: Vec<String>,
+    pub sprite_index: u32,
+    pub sprite_color: (f32, f32, f32),
 }

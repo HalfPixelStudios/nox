@@ -2,6 +2,7 @@ use bevy::{core::Stopwatch, math::Mat2, prelude::*};
 use bevy_rapier2d::prelude::*;
 use std::f32::consts::PI;
 use std::time::Duration;
+use rand::{seq::SliceRandom, Rng};
 
 use super::{
     assetloader::*,
@@ -13,7 +14,6 @@ use super::{
     physics::{CollisionStartEvent, PhysicsBundle},
     player::Player,
     prefabs::{builder::enemy_builder, PrefabResource},
-    souls::*,
     weapon::*,
 };
 
@@ -257,6 +257,7 @@ fn enemy_die_system(
 ) {
     for (entity, health, transform, drops, sound_emitter) in query.iter() {
         if health.0 <= 0 {
+            /*
             spawn_drop(
                 &mut cmd,
                 &assets,
@@ -264,6 +265,7 @@ fn enemy_die_system(
                 &drops,
                 transform.translation,
             );
+            */
 
             writer.send(PlaySoundEvent::random_sound(
                 sound_emitter.die_sounds.clone(),
