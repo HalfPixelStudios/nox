@@ -8,6 +8,8 @@ use bevy::{
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
 use bevy_rapier2d::prelude::*;
 
+use crate::dropped_item::PickupItemEvent;
+
 use super::{
     animator::*,
     assetloader::get_tileset,
@@ -30,6 +32,11 @@ pub struct Player;
 #[derive(Component)]
 pub struct Movement {
     pub speed: f32,
+}
+
+#[derive(Component)]
+pub struct Pickup {
+    pub range: f32,
 }
 
 pub struct PlayerPlugin;
@@ -124,6 +131,7 @@ fn spawn_player(
         direction: Dir::RIGHT,
     })
     .insert(Animatable)
+    .insert(Pickup{ range: 20. })
     .insert(CameraFollow)
     .insert(AnimationTimer(Timer::from_seconds(0.05, true)))
     .insert(Animator::new(rot_tween))
@@ -209,18 +217,23 @@ fn player_attack(
 fn eat_weapon(
     mut player_query: Query<&mut Health, With<Player>>,
     mut inventory: ResMut<InventoryResource>,
+    prefabs: Res<PrefabResource>,
+    mut events: EventReader<PickupItemEvent>,
     mut writer: EventWriter<PlaySoundEvent>,
 ) {
-    /*
     let mut health = player_query.single_mut();
-    if !inventory.eaten {
-        inventory.eaten = true;
-        match inventory.eat_rarity {
-            Rarity::COMMON => health.0 += 10,
-            Rarity::UNCOMMON => health.0 += 30,
-            Rarity::RARE => health.0 += 50,
-            Rarity::MYTHIC => health.0 += 100,
+
+    for PickupItemEvent { weapon_id } in events.iter() {
+        inventory.primary_weapon = weapon_id.clone();
+
+        let prefab = prefabs.get_weapon(weapon_id);
+        if prefab.is_none() {
+            warn!("unable to fetch weapon prefab: {}", weapon_id);
+            continue;
         }
+        let prefab = prefab.unwrap();
+
+        health.heal(prefab.heal_amount);
 
         // play sound
         writer.send(PlaySoundEvent::random_sound(vec![
@@ -229,7 +242,6 @@ fn eat_weapon(
             "eat/eat3.wav".into(),
         ]));
     }
-    */
 }
 
 fn player_die(mut app_state: ResMut<State<AppState>>, query: Query<&Health, With<Player>>) {
