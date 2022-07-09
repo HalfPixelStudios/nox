@@ -5,7 +5,7 @@ use rand::prelude::*;
 use std::time::Duration;
 
 use crate::{
-    animator::*, assetloader::get_tileset, collision_group::*, component::*, enemy::*,
+    animator::*, assetloader::*, collision_group::*, component::*, enemy::*,
     inventory::*, physics::PhysicsBundle, player::*, prefabs::{models::WeaponPrefab, PrefabResource}
 };
 
@@ -26,7 +26,7 @@ pub struct DroppedItem {
     pub weapon_prefab: WeaponPrefab
 }
 
-pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppedItemEvent>, prefab_res: Res<PrefabResource>, assets: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppedItemEvent>, prefab_res: Res<PrefabResource>, char_sheet:Res<CharSheet>) {
 
     for SpawnDroppedItemEvent { weapon_id, spawn_pos } in events.iter() {
 
@@ -43,7 +43,7 @@ pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppe
                 color: Color::rgb(prefab.sprite_color.0, prefab.sprite_color.1, prefab.sprite_color.2), // TODO hella ugly
                 ..default()
             },
-            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            texture_atlas: char_sheet.0.clone(),
             transform: Transform {
                 translation: spawn_pos.extend(0.),
                 ..default()

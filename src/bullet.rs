@@ -136,8 +136,7 @@ fn spawn_bullet_system(
     mut cmds: Commands,
     mut events: EventReader<SpawnBulletEvent>,
     prefab_res: Res<PrefabResource>,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    char_sheet: Res<CharSheet>
 ) {
     for SpawnBulletEvent {
         bullet_id,
@@ -166,7 +165,7 @@ fn spawn_bullet_system(
                     ),
                     ..default()
                 },
-                texture_atlas: get_tileset(&assets, &mut texture_atlases),
+                texture_atlas: char_sheet.0.clone(), 
                 transform: Transform {
                     translation: spawn_pos.clone(),
                     // TODO do proper rotation offset

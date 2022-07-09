@@ -1,14 +1,14 @@
-use bevy::{prelude::*, window::*};
+use bevy::prelude::*;
 use bevy_hanabi::*;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
-use bevy_tweening::{lens::*, *};
+use bevy_tweening::*;
 
 use crate::shaders;
 
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
-    physics, player, prefabs, screens, dropped_item, spawn_waves, worldgen,
+    physics, player, prefabs, screens, dropped_item, spawn_waves, worldgen,assetloader
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -49,6 +49,7 @@ pub fn run_app(app_config: AppConfig) {
 
     // internal plugins
     app.add_plugin(prefabs::PrefabPlugin)
+        .add_plugin(assetloader::AssetLoadPlugin)
         .add_plugin(player::PlayerPlugin)
         .add_plugin(enemy::EnemyPlugin)
         .add_plugin(bullet::BulletPlugin)

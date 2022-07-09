@@ -196,8 +196,7 @@ fn spawn_enemy_system(
     mut cmd: Commands,
     prefabs: Res<PrefabResource>,
     mut events: EventReader<SpawnEnemyEvent>,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    char_sheet: Res<CharSheet>
 ) {
     for SpawnEnemyEvent {
         enemy_id,
@@ -223,7 +222,7 @@ fn spawn_enemy_system(
                 ),
                 ..default()
             },
-            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            texture_atlas: char_sheet.0.clone(),
             transform: Transform {
                 translation: spawn_pos.extend(0.),
                 ..default()
