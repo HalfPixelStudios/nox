@@ -8,7 +8,8 @@ use crate::shaders;
 
 use super::{
     animator, audio, bullet, camera, component, config::AppState, enemy, inventory, particles,
-    physics, player, prefabs, screens, dropped_item, spawn_waves, worldgen,assetloader
+
+    physics, player, prefabs, screens, dropped_item, spawn_waves, worldgen,assetloader,ui
 };
 
 fn setup(mut rapier_config: ResMut<RapierConfiguration>) {
@@ -60,6 +61,7 @@ pub fn run_app(app_config: AppConfig) {
         .add_plugin(inventory::InventoryPlugin)
         .add_plugin(screens::UIPlugin)
         .add_plugin(shaders::ShaderPlugin)
+        .add_plugins(ui::UIPluginGroup)
         .add_plugin(dropped_item::DroppedItemPlugin);
 
     // loose systems

@@ -14,16 +14,26 @@ pub struct SpawnDroppedItemEvent {
     pub spawn_pos: Vec2,
 }
 
+#[derive(Default)]
+pub struct ClosestItemResource {
+    pub entity: Option<Entity>
+}
+
+pub struct PickupItemEvent {
+    pub weapon_id: String
+}
+
 pub struct DroppedItemPlugin;
+
 impl Plugin for DroppedItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnDroppedItemEvent>().add_system(pickup_system).add_system(spawn_dropped_item);
+        app.add_event::<SpawnDroppedItemEvent>().add_event::<PickupItemEvent>().insert_resource(ClosestItemResource::default()).add_system(pickup_system).add_system(spawn_dropped_item);
     }
 }
 
 #[derive(Component)]
 pub struct DroppedItem {
-    pub weapon_prefab: WeaponPrefab
+    pub weapon_id: String
 }
 
 pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppedItemEvent>, prefab_res: Res<PrefabResource>, char_sheet:Res<CharSheet>) {
@@ -51,10 +61,37 @@ pub fn spawn_dropped_item(mut cmd: Commands, mut events: EventReader<SpawnDroppe
             ..default()
         })
         .insert_bundle(PhysicsBundle::default())
+        .insert(DroppedItem { weapon_id: weapon_id.clone() })
         .insert(CollisionGroups::new(EQUIPABLE, EQUIPABLE));
     }
 }
 
-pub fn pickup_system() {
+pub fn pickup_system(
+    mut cmd: Commands,
+    input: Res<Input<KeyCode>>,
+    item_query: Query<(Entity, &DroppedItem, &Transform), Without<Player>>,
+    player_query: Query<(&Transform, &Pickup), With<Player>>,
+    mut writer: EventWriter<PickupItemEvent>,
+    mut closest_item: ResMut<ClosestItemResource>,
+) {
+    let (player_trans, pickup) = player_query.single();
+
+    // find closest item to pickup
+    let closest = item_query.iter().fold(None, |min, item@(_, _, item_trans)| {
+        if player_trans.translation.truncate().distance(item_trans.translation.truncate()) <= pickup.range {
+            Some(item)
+        } else {
+            min
+        }
+    });
+
+    if input.just_pressed(KeyCode::E) {
+        if let Some((e, dropped_item, _)) = closest {
+            writer.send(PickupItemEvent { weapon_id: dropped_item.weapon_id.clone() });
+            cmd.entity(e).despawn();
+        }
+    }
+
+    closest_item.entity = if let Some((e, _, _)) = closest { Some(e) } else { None };
 
 }

@@ -72,4 +72,5 @@ pub struct WeaponPrefab {
     pub attack_sounds: Vec<String>,
     pub sprite_index: u32,
     pub sprite_color: (f32, f32, f32),
+    pub heal_amount: u32,
 }
