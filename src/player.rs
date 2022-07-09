@@ -12,7 +12,7 @@ use crate::dropped_item::PickupItemEvent;
 
 use super::{
     animator::*,
-    assetloader::get_tileset,
+    assetloader::CharSheet,
     audio::{PlaySoundEvent, SoundEmitter},
     bullet::{Attacker, Bullet, SpawnBulletEvent},
     camera::{CameraFollow, Cursor},
@@ -86,8 +86,7 @@ impl Default for PlayerBundle {
 
 fn spawn_player(
     mut cmd: Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    char_sheet:Res<CharSheet>
 ) {
     let tween = Tween::new(
         EaseFunction::SineInOut,
@@ -116,7 +115,7 @@ fn spawn_player(
                 index: 25,
                 ..default()
             },
-            texture_atlas: get_tileset(&assets, &mut texture_atlases),
+            texture_atlas: char_sheet.0.clone(),
             transform: Transform { ..default() },
             ..default()
         },

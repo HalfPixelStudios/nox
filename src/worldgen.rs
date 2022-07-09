@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::{seq::SliceRandom, Rng};
 
-use super::assetloader::get_tileset;
+use super::assetloader::CharSheet;
 
 pub struct WorldgenPlugin;
 
@@ -13,14 +13,13 @@ impl Plugin for WorldgenPlugin {
 
 fn generate_world(
     mut cmd: Commands,
-    assets: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    char_sheet:Res<CharSheet>
 ) {
     const GRID_SIZE: f32 = 20.;
     const SPAWN_CHANCE: u32 = 100;
 
     let forest_trees: Vec<usize> = vec![50, 51, 52, 53, 54];
-    let tileset_handle = get_tileset(&assets, &mut texture_atlases);
+    let tileset_handle = char_sheet.0.clone();
 
     let root_entity = cmd.spawn().insert(Name::new("Environment")).id();
 
